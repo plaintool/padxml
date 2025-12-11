@@ -5,7 +5,7 @@ unit padformat;
 interface
 
 uses
-  Classes, SysUtils, DOM, XMLRead, XMLWrite, TypInfo;
+  Classes, SysUtils, DOM, XMLRead, XMLWrite, TypInfo, StrUtils;
 
 type
   // Enumerations for PAD standard values
@@ -17,19 +17,23 @@ type
     );
 
   TPadProgramType = (
+    pptNone,
     pptShareware,
     pptFreeware,
+    pptAdware,
     pptDemo,
-    pptTrial,
-    pptCommercial
+    pptCommercial,
+    pptDataOnly
     );
 
   TPadReleaseStatus = (
+    prsNone,
+    prsMajorUpdate,
+    prsMinorUpdate,
+    prsNewRelease,
     prsBeta,
-    prsShareware,
-    prsFreeware,
-    prsDemo,
-    prsTrial
+    prsAlpha,
+    prsMediaOnly
     );
 
   TPadExpireBasedOn = (
@@ -37,12 +41,6 @@ type
     pebRuns,
     pebDate,
     pebOther
-    );
-
-  TPadDistributionPermission = (
-    pdpFree,
-    pdpRestricted,
-    pdpProhibited
     );
 
   // Language support - this will be a set
@@ -110,11 +108,11 @@ type
   { TPadMasterVersionInfo }
   TPadMasterVersionInfo = class(TPersistent)
   private
-    FMasterPadVersion: double;
+    FMasterPadVersion: string;
     FMasterPadEditor: string;
     FMasterPadInfo: string;
   published
-    property MasterPadVersion: double read FMasterPadVersion write FMasterPadVersion;
+    property MasterPadVersion: string read FMasterPadVersion write FMasterPadVersion;
     property MasterPadEditor: string read FMasterPadEditor write FMasterPadEditor;
     property MasterPadInfo: string read FMasterPadInfo write FMasterPadInfo;
   end;
@@ -386,23 +384,21 @@ type
   { TPadPermissions }
   TPadPermissions = class(TPersistent)
   private
-    FDistributionPermissions: TPadDistributionPermission;
+    FDistributionPermissions: string;
     FEULA: string;
-    function GetDistributionPermissionsAsString: string;
-    procedure SetDistributionPermissionsAsString(const Value: string);
   published
-    property DistributionPermissions: TPadDistributionPermission read FDistributionPermissions write FDistributionPermissions;
-    property DistributionPermissionsAsString: string read GetDistributionPermissionsAsString write SetDistributionPermissionsAsString;
+    property DistributionPermissions: string read FDistributionPermissions write FDistributionPermissions;
+    property DistributionPermissionsAsString: string read FDistributionPermissions write FDistributionPermissions;
     property EULA: string read FEULA write FEULA;
   end;
 
   { TPadASP }
   TPadASP = class(TPersistent)
   private
-    FASPMember: string;
+    FASPMember: boolean;
     FASPMemberNumber: word;
   published
-    property ASPMember: string read FASPMember write FASPMember;
+    property ASPMember: boolean read FASPMember write FASPMember;
     property ASPMemberNumber: word read FASPMemberNumber write FASPMemberNumber;
   end;
 
@@ -457,9 +453,6 @@ function StringToPadReleaseStatus(const Value: string): TPadReleaseStatus;
 
 function PadExpireBasedOnToString(Value: TPadExpireBasedOn): string;
 function StringToPadExpireBasedOn(const Value: string): TPadExpireBasedOn;
-
-function PadDistributionPermissionToString(Value: TPadDistributionPermission): string;
-function StringToPadDistributionPermission(const Value: string): TPadDistributionPermission;
 
 function PadOSSupportToString(Value: TPadOSSupport): string;
 function StringToPadOSSupport(const Value: string): TPadOSSupport;
@@ -595,18 +588,6 @@ begin
   inherited Destroy;
 end;
 
-{ TPadPermissions }
-
-function TPadPermissions.GetDistributionPermissionsAsString: string;
-begin
-  Result := PadDistributionPermissionToString(FDistributionPermissions);
-end;
-
-procedure TPadPermissions.SetDistributionPermissionsAsString(const Value: string);
-begin
-  FDistributionPermissions := StringToPadDistributionPermission(Value);
-end;
-
 { TPadFormat }
 
 constructor TPadFormat.Create(AOwner: TComponent);
@@ -668,7 +649,8 @@ begin
       Node := RootNode.FindNode('MASTER_PAD_VERSION_INFO');
       if Assigned(Node) then
       begin
-        FMasterPadVersionInfo.MasterPadVersion := StrToFloatDef(GetNodeValue(Node, 'MASTER_PAD_VERSION'), 0);
+        FMasterPadVersionInfo.MasterPadVersion :=
+          GetNodeValue(Node, 'MASTER_PAD_VERSION');
         FMasterPadVersionInfo.MasterPadEditor :=
           GetNodeValue(Node, 'MASTER_PAD_EDITOR');
         FMasterPadVersionInfo.MasterPadInfo :=
@@ -713,11 +695,24 @@ begin
           FCompanyInfo.SupportInfo.FaxPhone := GetNodeValue(SubNode, 'Fax_Phone');
         end;
 
+        // Social media pages
         FCompanyInfo.GooglePlusPage := GetNodeValue(Node, 'GooglePlusPage');
         FCompanyInfo.LinkedinPage := GetNodeValue(Node, 'LinkedinPage');
         FCompanyInfo.TwitterCompanyPage := GetNodeValue(Node, 'TwitterCompanyPage');
         FCompanyInfo.FacebookCompanyPage := GetNodeValue(Node, 'FacebookCompanyPage');
         FCompanyInfo.CompanyStorePage := GetNodeValue(Node, 'CompanyStorePage');
+      end;
+
+      // News Feed
+      Node := RootNode.FindNode('NewsFeed');
+      if Assigned(Node) then
+      begin
+        FNewsFeed.NewsFeedFeedURL := GetNodeValue(Node, 'NewsFeed_Feed_URL');
+        FNewsFeed.NewsFeedType := GetNodeValue(Node, 'NewsFeed_Type');
+        FNewsFeed.NewsFeedTitle := GetNodeValue(Node, 'NewsFeed_Title');
+        FNewsFeed.NewsFeedKeywords := GetNodeValue(Node, 'NewsFeed_Keywords');
+        FNewsFeed.NewsFeedDescription70 := GetNodeValue(Node, 'NewsFeed_Description_70');
+        FNewsFeed.NewsFeedDescription250 := GetNodeValue(Node, 'NewsFeed_Description_250');
       end;
 
       // Load Program Info
@@ -758,7 +753,7 @@ begin
         SubNode := Node.FindNode('Expire_Info');
         if Assigned(SubNode) then
         begin
-          FProgramInfo.ExpireInfo.HasExpireInfo := StrToBoolDef(GetNodeValue(SubNode, 'Has_Expire_Info'), False);
+          FProgramInfo.ExpireInfo.HasExpireInfo := UpperCase(GetNodeValue(SubNode, 'Has_Expire_Info')) = 'Y';
           FProgramInfo.ExpireInfo.ExpireCount := StrToIntDef(GetNodeValue(SubNode, 'Expire_Count'), 0);
           FProgramInfo.ExpireInfo.ExpireBasedOnAsString := GetNodeValue(SubNode, 'Expire_Based_On');
           FProgramInfo.ExpireInfo.ExpireOtherInfo := GetNodeValue(SubNode, 'Expire_Other_Info');
@@ -822,7 +817,7 @@ begin
       Node := RootNode.FindNode('ASP');
       if Assigned(Node) then
       begin
-        FASP.ASPMember := GetNodeValue(Node, 'ASP_Member');
+        FASP.ASPMember := UpperCase(GetNodeValue(Node, 'ASP_Member')) = 'Y';
         FASP.ASPMemberNumber := StrToIntDef(GetNodeValue(Node, 'ASP_Member_Number'), 0);
       end;
 
@@ -849,7 +844,7 @@ begin
     // Master Pad Version Info
     Node := AddChildNode(RootNode, 'MASTER_PAD_VERSION_INFO');
     SetNodeText(Doc, Node, 'MASTER_PAD_VERSION',
-      FloatToStr(FMasterPadVersionInfo.MasterPadVersion));
+      FMasterPadVersionInfo.MasterPadVersion);
     SetNodeText(Doc, Node, 'MASTER_PAD_EDITOR',
       FMasterPadVersionInfo.MasterPadEditor);
     SetNodeText(Doc, Node, 'MASTER_PAD_INFO',
@@ -961,7 +956,7 @@ begin
     // Expire Info
     SubNode := AddChildNode(Node, 'Expire_Info');
     SetNodeText(Doc, SubNode, 'Has_Expire_Info',
-      BoolToStr(FProgramInfo.ExpireInfo.HasExpireInfo, True));
+      BoolToStr(FProgramInfo.ExpireInfo.HasExpireInfo, 'Y', ''));
     SetNodeText(Doc, SubNode, 'Expire_Count',
       IntToStr(FProgramInfo.ExpireInfo.ExpireCount));
     SetNodeText(Doc, SubNode, 'Expire_Based_On',
@@ -969,11 +964,11 @@ begin
     SetNodeText(Doc, SubNode, 'Expire_Other_Info',
       FProgramInfo.ExpireInfo.ExpireOtherInfo);
     SetNodeText(Doc, SubNode, 'Expire_Month',
-      IntToStr(FProgramInfo.ExpireInfo.ExpireMonth));
+      IfThen(FProgramInfo.ExpireInfo.ExpireMonth = 0, '', IntToStr(FProgramInfo.ExpireInfo.ExpireMonth)));
     SetNodeText(Doc, SubNode, 'Expire_Day',
-      IntToStr(FProgramInfo.ExpireInfo.ExpireDay));
+      IfThen(FProgramInfo.ExpireInfo.ExpireDay = 0, '', IntToStr(FProgramInfo.ExpireInfo.ExpireDay)));
     SetNodeText(Doc, SubNode, 'Expire_Year',
-      IntToStr(FProgramInfo.ExpireInfo.ExpireYear));
+      IfThen(FProgramInfo.ExpireInfo.ExpireYear = 0, '', IntToStr(FProgramInfo.ExpireInfo.ExpireYear)));
 
     // Program Descriptions
     Node := AddChildNode(RootNode, 'Program_Descriptions');
@@ -1023,7 +1018,7 @@ begin
 
     // ASP
     Node := AddChildNode(RootNode, 'ASP');
-    SetNodeText(Doc, Node, 'ASP_Member', FASP.ASPMember);
+    SetNodeText(Doc, Node, 'ASP_Member', BoolToStr(FASP.ASPMember, 'Y', ''));
     SetNodeText(Doc, Node, 'ASP_Member_Number',
       IntToStr(FASP.ASPMemberNumber));
 
@@ -1043,9 +1038,10 @@ end;
 procedure TPadFormat.Clear;
 begin
   // Clear all properties to default values
-  FMasterPadVersionInfo.MasterPadVersion := 4.0;
+  FMasterPadVersionInfo.MasterPadVersion := '4.0';
   FMasterPadVersionInfo.MasterPadEditor := '';
-  FMasterPadVersionInfo.MasterPadInfo := '';
+  FMasterPadVersionInfo.MasterPadInfo :=
+    'Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://www.asp-shareware.org/pad';
 
   // Clear Company Info
   FCompanyInfo.CompanyName := '';
@@ -1099,7 +1095,7 @@ begin
   FProgramInfo.ProgramCostOtherCode := '';
   FProgramInfo.ProgramCostOther := 0;
   FProgramInfo.ProgramType := pptShareware;
-  FProgramInfo.ProgramReleaseStatus := prsShareware;
+  FProgramInfo.ProgramReleaseStatus := prsNewRelease;
   FProgramInfo.ProgramInstallSupport := pisInstallAndUninstall;
   FProgramInfo.ProgramOSSupport := [];
   FProgramInfo.ProgramLanguage := [];
@@ -1143,11 +1139,11 @@ begin
   FWebInfo.DownloadURLs.AdditionalDownloadURL2 := '';
 
   // Clear Permissions
-  FPermissions.DistributionPermissions := pdpFree;
+  FPermissions.DistributionPermissions := '';
   FPermissions.EULA := '';
 
   // Clear ASP
-  FASP.ASPMember := '';
+  FASP.ASPMember := False;
   FASP.ASPMemberNumber := 0;
 end;
 
@@ -1207,11 +1203,13 @@ end;
 function PadProgramTypeToString(Value: TPadProgramType): string;
 begin
   case Value of
+    pptNone: Result := '';
     pptShareware: Result := 'Shareware';
     pptFreeware: Result := 'Freeware';
+    pptAdware: Result := 'Adware';
     pptDemo: Result := 'Demo';
-    pptTrial: Result := 'Trial';
     pptCommercial: Result := 'Commercial';
+    pptDataOnly: Result := 'Data Only';
   end;
 end;
 
@@ -1221,12 +1219,14 @@ begin
     Result := pptShareware
   else if Value = 'Freeware' then
     Result := pptFreeware
+  else if Value = 'Adware' then
+    Result := pptAdware
   else if Value = 'Demo' then
     Result := pptDemo
-  else if Value = 'Trial' then
-    Result := pptTrial
   else if Value = 'Commercial' then
     Result := pptCommercial
+  else if Value = 'Data Only' then
+    Result := pptDataOnly
   else
     Result := pptShareware; // Default
 end;
@@ -1234,28 +1234,31 @@ end;
 function PadReleaseStatusToString(Value: TPadReleaseStatus): string;
 begin
   case Value of
+    prsMajorUpdate: Result := 'Major Update';
+    prsMinorUpdate: Result := 'Minor Update';
+    prsNewRelease: Result := 'New Release';
     prsBeta: Result := 'Beta';
-    prsShareware: Result := 'Shareware';
-    prsFreeware: Result := 'Freeware';
-    prsDemo: Result := 'Demo';
-    prsTrial: Result := 'Trial';
+    prsAlpha: Result := 'Alpha';
+    prsMediaOnly: Result := 'Media Only';
   end;
 end;
 
 function StringToPadReleaseStatus(const Value: string): TPadReleaseStatus;
 begin
-  if Value = 'Beta' then
+  if Value = 'Major Update' then
+    Result := prsMajorUpdate
+  else if Value = 'Minor Update' then
+    Result := prsMinorUpdate
+  else if Value = 'New Release' then
+    Result := prsNewRelease
+  else if Value = 'Beta' then
     Result := prsBeta
-  else if Value = 'Shareware' then
-    Result := prsShareware
-  else if Value = 'Freeware' then
-    Result := prsFreeware
-  else if Value = 'Demo' then
-    Result := prsDemo
-  else if Value = 'Trial' then
-    Result := prsTrial
+  else if Value = 'Alpha' then
+    Result := prsAlpha
+  else if Value = 'Media Only' then
+    Result := prsMediaOnly
   else
-    Result := prsShareware; // Default
+    Result := prsNewRelease; // Default
 end;
 
 function PadExpireBasedOnToString(Value: TPadExpireBasedOn): string;
@@ -1282,34 +1285,21 @@ begin
     Result := pebDays; // Default
 end;
 
-function PadDistributionPermissionToString(Value: TPadDistributionPermission): string;
+function StringToPadDistributionPermission(const Value: string): string;
 begin
-  case Value of
-    pdpFree: Result := 'Free';
-    pdpRestricted: Result := 'Restricted';
-    pdpProhibited: Result := 'Prohibited';
-  end;
-end;
-
-function StringToPadDistributionPermission(const Value: string): TPadDistributionPermission;
-begin
-  if Value = 'Free' then
-    Result := pdpFree
-  else if Value = 'Restricted' then
-    Result := pdpRestricted
-  else if Value = 'Prohibited' then
-    Result := pdpProhibited
-  else
-    Result := pdpFree; // Default
+  Result := Value;
 end;
 
 function PadOSSupportToString(Value: TPadOSSupport): string;
 var
-  OS: TPadOS;
   List: TStringList;
+  OS: TPadOS;
 begin
   List := TStringList.Create;
   try
+    List.Delimiter := ',';
+    List.StrictDelimiter := True;
+
     for OS := Low(TPadOS) to High(TPadOS) do
     begin
       if OS in Value then
@@ -1335,7 +1325,8 @@ begin
         end;
       end;
     end;
-    Result := List.CommaText;
+
+    Result := List.DelimitedText;
   finally
     List.Free;
   end;
@@ -1343,52 +1334,68 @@ end;
 
 function StringToPadOSSupport(const Value: string): TPadOSSupport;
 var
-  List: TStringList;
+  OSList: TStringList;
   i: integer;
+  OSStr: string;
 begin
   Result := [];
-  List := TStringList.Create;
+  OSList := TStringList.Create;
   try
-    List.CommaText := Value;
-    for i := 0 to List.Count - 1 do
+    // Handle the value - it might be a single OS or comma-separated list
+    if Pos(',', Value) > 0 then
     begin
-      if List[i] = 'Windows 95' then
-        Include(Result, posWindows95)
-      else if List[i] = 'Windows 98' then
-        Include(Result, posWindows98)
-      else if List[i] = 'Windows ME' then
-        Include(Result, posWindowsME)
-      else if List[i] = 'Windows NT' then
-        Include(Result, posWindowsNT)
-      else if List[i] = 'Windows 2000' then
-        Include(Result, posWindows2000)
-      else if List[i] = 'Windows XP' then
-        Include(Result, posWindowsXP)
-      else if List[i] = 'Windows Vista' then
-        Include(Result, posWindowsVista)
-      else if List[i] = 'Windows 7' then
-        Include(Result, posWindows7)
-      else if List[i] = 'Windows 8' then
-        Include(Result, posWindows8)
-      else if List[i] = 'Windows 10' then
+      // Comma-separated list
+      OSList.CommaText := Value;
+    end
+    else
+    begin
+      // Single value
+      OSList.Add(Trim(Value));
+    end;
+
+    for i := 0 to OSList.Count - 1 do
+    begin
+      OSStr := Trim(OSList[i]);
+
+      // Check for Windows versions (case insensitive)
+      if SameText(OSStr, 'Windows 10') or SameText(OSStr, 'Win10') or SameText(OSStr, 'Windows10') then
         Include(Result, posWindows10)
-      else if List[i] = 'Windows 11' then
+      else if SameText(OSStr, 'Windows 11') or SameText(OSStr, 'Win11') or SameText(OSStr, 'Windows11') then
         Include(Result, posWindows11)
-      else if List[i] = 'Mac OS' then
+      else if SameText(OSStr, 'Windows 8') or SameText(OSStr, 'Win8') or SameText(OSStr, 'Windows8') then
+        Include(Result, posWindows8)
+      else if SameText(OSStr, 'Windows 7') or SameText(OSStr, 'Win7') or SameText(OSStr, 'Windows7') then
+        Include(Result, posWindows7)
+      else if SameText(OSStr, 'Windows Vista') or SameText(OSStr, 'WinVista') or SameText(OSStr, 'WindowsVista') then
+        Include(Result, posWindowsVista)
+      else if SameText(OSStr, 'Windows XP') or SameText(OSStr, 'WinXP') or SameText(OSStr, 'WindowsXP') then
+        Include(Result, posWindowsXP)
+      else if SameText(OSStr, 'Windows 2000') or SameText(OSStr, 'Win2000') or SameText(OSStr, 'Win2K') or
+        SameText(OSStr, 'Windows2000') then
+        Include(Result, posWindows2000)
+      else if SameText(OSStr, 'Windows NT') or SameText(OSStr, 'WinNT') or SameText(OSStr, 'WindowsNT') then
+        Include(Result, posWindowsNT)
+      else if SameText(OSStr, 'Windows ME') or SameText(OSStr, 'WinME') or SameText(OSStr, 'WindowsME') then
+        Include(Result, posWindowsME)
+      else if SameText(OSStr, 'Windows 98') or SameText(OSStr, 'Win98') or SameText(OSStr, 'Windows98') then
+        Include(Result, posWindows98)
+      else if SameText(OSStr, 'Windows 95') or SameText(OSStr, 'Win95') or SameText(OSStr, 'Windows95') then
+        Include(Result, posWindows95)
+      else if SameText(OSStr, 'Mac OS') or SameText(OSStr, 'MacOS') or SameText(OSStr, 'Mac') then
         Include(Result, posMacOS)
-      else if List[i] = 'Linux' then
+      else if SameText(OSStr, 'Linux') then
         Include(Result, posLinux)
-      else if List[i] = 'Unix' then
+      else if SameText(OSStr, 'Unix') then
         Include(Result, posUnix)
-      else if List[i] = 'DOS' then
+      else if SameText(OSStr, 'DOS') then
         Include(Result, posDOS)
-      else if List[i] = 'OS/2' then
+      else if SameText(OSStr, 'OS/2') or SameText(OSStr, 'OS2') then
         Include(Result, posOS2)
-      else if List[i] = 'Other' then
+      else if SameText(OSStr, 'Other') then
         Include(Result, posOther);
     end;
   finally
-    List.Free;
+    OSList.Free;
   end;
 end;
 

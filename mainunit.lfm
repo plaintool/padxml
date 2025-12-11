@@ -1,9 +1,28 @@
 object Form1: TForm1
   Left = 318
-  Height = 240
+  Height = 457
   Top = 250
-  Width = 320
+  Width = 713
   Caption = 'Form1'
+  ClientHeight = 457
+  ClientWidth = 713
   LCLVersion = '4.4.0.0'
   OnCreate = FormCreate
+  OnDestroy = FormDestroy
+  object peditPad: TTIPropertyGrid
+    Left = 0
+    Height = 457
+    Top = 0
+    Width = 713
+    Align = alClient
+    BackgroundColor = clWindow
+    CheckboxForBoolean = True
+    DefaultValueFont.Color = clWindowText
+    Filter = [tkInteger, tkChar, tkEnumeration, tkFloat, tkSet, tkMethod, tkSString, tkLString, tkAString, tkWString, tkVariant, tkArray, tkRecord, tkInterface, tkClass, tkObject, tkWChar, tkBool, tkInt64, tkQWord, tkDynArray, tkInterfaceRaw, tkProcVar, tkUString, tkUChar, tkHelper, tkFile, tkClassRef, tkPointer]
+    Indent = 16
+    NameFont.Color = clWindowText
+    PreferredSplitterX = 200
+    SplitterX = 200
+    ValueFont.Color = clMaroon
+  end
 end
