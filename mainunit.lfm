@@ -23,26 +23,31 @@ object formPadXml: TformPadXml
     Indent = 16
     NameFont.Color = clWindowText
     OnEditorFilter = peditPadEditorFilter
+    OnModified = peditPadModified
     PreferredSplitterX = 250
     SplitterX = 250
-    ValueFont.Color = clMaroon
+    ValueFont.Color = clNavy
   end
   object MainMenu: TMainMenu
-    Left = 216
-    Top = 160
+    Left = 72
+    Top = 40
     object menuFile: TMenuItem
       Caption = 'File'
       object menuFileNew: TMenuItem
         Caption = 'New'
+        OnClick = menuFileNewClick
       end
       object menuFileOpen: TMenuItem
         Caption = 'Open...'
+        OnClick = menuFileOpenClick
       end
       object menuFileSave: TMenuItem
         Caption = 'Save'
+        OnClick = menuFileSaveClick
       end
       object menuFileSaveAs: TMenuItem
         Caption = 'Save as...'
+        OnClick = menuFileSaveAsClick
       end
       object Separator1: TMenuItem
         Caption = '-'
@@ -51,5 +56,16 @@ object formPadXml: TformPadXml
         Caption = 'Exit'
       end
     end
+  end
+  object dialogOpen: TOpenDialog
+    Options = [ofFileMustExist, ofEnableSizing, ofViewDetail]
+    Left = 142
+    Top = 40
+  end
+  object dialogSave: TSaveDialog
+    DefaultExt = '.xml'
+    Filter = 'PAD File (*.xml)|*.xml'
+    Left = 216
+    Top = 40
   end
 end

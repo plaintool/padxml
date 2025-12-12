@@ -33,8 +33,9 @@ type
     FMasterPadEditorUrl: string;
     FMasterPadInfo: string;
     procedure SetMasterPadVersion(Value: string);
-  published
+  protected
     property Version: double read FVersion write FVersion;
+  published
     property MasterPadVersion: string read FMasterPadVersion write SetMasterPadVersion;
     property MasterPadEditor: string read FMasterPadEditor write FMasterPadEditor;
     property MasterPadEditorUrl: string read FMasterPadEditorUrl write FMasterPadEditorUrl;
@@ -159,6 +160,7 @@ type
     procedure SyncStringToStrings;
   protected
     property NewsFeed_Description_250: string read FNewsFeed_Description_250 write FNewsFeed_Description_250;
+    property NewsFeed_TypeAsString: string read GetNewsFeed_TypeAsString write SetNewsFeed_TypeAsString stored False;
   published
     // Simple string properties
     property NewsFeed_FORM: boolean read FNewsFeed_FORM write FNewsFeed_FORM;
@@ -179,7 +181,6 @@ type
 
     // Enum property for NewsFeed_Type with string conversion
     property NewsFeed_Type: TPadNewsFeedType read FNewsFeed_Type write FNewsFeed_Type;
-    property NewsFeed_TypeAsString: string read GetNewsFeed_TypeAsString write SetNewsFeed_TypeAsString stored False;
 
     // TStrings property for PropertyGrid (long description only)
     property NewsFeed_Description_250_Strings: TStrings read GetNewsFeed_Description_250_Strings
@@ -210,11 +211,12 @@ type
     FExpireYear: integer;
     function GetExpireBasedOnAsString: string;
     procedure SetExpireBasedOnAsString(const Value: string);
+  protected
+    property ExpireBasedOnAsString: string read GetExpireBasedOnAsString write SetExpireBasedOnAsString;
   published
     property HasExpireInfo: boolean read FHasExpireInfo write FHasExpireInfo;
     property ExpireCount: integer read FExpireCount write FExpireCount;
     property ExpireBasedOn: TPadExpireBasedOn read FExpireBasedOn write FExpireBasedOn;
-    property ExpireBasedOnAsString: string read GetExpireBasedOnAsString write SetExpireBasedOnAsString;
     property ExpireOtherInfo: string read FExpireOtherInfo write FExpireOtherInfo;
     property ExpireMonth: integer read FExpireMonth write FExpireMonth;
     property ExpireDay: integer read FExpireDay write FExpireDay;
@@ -229,7 +231,7 @@ type
     FProgramReleaseMonth: byte;
     FProgramReleaseDay: byte;
     FProgramReleaseYear: word;
-    FProgramCostDollars: word;
+    FProgramCostDollars: string;
     FProgramCostOtherCode: string;
     FProgramCostOther: word;
     FProgramType: TPadProgramType;
@@ -266,41 +268,42 @@ type
   public
     constructor Create;
     destructor Destroy; override;
+  protected
+    property ProgramTypeAsString: string read GetProgramTypeAsString write SetProgramTypeAsString;
+    property ProgramReleaseStatusAsString: string read GetProgramReleaseStatusAsString write SetProgramReleaseStatusAsString;
+    property ProgramInstallSupportAsString: string read GetProgramInstallSupportAsString write SetProgramInstallSupportAsString;
+    // Combined OS Support property for XML
+    property ProgramOSSupportAsString: string read GetProgramOSSupportAsString write SetProgramOSSupportAsString;
+    // Combined Language property for XML
+    property ProgramLanguageAsString: string read GetProgramLanguageAsString write SetProgramLanguageAsString;
+    property ProgramCategoryClassAsString: string read GetProgramCategoryClassAsString write SetProgramCategoryClassAsString;
   published
     property ProgramName: string read FProgramName write FProgramName;
     property ProgramVersion: string read FProgramVersion write FProgramVersion;
     property ProgramReleaseMonth: byte read FProgramReleaseMonth write FProgramReleaseMonth;
     property ProgramReleaseDay: byte read FProgramReleaseDay write FProgramReleaseDay;
     property ProgramReleaseYear: word read FProgramReleaseYear write FProgramReleaseYear;
-    property ProgramCostDollars: word read FProgramCostDollars write FProgramCostDollars;
+    property ProgramCostDollars: string read FProgramCostDollars write FProgramCostDollars;
     property ProgramCostOtherCode: string read FProgramCostOtherCode write FProgramCostOtherCode;
     property ProgramCostOther: word read FProgramCostOther write FProgramCostOther;
     property ProgramType: TPadProgramType read FProgramType write FProgramType;
-    property ProgramTypeAsString: string read GetProgramTypeAsString write SetProgramTypeAsString;
     property ProgramReleaseStatus: TPadReleaseStatus read FProgramReleaseStatus write FProgramReleaseStatus;
-    property ProgramReleaseStatusAsString: string read GetProgramReleaseStatusAsString write SetProgramReleaseStatusAsString;
     property ProgramInstallSupport: TPadInstallSupport read FProgramInstallSupport write FProgramInstallSupport;
-    property ProgramInstallSupportAsString: string read GetProgramInstallSupportAsString write SetProgramInstallSupportAsString;
 
     // OS Support properties for designer
     property ProgramOSSupportWindows: TPadOSWindowsSet read FProgramOSSupportWindows write FProgramOSSupportWindows;
     property ProgramOSSupportUnixLinux: TPadOSUnixLinuxSet read FProgramOSSupportUnixLinux write FProgramOSSupportUnixLinux;
     property ProgramOSSupportOther: TPadOSOtherSet read FProgramOSSupportOther write FProgramOSSupportOther;
-    // Combined OS Support property for XML
-    property ProgramOSSupportAsString: string read GetProgramOSSupportAsString write SetProgramOSSupportAsString;
 
     // Language properties for designer
     property ProgramLanguageEuropean: TPadLangEuropeanSet read FProgramLanguageEuropean write FProgramLanguageEuropean;
     property ProgramLanguageAsian: TPadLangAsianSet read FProgramLanguageAsian write FProgramLanguageAsian;
     property ProgramLanguageOtherMajor: TPadLangOtherMajorSet read FProgramLanguageOtherMajor write FProgramLanguageOtherMajor;
     property ProgramLanguageWorld: TPadLangWorldSet read FProgramLanguageWorld write FProgramLanguageWorld;
-    // Combined Language property for XML
-    property ProgramLanguageAsString: string read GetProgramLanguageAsString write SetProgramLanguageAsString;
 
     property ProgramChangeInfo: string read FProgramChangeInfo write FProgramChangeInfo;
     property ProgramSpecificCategory: string read FProgramSpecificCategory write FProgramSpecificCategory;
     property ProgramCategoryClass: TPadProgramCategoryClass read FProgramCategoryClass write FProgramCategoryClass;
-    property ProgramCategoryClassAsString: string read GetProgramCategoryClassAsString write SetProgramCategoryClassAsString;
     property ProgramSystemRequirements: string read FProgramSystemRequirements write FProgramSystemRequirements;
     property FileInfo: TPadFileInfo read FFileInfo write FFileInfo;
     property ExpireInfo: TPadExpireInfo read FExpireInfo write FExpireInfo;
@@ -1257,7 +1260,7 @@ begin
         FProgramInfo.ProgramReleaseMonth := StrToIntDef(GetNodeValue(Node, 'Program_Release_Month'), 0);
         FProgramInfo.ProgramReleaseDay := StrToIntDef(GetNodeValue(Node, 'Program_Release_Day'), 0);
         FProgramInfo.ProgramReleaseYear := StrToIntDef(GetNodeValue(Node, 'Program_Release_Year'), 0);
-        FProgramInfo.ProgramCostDollars := StrToIntDef(GetNodeValue(Node, 'Program_Cost_Dollars'), 0);
+        FProgramInfo.ProgramCostDollars := GetNodeValue(Node, 'Program_Cost_Dollars');
         FProgramInfo.ProgramCostOtherCode := GetNodeValue(Node, 'Program_Cost_Other_Code');
         FProgramInfo.ProgramCostOther := StrToIntDef(GetNodeValue(Node, 'Program_Cost_Other'), 0);
 
@@ -1669,8 +1672,7 @@ begin
       IfThen(FProgramInfo.ProgramReleaseDay = 0, '', Format('%.2d', [FProgramInfo.ProgramReleaseDay])));
     SetNodeText(Doc, Node, 'Program_Release_Year',
       IntToStr(FProgramInfo.ProgramReleaseYear));
-    SetNodeText(Doc, Node, 'Program_Cost_Dollars',
-      IfThen(FProgramInfo.ProgramCostDollars = 0, '', IntToStr(FProgramInfo.ProgramCostDollars)));
+    SetNodeText(Doc, Node, 'Program_Cost_Dollars', FProgramInfo.ProgramCostDollars);
     SetNodeText(Doc, Node, 'Program_Cost_Other_Code',
       FProgramInfo.ProgramCostOtherCode);
     SetNodeText(Doc, Node, 'Program_Cost_Other',
@@ -2016,7 +2018,7 @@ begin
   FProgramInfo.ProgramReleaseMonth := 0;
   FProgramInfo.ProgramReleaseDay := 0;
   FProgramInfo.ProgramReleaseYear := 0;
-  FProgramInfo.ProgramCostDollars := 0;
+  FProgramInfo.ProgramCostDollars := '0';
   FProgramInfo.ProgramCostOtherCode := '';
   FProgramInfo.ProgramCostOther := 0;
   FProgramInfo.ProgramType := pptShareware;
@@ -2374,9 +2376,8 @@ begin
   case Value of
     pebNone: Result := '';
     pebDays: Result := 'Days';
-    pebRuns: Result := 'Runs';
-    pebDate: Result := 'Date';
-    pebOther: Result := 'Other';
+    pebUses: Result := 'Uses';
+    pebEitherOr: Result := 'Either/Or';
     else
       Result := '';
   end;
@@ -2386,12 +2387,10 @@ function StringToPadExpireBasedOn(const Value: string): TPadExpireBasedOn;
 begin
   if Value = 'Days' then
     Result := pebDays
-  else if Value = 'Runs' then
-    Result := pebRuns
-  else if Value = 'Date' then
-    Result := pebDate
-  else if Value = 'Other' then
-    Result := pebOther
+  else if Value = 'Uses' then
+    Result := pebUses
+  else if Value = 'EitherOr' then
+    Result := pebEitherOr
   else
     Result := pebNone; // Default
 end;

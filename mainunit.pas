@@ -20,17 +20,25 @@ type
     menuFileExit: TMenuItem;
     menuFileSaveAs: TMenuItem;
     menuFileNew: TMenuItem;
+    dialogOpen: TOpenDialog;
     peditPad: TTIPropertyGrid;
+    dialogSave: TSaveDialog;
     Separator1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure menuFileNewClick(Sender: TObject);
+    procedure menuFileOpenClick(Sender: TObject);
+    procedure menuFileSaveAsClick(Sender: TObject);
+    procedure menuFileSaveClick(Sender: TObject);
     procedure peditPadEditorFilter(Sender: TObject; aEditor: TPropertyEditor; var aShow: boolean);
+    procedure peditPadModified(Sender: TObject);
   private
     PadFormat: TPadFormat;
     FFileName: string;
     FChanged: boolean;
     function SaveFile(AFileName: string): boolean;
     function IsCanClose: boolean;
+    procedure SetInfo;
   public
   end;
 
@@ -44,46 +52,58 @@ implementation
 { TformPadXml }
 
 procedure TformPadXml.FormCreate(Sender: TObject);
-var
-  XMLContent: string;
+//var
+//  XMLContent: string;
 begin
   PadFormat := TPadFormat.Create(Self);
-  with TStringList.Create do
-  try
-    LoadFromFile('E:\pads\DbSchema4.0.xml');
-    XMLContent := Text;
-    PadFormat.LoadFromXML(XMLContent);
-  finally
-    Free;
-  end;
-
+  //with TStringList.Create do
+  //try
+  //  LoadFromFile('E:\pads\DbSchema4.0.xml');
+  //  XMLContent := Text;
+  //  PadFormat.LoadFromXML(XMLContent);
+  //finally
+  //  Free;
+  //end;
 
   peditPad.TIObject := PadFormat;
 end;
 
 procedure TformPadXml.FormDestroy(Sender: TObject);
 begin
-
-  with TStringList.Create do
-  try
-    Text := PadFormat.SaveToXML;
-    SaveToFile('E:\pads\_DbSchema4.0.xml');
-  finally
-    Free;
-  end;
+  //with TStringList.Create do
+  //try
+  //  Text := PadFormat.SaveToXML;
+  //  SaveToFile('E:\pads\_DbSchema4.0.xml');
+  //finally
+  //  Free;
+  //end;
 
   PadFormat.Free;
 end;
 
-procedure TformPadXml.peditPadEditorFilter(Sender: TObject; aEditor: TPropertyEditor; var aShow: boolean);
+procedure TformPadXml.menuFileNewClick(Sender: TObject);
 begin
-  // hide Name
-  if SameText(aEditor.GetName, 'Name') then
-    aShow := False;
+  PadFormat.Clear;
+  FFileName := string.Empty;
+end;
 
-  // hide Tag
-  if SameText(aEditor.GetName, 'Tag') then
-    aShow := False;
+procedure TformPadXml.menuFileOpenClick(Sender: TObject);
+begin
+  if dialogOpen.Execute then
+  begin
+  end;
+end;
+
+procedure TformPadXml.menuFileSaveAsClick(Sender: TObject);
+begin
+  if dialogSave.Execute then
+  begin
+  end;
+end;
+
+procedure TformPadXml.menuFileSaveClick(Sender: TObject);
+begin
+  SaveFile(FFileName);
 end;
 
 function TformPadXml.SaveFile(AFileName: string): boolean;
@@ -117,6 +137,28 @@ begin
   end
   else
     Result := True; // No changes, just close the form
+end;
+
+procedure TformPadXml.SetInfo;
+begin
+  Caption := FFileName; // TODO if changed *
+end;
+
+procedure TformPadXml.peditPadModified(Sender: TObject);
+begin
+  FChanged := True;
+  SetInfo;
+end;
+
+procedure TformPadXml.peditPadEditorFilter(Sender: TObject; aEditor: TPropertyEditor; var aShow: boolean);
+begin
+  // hide Name
+  if SameText(aEditor.GetName, 'Name') then
+    aShow := False;
+
+  // hide Tag
+  if SameText(aEditor.GetName, 'Tag') then
+    aShow := False;
 end;
 
 end.

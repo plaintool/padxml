@@ -40,9 +40,8 @@ type
   TPadExpireBasedOn = (
     pebNone,
     pebDays,
-    pebRuns,
-    pebDate,
-    pebOther
+    pebUses,
+    pebEitherOr
     );
 
   TPadNewsFeedType = (
