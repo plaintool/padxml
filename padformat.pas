@@ -441,6 +441,95 @@ type
     property EULAStrings: TStrings read GetEULAStrings write SetEULAStrings stored False;
   end;
 
+  { TPadAffiliateCompany }
+  TPadAffiliateCompany = class(TPersistent)
+  private
+    FOrderPage: string;
+    FVendorID: string;
+    FProductID: string;
+    FMaximumCommissionRate: string;
+  published
+    property OrderPage: string read FOrderPage write FOrderPage;
+    property VendorID: string read FVendorID write FVendorID;
+    property ProductID: string read FProductID write FProductID;
+    property MaximumCommissionRate: string read FMaximumCommissionRate write FMaximumCommissionRate;
+  end;
+
+  { TPadAffiliates }
+  TPadAffiliates = class(TPersistent)
+  private
+    FAffiliates_FORM: boolean;
+    FAffiliates_VERSION: string;
+    FAffiliates_URL: string;
+    FAffiliates_Information_Page: string;
+
+    // Individual affiliate companies
+    FAvangate: TPadAffiliateCompany;
+    FBMTMicro: TPadAffiliateCompany;
+    FCleverbridge: TPadAffiliateCompany;  // New in version 1.4
+    FClixGalore: TPadAffiliateCompany;
+    FCommissionJunction: TPadAffiliateCompany;
+    FDigiBuy: TPadAffiliateCompany;
+    FDigitalCandle: TPadAffiliateCompany;
+    FEmetrix: TPadAffiliateCompany;
+    FeSellerate: TPadAffiliateCompany;
+    FKagi: TPadAffiliateCompany;
+    FLinkShare: TPadAffiliateCompany;
+    FNorthStarSol: TPadAffiliateCompany;
+    FOneNetworkDirect: TPadAffiliateCompany;  // New in version 1.4
+    FOrder1: TPadAffiliateCompany;
+    FOsolis: TPadAffiliateCompany;
+    FPlimus: TPadAffiliateCompany;
+    FRegnet: TPadAffiliateCompany;
+    FRegnow: TPadAffiliateCompany;
+    FRegsoft: TPadAffiliateCompany;
+    FShareIt: TPadAffiliateCompany;
+    FShareasale: TPadAffiliateCompany;
+    FSWReg: TPadAffiliateCompany;
+    FVShare: TPadAffiliateCompany;
+    FVFree: TPadAffiliateCompany;
+    FYaskifo: TPadAffiliateCompany;
+
+    // Helper to check if we should save full section
+    function ShouldSaveFullSection: boolean;
+  public
+    constructor Create;
+    destructor Destroy; override;
+  published
+    // Main properties
+    property Affiliates_FORM: boolean read FAffiliates_FORM write FAffiliates_FORM;
+    property Affiliates_VERSION: string read FAffiliates_VERSION write FAffiliates_VERSION;
+    property Affiliates_URL: string read FAffiliates_URL write FAffiliates_URL;
+    property Affiliates_Information_Page: string read FAffiliates_Information_Page write FAffiliates_Information_Page;
+
+    // Affiliate companies
+    property Avangate: TPadAffiliateCompany read FAvangate write FAvangate;
+    property BMTMicro: TPadAffiliateCompany read FBMTMicro write FBMTMicro;
+    property Cleverbridge: TPadAffiliateCompany read FCleverbridge write FCleverbridge;
+    property ClixGalore: TPadAffiliateCompany read FClixGalore write FClixGalore;
+    property CommissionJunction: TPadAffiliateCompany read FCommissionJunction write FCommissionJunction;
+    property DigiBuy: TPadAffiliateCompany read FDigiBuy write FDigiBuy;
+    property DigitalCandle: TPadAffiliateCompany read FDigitalCandle write FDigitalCandle;
+    property Emetrix: TPadAffiliateCompany read FEmetrix write FEmetrix;
+    property eSellerate: TPadAffiliateCompany read FeSellerate write FeSellerate;
+    property Kagi: TPadAffiliateCompany read FKagi write FKagi;
+    property LinkShare: TPadAffiliateCompany read FLinkShare write FLinkShare;
+    property NorthStarSol: TPadAffiliateCompany read FNorthStarSol write FNorthStarSol;
+    property OneNetworkDirect: TPadAffiliateCompany read FOneNetworkDirect write FOneNetworkDirect;
+    property Order1: TPadAffiliateCompany read FOrder1 write FOrder1;
+    property Osolis: TPadAffiliateCompany read FOsolis write FOsolis;
+    property Plimus: TPadAffiliateCompany read FPlimus write FPlimus;
+    property Regnet: TPadAffiliateCompany read FRegnet write FRegnet;
+    property Regnow: TPadAffiliateCompany read FRegnow write FRegnow;
+    property Regsoft: TPadAffiliateCompany read FRegsoft write FRegsoft;
+    property ShareIt: TPadAffiliateCompany read FShareIt write FShareIt;
+    property Shareasale: TPadAffiliateCompany read FShareasale write FShareasale;
+    property SWReg: TPadAffiliateCompany read FSWReg write FSWReg;
+    property VShare: TPadAffiliateCompany read FVShare write FVShare;
+    property VFree: TPadAffiliateCompany read FVFree write FVFree;
+    property Yaskifo: TPadAffiliateCompany read FYaskifo write FYaskifo;
+  end;
+
   { TPadASP }
   TPadASP = class(TPersistent)
   private
@@ -463,6 +552,7 @@ type
     FProgramDescriptions: TPadProgramDescriptions;
     FWebInfo: TPadWebInfo;
     FPermissions: TPadPermissions;
+    FAffiliates: TPadAffiliates;
     FASP: TPadASP;
     function SetNodeText(Doc: TXMLDocument; ParentNode: TDOMNode; NodeName, NodeValue: string): TDOMNode;
     function AddChildNode(ParentNode: TDOMNode; NodeName: string): TDOMNode;
@@ -487,6 +577,7 @@ type
     property ProgramDescriptions: TPadProgramDescriptions read FProgramDescriptions write FProgramDescriptions;
     property WebInfo: TPadWebInfo read FWebInfo write FWebInfo;
     property Permissions: TPadPermissions read FPermissions write FPermissions;
+    property Affiliates: TPadAffiliates read FAffiliates write FAffiliates;
     property ASP: TPadASP read FASP write FASP;
   end;
 
@@ -564,7 +655,7 @@ begin
   inherited Create;
   FNewsFeed_Description_250_Strings := TStringList.Create;
   FNewsFeed_Description_250_Strings.TrailingLineBreak := False;
-  FNewsFeed_FORM := True; // Default to Y
+  FNewsFeed_FORM := False;
   FNewsFeed_VERSION := '1.0';
   FNewsFeed_URL := 'http://Submit-Everywhere.com/extensions/NewsFeed.htm';
   FNewsFeed_Type := pnftRSS090; // Default value
@@ -926,6 +1017,85 @@ begin
   FEULA := FEULAStrings.Text;
 end;
 
+{ TPadAffiliates }
+
+constructor TPadAffiliates.Create;
+begin
+  inherited Create;
+
+  // Initialize default values - version will be set based on master version
+  FAffiliates_FORM := True;
+  FAffiliates_VERSION := '1.2'; // Default, will be updated based on master version
+  FAffiliates_URL := 'http://www.asp-shareware.org/pad/extensions/Affiliates.htm';
+
+  // Create affiliate company objects
+  FAvangate := TPadAffiliateCompany.Create;
+  FBMTMicro := TPadAffiliateCompany.Create;
+  FCleverbridge := TPadAffiliateCompany.Create;
+  FClixGalore := TPadAffiliateCompany.Create;
+  FCommissionJunction := TPadAffiliateCompany.Create;
+  FDigiBuy := TPadAffiliateCompany.Create;
+  FDigitalCandle := TPadAffiliateCompany.Create;
+  FEmetrix := TPadAffiliateCompany.Create;
+  FeSellerate := TPadAffiliateCompany.Create;
+  FKagi := TPadAffiliateCompany.Create;
+  FLinkShare := TPadAffiliateCompany.Create;
+  FNorthStarSol := TPadAffiliateCompany.Create;
+  FOneNetworkDirect := TPadAffiliateCompany.Create;
+  FOrder1 := TPadAffiliateCompany.Create;
+  FOsolis := TPadAffiliateCompany.Create;
+  FPlimus := TPadAffiliateCompany.Create;
+  FRegnet := TPadAffiliateCompany.Create;
+  FRegnow := TPadAffiliateCompany.Create;
+  FRegsoft := TPadAffiliateCompany.Create;
+  FShareIt := TPadAffiliateCompany.Create;
+  FShareasale := TPadAffiliateCompany.Create;
+  FSWReg := TPadAffiliateCompany.Create;
+  FVShare := TPadAffiliateCompany.Create;
+  FVFree := TPadAffiliateCompany.Create;
+  FYaskifo := TPadAffiliateCompany.Create;
+end;
+
+destructor TPadAffiliates.Destroy;
+begin
+  // Free all affiliate company objects
+  FAvangate.Free;
+  FBMTMicro.Free;
+  FCleverbridge.Free;
+  FClixGalore.Free;
+  FCommissionJunction.Free;
+  FDigiBuy.Free;
+  FDigitalCandle.Free;
+  FEmetrix.Free;
+  FeSellerate.Free;
+  FKagi.Free;
+  FLinkShare.Free;
+  FNorthStarSol.Free;
+  FOneNetworkDirect.Free;
+  FOrder1.Free;
+  FOsolis.Free;
+  FPlimus.Free;
+  FRegnet.Free;
+  FRegnow.Free;
+  FRegsoft.Free;
+  FShareIt.Free;
+  FShareasale.Free;
+  FSWReg.Free;
+  FVShare.Free;
+  FVFree.Free;
+  FYaskifo.Free;
+
+  inherited Destroy;
+end;
+
+function TPadAffiliates.ShouldSaveFullSection: boolean;
+begin
+  // Check if Affiliates_Information_Page is filled
+  // If it's empty, we need to save full section with all companies
+  // If it's filled, we only save the header section
+  Result := Trim(FAffiliates_Information_Page) = '';
+end;
+
 { TPadFormat }
 
 constructor TPadFormat.Create(AOwner: TComponent);
@@ -938,6 +1108,7 @@ begin
   FProgramDescriptions := TPadProgramDescriptions.Create;
   FWebInfo := TPadWebInfo.Create;
   FPermissions := TPadPermissions.Create;
+  FAffiliates := TPadAffiliates.Create;
   FASP := TPadASP.Create;
 end;
 
@@ -950,6 +1121,7 @@ begin
   FProgramDescriptions.Free;
   FWebInfo.Free;
   FPermissions.Free;
+  FAffiliates.Free;
   FASP.Free;
   inherited Destroy;
 end;
@@ -969,6 +1141,18 @@ var
       Result := GetNodeText(TempNode)
     else
       Result := '';
+  end;
+
+  procedure LoadAffiliateCompany(Affiliate: TPadAffiliateCompany;
+  const OrderPageTag, VendorIDTag, ProductIDTag, CommissionRateTag: string);
+  begin
+    if Assigned(Node) then
+    begin
+      Affiliate.OrderPage := GetNodeValue(Node, OrderPageTag);
+      Affiliate.VendorID := GetNodeValue(Node, VendorIDTag);
+      Affiliate.ProductID := GetNodeValue(Node, ProductIDTag);
+      Affiliate.MaximumCommissionRate := GetNodeValue(Node, CommissionRateTag);
+    end;
   end;
 
 begin
@@ -1166,6 +1350,189 @@ begin
         FPermissions.EULA := GetNodeValue(Node, 'EULA');
       end;
 
+      // Load Affiliates
+      Node := RootNode.FindNode('Affiliates');
+      if Assigned(Node) then
+      begin
+        FAffiliates.Affiliates_FORM := UpperCase(GetNodeValue(Node, 'Affiliates_FORM')) = 'Y';
+
+        // Set version based on master version
+        if MasterPadVersionInfo.Version < 3.10 then
+          FAffiliates.Affiliates_VERSION := '1.2'
+        else
+          FAffiliates.Affiliates_VERSION := '1.4';
+
+        // But if version is specified in XML, use it
+        if GetNodeValue(Node, 'Affiliates_VERSION') <> '' then
+          FAffiliates.Affiliates_VERSION := GetNodeValue(Node, 'Affiliates_VERSION');
+
+        FAffiliates.Affiliates_URL := GetNodeValue(Node, 'Affiliates_URL');
+        FAffiliates.Affiliates_Information_Page := GetNodeValue(Node, 'Affiliates_Information_Page');
+
+        // Check if we should load full section
+        if Trim(FAffiliates.Affiliates_Information_Page) = '' then
+        begin
+          // Load individual affiliate companies (full section)
+          LoadAffiliateCompany(FAffiliates.Avangate,
+            'Affiliates_Avangate_Order_Page',
+            'Affiliates_Avangate_Vendor_ID',
+            'Affiliates_Avangate_Product_ID',
+            'Affiliates_Avangate_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.BMTMicro,
+            'Affiliates_BMTMicro_Order_Page',
+            'Affiliates_BMTMicro_Vendor_ID',
+            'Affiliates_BMTMicro_Product_ID',
+            'Affiliates_BMTMicro_Maximum_Commission_Rate');
+
+          // Load Cleverbridge only for version 1.4+
+          if FAffiliates.Affiliates_VERSION >= '1.4' then
+          begin
+            LoadAffiliateCompany(FAffiliates.Cleverbridge,
+              'Affiliates_Cleverbridge_Order_Page',
+              'Affiliates_Cleverbridge_Vendor_ID',
+              'Affiliates_Cleverbridge_Product_ID',
+              'Affiliates_Cleverbridge_Maximum_Commission_Rate');
+          end;
+
+          LoadAffiliateCompany(FAffiliates.ClixGalore,
+            'Affiliates_clixGalore_Order_Page',
+            'Affiliates_clixGalore_Vendor_ID',
+            'Affiliates_clixGalore_Product_ID',
+            'Affiliates_clixGalore_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.CommissionJunction,
+            'Affiliates_CommissionJunction_Order_Page',
+            'Affiliates_CommissionJunction_Vendor_ID',
+            'Affiliates_CommissionJunction_Product_ID',
+            'Affiliates_CommissionJunction_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.DigiBuy,
+            'Affiliates_DigiBuy_Order_Page',
+            'Affiliates_DigiBuy_Vendor_ID',
+            'Affiliates_DigiBuy_Product_ID',
+            'Affiliates_DigiBuy_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.DigitalCandle,
+            'Affiliates_DigitalCandle_Order_Page',
+            'Affiliates_DigitalCandle_Vendor_ID',
+            'Affiliates_DigitalCandle_Product_ID',
+            'Affiliates_DigitalCandle_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.Emetrix,
+            'Affiliates_Emetrix_Order_Page',
+            'Affiliates_Emetrix_Vendor_ID',
+            'Affiliates_Emetrix_Product_ID',
+            'Affiliates_Emetrix_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.eSellerate,
+            'Affiliates_eSellerate_Order_Page',
+            'Affiliates_eSellerate_Vendor_ID',
+            'Affiliates_eSellerate_Product_ID',
+            'Affiliates_eSellerate_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.Kagi,
+            'Affiliates_Kagi_Order_Page',
+            'Affiliates_Kagi_Vendor_ID',
+            'Affiliates_Kagi_Product_ID',
+            'Affiliates_Kagi_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.LinkShare,
+            'Affiliates_LinkShare_Order_Page',
+            'Affiliates_LinkShare_Vendor_ID',
+            'Affiliates_LinkShare_Product_ID',
+            'Affiliates_LinkShare_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.NorthStarSol,
+            'Affiliates_NorthStarSol_Order_Page',
+            'Affiliates_NorthStarSol_Vendor_ID',
+            'Affiliates_NorthStarSol_Product_ID',
+            'Affiliates_NorthStarSol_Maximum_Commission_Rate');
+
+          // Load OneNetworkDirect only for version 1.4+
+          if FAffiliates.Affiliates_VERSION >= '1.4' then
+          begin
+            LoadAffiliateCompany(FAffiliates.OneNetworkDirect,
+              'Affiliates_OneNetworkDirect_Order_Page',
+              'Affiliates_OneNetworkDirect_Vendor_ID',
+              'Affiliates_OneNetworkDirect_Product_ID',
+              'Affiliates_OneNetworkDirect_Maximum_Commission_Rate');
+          end;
+
+          LoadAffiliateCompany(FAffiliates.Order1,
+            'Affiliates_Order1_Order_Page',
+            'Affiliates_Order1_Vendor_ID',
+            'Affiliates_Order1_Product_ID',
+            'Affiliates_Order1_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.Osolis,
+            'Affiliates_Osolis_Order_Page',
+            'Affiliates_Osolis_Vendor_ID',
+            'Affiliates_Osolis_Product_ID',
+            'Affiliates_Osolis_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.Plimus,
+            'Affiliates_Plimus_Order_Page',
+            'Affiliates_Plimus_Vendor_ID',
+            'Affiliates_Plimus_Product_ID',
+            'Affiliates_Plimus_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.Regnet,
+            'Affiliates_Regnet_Order_Page',
+            'Affiliates_Regnet_Vendor_ID',
+            'Affiliates_Regnet_Product_ID',
+            'Affiliates_Regnet_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.Regnow,
+            'Affiliates_Regnow_Order_Page',
+            'Affiliates_Regnow_Vendor_ID',
+            'Affiliates_Regnow_Product_ID',
+            'Affiliates_Regnow_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.Regsoft,
+            'Affiliates_Regsoft_Order_Page',
+            'Affiliates_Regsoft_Vendor_ID',
+            'Affiliates_Regsoft_Product_ID',
+            'Affiliates_Regsoft_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.ShareIt,
+            'Affiliates_ShareIt_Order_Page',
+            'Affiliates_ShareIt_Vendor_ID',
+            'Affiliates_ShareIt_Product_ID',
+            'Affiliates_ShareIt_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.Shareasale,
+            'Affiliates_Shareasale_Order_Page',
+            'Affiliates_Shareasale_Vendor_ID',
+            'Affiliates_Shareasale_Product_ID',
+            'Affiliates_Shareasale_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.SWReg,
+            'Affiliates_SWReg_Order_Page',
+            'Affiliates_SWReg_Vendor_ID',
+            'Affiliates_SWReg_Product_ID',
+            'Affiliates_SWReg_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.VShare,
+            'Affiliates_V-Share_Order_Page',
+            'Affiliates_V-Share_Vendor_ID',
+            'Affiliates_V-Share_Product_ID',
+            'Affiliates_V-Share_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.VFree,
+            'Affiliates_VFree_Order_Page',
+            'Affiliates_VFree_Vendor_ID',
+            'Affiliates_VFree_Product_ID',
+            'Affiliates_VFree_Maximum_Commission_Rate');
+
+          LoadAffiliateCompany(FAffiliates.Yaskifo,
+            'Affiliates_Yaskifo_Order_Page',
+            'Affiliates_Yaskifo_Vendor_ID',
+            'Affiliates_Yaskifo_Product_ID',
+            'Affiliates_Yaskifo_Maximum_Commission_Rate');
+        end;
+      end;
+
       // Load ASP
       Node := RootNode.FindNode('ASP');
       if Assigned(Node) then
@@ -1192,6 +1559,7 @@ var
   RootNode, Node, SubNode: TDOMNode;
   Stream: TStringStream;
   FS: TFormatSettings;
+  SaveFullSection: boolean;
 begin
   Doc := TXMLDocument.Create;
   try
@@ -1209,8 +1577,9 @@ begin
       FMasterPadVersionInfo.MasterPadVersion);
     SetNodeText(Doc, Node, 'MASTER_PAD_EDITOR',
       FMasterPadVersionInfo.MasterPadEditor);
-    SetNodeText(Doc, Node, 'MASTER_PAD_EDITOR_URL',
-      FMasterPadVersionInfo.MasterPadEditorUrl);
+    if Length(FMasterPadVersionInfo.MasterPadEditorUrl) > 0 then
+      SetNodeText(Doc, Node, 'MASTER_PAD_EDITOR_URL',
+        FMasterPadVersionInfo.MasterPadEditorUrl);
     SetNodeText(Doc, Node, 'MASTER_PAD_INFO',
       FMasterPadVersionInfo.MasterPadInfo);
 
@@ -1267,7 +1636,7 @@ begin
       SetNodeText(Doc, Node, 'CompanyStorePage', FCompanyInfo.CompanyStorePage);
 
       // Save News Feed (updated with new fields)
-      if (MasterPadVersionInfo.Version >= 4) then
+      if FNewsFeed.NewsFeed_FORM then
       begin
         Node := AddChildNode(RootNode, 'NewsFeed');
         SetNodeText(Doc, Node, 'NewsFeed_FORM', BoolToStr(FNewsFeed.NewsFeed_FORM, 'Y', 'N'));
@@ -1397,14 +1766,173 @@ begin
     SetNodeText(Doc, Node, 'Distribution_Permissions', FPermissions.DistributionPermissions);
     SetNodeText(Doc, Node, 'EULA', FPermissions.EULA);
 
-    // ASP
-    Node := AddChildNode(RootNode, 'ASP');
-    if (MasterPadVersionInfo.Version < 4) then
-      SetNodeText(Doc, Node, 'ASP_FORM', BoolToStr(FASP.ASPForm, 'Y', 'N'));
-    SetNodeText(Doc, Node, 'ASP_Member', BoolToStr(FASP.ASPMember, 'Y', 'N'));
+    // Save Affiliates
+    // Determine Affiliates version based on master version
+    if MasterPadVersionInfo.Version < 3.10 then
+      FAffiliates.Affiliates_VERSION := '1.2'
+    else
+      FAffiliates.Affiliates_VERSION := '1.4';
 
-    SetNodeText(Doc, Node, 'ASP_Member_Number',
-      IfThen(FASP.ASPMemberNumber = 0, '', IntToStr(FASP.ASPMemberNumber)));
+    // Check if we should save full section
+    SaveFullSection := FAffiliates.ShouldSaveFullSection;
+
+    if (FAffiliates.Affiliates_FORM) then
+    begin
+      Node := AddChildNode(RootNode, 'Affiliates');
+      SetNodeText(Doc, Node, 'Affiliates_FORM', BoolToStr(FAffiliates.Affiliates_FORM, 'Y', 'N'));
+      SetNodeText(Doc, Node, 'Affiliates_VERSION', FAffiliates.Affiliates_VERSION);
+      SetNodeText(Doc, Node, 'Affiliates_URL', FAffiliates.Affiliates_URL);
+      SetNodeText(Doc, Node, 'Affiliates_Information_Page', FAffiliates.Affiliates_Information_Page);
+
+      // Save individual affiliate companies only if full section is needed
+      if SaveFullSection then
+      begin
+        SetNodeText(Doc, Node, 'Affiliates_Avangate_Order_Page', FAffiliates.Avangate.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_Avangate_Vendor_ID', FAffiliates.Avangate.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_Avangate_Product_ID', FAffiliates.Avangate.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_Avangate_Maximum_Commission_Rate', FAffiliates.Avangate.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Order_Page', FAffiliates.BMTMicro.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Vendor_ID', FAffiliates.BMTMicro.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Product_ID', FAffiliates.BMTMicro.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Maximum_Commission_Rate', FAffiliates.BMTMicro.MaximumCommissionRate);
+
+        // Save Cleverbridge only for version 1.4+
+        if FAffiliates.Affiliates_VERSION >= '1.4' then
+        begin
+          SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Order_Page', FAffiliates.Cleverbridge.OrderPage);
+          SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Vendor_ID', FAffiliates.Cleverbridge.VendorID);
+          SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Product_ID', FAffiliates.Cleverbridge.ProductID);
+          SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Maximum_Commission_Rate', FAffiliates.Cleverbridge.MaximumCommissionRate);
+        end;
+
+        SetNodeText(Doc, Node, 'Affiliates_clixGalore_Order_Page', FAffiliates.ClixGalore.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_clixGalore_Vendor_ID', FAffiliates.ClixGalore.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_clixGalore_Product_ID', FAffiliates.ClixGalore.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_clixGalore_Maximum_Commission_Rate', FAffiliates.ClixGalore.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Order_Page', FAffiliates.CommissionJunction.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Vendor_ID', FAffiliates.CommissionJunction.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Product_ID', FAffiliates.CommissionJunction.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Maximum_Commission_Rate',
+          FAffiliates.CommissionJunction.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Order_Page', FAffiliates.DigiBuy.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Vendor_ID', FAffiliates.DigiBuy.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Product_ID', FAffiliates.DigiBuy.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Maximum_Commission_Rate', FAffiliates.DigiBuy.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Order_Page', FAffiliates.DigitalCandle.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Vendor_ID', FAffiliates.DigitalCandle.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Product_ID', FAffiliates.DigitalCandle.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Maximum_Commission_Rate', FAffiliates.DigitalCandle.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_Emetrix_Order_Page', FAffiliates.Emetrix.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_Emetrix_Vendor_ID', FAffiliates.Emetrix.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_Emetrix_Product_ID', FAffiliates.Emetrix.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_Emetrix_Maximum_Commission_Rate', FAffiliates.Emetrix.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_eSellerate_Order_Page', FAffiliates.eSellerate.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_eSellerate_Vendor_ID', FAffiliates.eSellerate.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_eSellerate_Product_ID', FAffiliates.eSellerate.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_eSellerate_Maximum_Commission_Rate', FAffiliates.eSellerate.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_Kagi_Order_Page', FAffiliates.Kagi.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_Kagi_Vendor_ID', FAffiliates.Kagi.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_Kagi_Product_ID', FAffiliates.Kagi.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_Kagi_Maximum_Commission_Rate', FAffiliates.Kagi.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_LinkShare_Order_Page', FAffiliates.LinkShare.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_LinkShare_Vendor_ID', FAffiliates.LinkShare.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_LinkShare_Product_ID', FAffiliates.LinkShare.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_LinkShare_Maximum_Commission_Rate', FAffiliates.LinkShare.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Order_Page', FAffiliates.NorthStarSol.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Vendor_ID', FAffiliates.NorthStarSol.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Product_ID', FAffiliates.NorthStarSol.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Maximum_Commission_Rate', FAffiliates.NorthStarSol.MaximumCommissionRate);
+
+        // Save OneNetworkDirect only for version 1.4+
+        if FAffiliates.Affiliates_VERSION >= '1.4' then
+        begin
+          SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Order_Page', FAffiliates.OneNetworkDirect.OrderPage);
+          SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Vendor_ID', FAffiliates.OneNetworkDirect.VendorID);
+          SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Product_ID', FAffiliates.OneNetworkDirect.ProductID);
+          SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Maximum_Commission_Rate',
+            FAffiliates.OneNetworkDirect.MaximumCommissionRate);
+        end;
+
+        SetNodeText(Doc, Node, 'Affiliates_Order1_Order_Page', FAffiliates.Order1.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_Order1_Vendor_ID', FAffiliates.Order1.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_Order1_Product_ID', FAffiliates.Order1.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_Order1_Maximum_Commission_Rate', FAffiliates.Order1.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_Osolis_Order_Page', FAffiliates.Osolis.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_Osolis_Vendor_ID', FAffiliates.Osolis.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_Osolis_Product_ID', FAffiliates.Osolis.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_Osolis_Maximum_Commission_Rate', FAffiliates.Osolis.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_Plimus_Order_Page', FAffiliates.Plimus.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_Plimus_Vendor_ID', FAffiliates.Plimus.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_Plimus_Product_ID', FAffiliates.Plimus.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_Plimus_Maximum_Commission_Rate', FAffiliates.Plimus.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_Regnet_Order_Page', FAffiliates.Regnet.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_Regnet_Vendor_ID', FAffiliates.Regnet.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_Regnet_Product_ID', FAffiliates.Regnet.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_Regnet_Maximum_Commission_Rate', FAffiliates.Regnet.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_Regnow_Order_Page', FAffiliates.Regnow.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_Regnow_Vendor_ID', FAffiliates.Regnow.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_Regnow_Product_ID', FAffiliates.Regnow.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_Regnow_Maximum_Commission_Rate', FAffiliates.Regnow.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_Regsoft_Order_Page', FAffiliates.Regsoft.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_Regsoft_Vendor_ID', FAffiliates.Regsoft.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_Regsoft_Product_ID', FAffiliates.Regsoft.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_Regsoft_Maximum_Commission_Rate', FAffiliates.Regsoft.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_ShareIt_Order_Page', FAffiliates.ShareIt.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_ShareIt_Vendor_ID', FAffiliates.ShareIt.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_ShareIt_Product_ID', FAffiliates.ShareIt.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_ShareIt_Maximum_Commission_Rate', FAffiliates.ShareIt.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_Shareasale_Order_Page', FAffiliates.Shareasale.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_Shareasale_Vendor_ID', FAffiliates.Shareasale.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_Shareasale_Product_ID', FAffiliates.Shareasale.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_Shareasale_Maximum_Commission_Rate', FAffiliates.Shareasale.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_SWReg_Order_Page', FAffiliates.SWReg.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_SWReg_Vendor_ID', FAffiliates.SWReg.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_SWReg_Product_ID', FAffiliates.SWReg.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_SWReg_Maximum_Commission_Rate', FAffiliates.SWReg.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_V-Share_Order_Page', FAffiliates.VShare.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_V-Share_Vendor_ID', FAffiliates.VShare.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_V-Share_Product_ID', FAffiliates.VShare.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_V-Share_Maximum_Commission_Rate', FAffiliates.VShare.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_VFree_Order_Page', FAffiliates.VFree.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_VFree_Vendor_ID', FAffiliates.VFree.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_VFree_Product_ID', FAffiliates.VFree.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_VFree_Maximum_Commission_Rate', FAffiliates.VFree.MaximumCommissionRate);
+
+        SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Order_Page', FAffiliates.Yaskifo.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Vendor_ID', FAffiliates.Yaskifo.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Product_ID', FAffiliates.Yaskifo.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Maximum_Commission_Rate', FAffiliates.Yaskifo.MaximumCommissionRate);
+      end;
+    end;
+
+    // ASP
+    if FASP.ASPForm then
+    begin
+      Node := AddChildNode(RootNode, 'ASP');
+      SetNodeText(Doc, Node, 'ASP_FORM', BoolToStr(FASP.ASPForm, 'Y', 'N'));
+      SetNodeText(Doc, Node, 'ASP_Member', BoolToStr(FASP.ASPMember, 'Y', 'N'));
+      SetNodeText(Doc, Node, 'ASP_Member_Number',
+        IfThen(FASP.ASPMemberNumber = 0, '', IntToStr(FASP.ASPMemberNumber)));
+    end;
 
     // Save to string
     Stream := TStringStream.Create('');
@@ -1555,6 +2083,138 @@ begin
   FPermissions.EULA := '';
   FPermissions.DistributionPermissionsStrings.Clear;
   FPermissions.EULAStrings.Clear;
+
+  // Clear Affiliates
+  FAffiliates.Affiliates_FORM := True;
+  FAffiliates.Affiliates_VERSION := '1.2'; // Default, will be updated on save based on master version
+  FAffiliates.Affiliates_URL := 'http://www.asp-shareware.org/pad/extensions/Affiliates.htm';
+  FAffiliates.Affiliates_Information_Page := '';
+
+  // Clear all affiliate companies
+  FAffiliates.Avangate.OrderPage := '';
+  FAffiliates.Avangate.VendorID := '';
+  FAffiliates.Avangate.ProductID := '';
+  FAffiliates.Avangate.MaximumCommissionRate := '';
+
+  FAffiliates.BMTMicro.OrderPage := '';
+  FAffiliates.BMTMicro.VendorID := '';
+  FAffiliates.BMTMicro.ProductID := '';
+  FAffiliates.BMTMicro.MaximumCommissionRate := '';
+
+  FAffiliates.Cleverbridge.OrderPage := '';
+  FAffiliates.Cleverbridge.VendorID := '';
+  FAffiliates.Cleverbridge.ProductID := '';
+  FAffiliates.Cleverbridge.MaximumCommissionRate := '';
+
+  FAffiliates.ClixGalore.OrderPage := '';
+  FAffiliates.ClixGalore.VendorID := '';
+  FAffiliates.ClixGalore.ProductID := '';
+  FAffiliates.ClixGalore.MaximumCommissionRate := '';
+
+  FAffiliates.CommissionJunction.OrderPage := '';
+  FAffiliates.CommissionJunction.VendorID := '';
+  FAffiliates.CommissionJunction.ProductID := '';
+  FAffiliates.CommissionJunction.MaximumCommissionRate := '';
+
+  FAffiliates.DigiBuy.OrderPage := '';
+  FAffiliates.DigiBuy.VendorID := '';
+  FAffiliates.DigiBuy.ProductID := '';
+  FAffiliates.DigiBuy.MaximumCommissionRate := '';
+
+  FAffiliates.DigitalCandle.OrderPage := '';
+  FAffiliates.DigitalCandle.VendorID := '';
+  FAffiliates.DigitalCandle.ProductID := '';
+  FAffiliates.DigitalCandle.MaximumCommissionRate := '';
+
+  FAffiliates.Emetrix.OrderPage := '';
+  FAffiliates.Emetrix.VendorID := '';
+  FAffiliates.Emetrix.ProductID := '';
+  FAffiliates.Emetrix.MaximumCommissionRate := '';
+
+  FAffiliates.eSellerate.OrderPage := '';
+  FAffiliates.eSellerate.VendorID := '';
+  FAffiliates.eSellerate.ProductID := '';
+  FAffiliates.eSellerate.MaximumCommissionRate := '';
+
+  FAffiliates.Kagi.OrderPage := '';
+  FAffiliates.Kagi.VendorID := '';
+  FAffiliates.Kagi.ProductID := '';
+  FAffiliates.Kagi.MaximumCommissionRate := '';
+
+  FAffiliates.LinkShare.OrderPage := '';
+  FAffiliates.LinkShare.VendorID := '';
+  FAffiliates.LinkShare.ProductID := '';
+  FAffiliates.LinkShare.MaximumCommissionRate := '';
+
+  FAffiliates.NorthStarSol.OrderPage := '';
+  FAffiliates.NorthStarSol.VendorID := '';
+  FAffiliates.NorthStarSol.ProductID := '';
+  FAffiliates.NorthStarSol.MaximumCommissionRate := '';
+
+  FAffiliates.OneNetworkDirect.OrderPage := '';
+  FAffiliates.OneNetworkDirect.VendorID := '';
+  FAffiliates.OneNetworkDirect.ProductID := '';
+  FAffiliates.OneNetworkDirect.MaximumCommissionRate := '';
+
+  FAffiliates.Order1.OrderPage := '';
+  FAffiliates.Order1.VendorID := '';
+  FAffiliates.Order1.ProductID := '';
+  FAffiliates.Order1.MaximumCommissionRate := '';
+
+  FAffiliates.Osolis.OrderPage := '';
+  FAffiliates.Osolis.VendorID := '';
+  FAffiliates.Osolis.ProductID := '';
+  FAffiliates.Osolis.MaximumCommissionRate := '';
+
+  FAffiliates.Plimus.OrderPage := '';
+  FAffiliates.Plimus.VendorID := '';
+  FAffiliates.Plimus.ProductID := '';
+  FAffiliates.Plimus.MaximumCommissionRate := '';
+
+  FAffiliates.Regnet.OrderPage := '';
+  FAffiliates.Regnet.VendorID := '';
+  FAffiliates.Regnet.ProductID := '';
+  FAffiliates.Regnet.MaximumCommissionRate := '';
+
+  FAffiliates.Regnow.OrderPage := '';
+  FAffiliates.Regnow.VendorID := '';
+  FAffiliates.Regnow.ProductID := '';
+  FAffiliates.Regnow.MaximumCommissionRate := '';
+
+  FAffiliates.Regsoft.OrderPage := '';
+  FAffiliates.Regsoft.VendorID := '';
+  FAffiliates.Regsoft.ProductID := '';
+  FAffiliates.Regsoft.MaximumCommissionRate := '';
+
+  FAffiliates.ShareIt.OrderPage := '';
+  FAffiliates.ShareIt.VendorID := '';
+  FAffiliates.ShareIt.ProductID := '';
+  FAffiliates.ShareIt.MaximumCommissionRate := '';
+
+  FAffiliates.Shareasale.OrderPage := '';
+  FAffiliates.Shareasale.VendorID := '';
+  FAffiliates.Shareasale.ProductID := '';
+  FAffiliates.Shareasale.MaximumCommissionRate := '';
+
+  FAffiliates.SWReg.OrderPage := '';
+  FAffiliates.SWReg.VendorID := '';
+  FAffiliates.SWReg.ProductID := '';
+  FAffiliates.SWReg.MaximumCommissionRate := '';
+
+  FAffiliates.VShare.OrderPage := '';
+  FAffiliates.VShare.VendorID := '';
+  FAffiliates.VShare.ProductID := '';
+  FAffiliates.VShare.MaximumCommissionRate := '';
+
+  FAffiliates.VFree.OrderPage := '';
+  FAffiliates.VFree.VendorID := '';
+  FAffiliates.VFree.ProductID := '';
+  FAffiliates.VFree.MaximumCommissionRate := '';
+
+  FAffiliates.Yaskifo.OrderPage := '';
+  FAffiliates.Yaskifo.VendorID := '';
+  FAffiliates.Yaskifo.ProductID := '';
+  FAffiliates.Yaskifo.MaximumCommissionRate := '';
 
   // Clear ASP
   FASP.ASPForm := False;

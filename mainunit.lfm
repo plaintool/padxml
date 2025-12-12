@@ -23,8 +23,8 @@ object formPadXml: TformPadXml
     Indent = 16
     NameFont.Color = clWindowText
     OnEditorFilter = peditPadEditorFilter
-    PreferredSplitterX = 200
-    SplitterX = 200
+    PreferredSplitterX = 250
+    SplitterX = 250
     ValueFont.Color = clMaroon
   end
   object MainMenu: TMainMenu

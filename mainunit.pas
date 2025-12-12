@@ -50,7 +50,7 @@ begin
   PadFormat := TPadFormat.Create(Self);
   with TStringList.Create do
   try
-    LoadFromFile('E:\pads\Asterisk Logger3.01.xml');
+    LoadFromFile('E:\pads\DbSchema4.0.xml');
     XMLContent := Text;
     PadFormat.LoadFromXML(XMLContent);
   finally
@@ -67,7 +67,7 @@ begin
   with TStringList.Create do
   try
     Text := PadFormat.SaveToXML;
-    SaveToFile('E:\pads\_Asterisk Logger3.01.xml');
+    SaveToFile('E:\pads\_DbSchema4.0.xml');
   finally
     Free;
   end;
