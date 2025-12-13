@@ -8,9 +8,11 @@ object formPadXml: TformPadXml
   ClientWidth = 713
   Menu = MainMenu
   LCLVersion = '4.4.0.0'
+  OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnDropFiles = FormDropFiles
+  OnShow = FormShow
   object peditPad: TTIPropertyGrid
     Left = 0
     Height = 457

@@ -29,8 +29,8 @@ uses
 
 begin
   RequireDerivedFormResource := True;
-  Application.Title := 'PadXml';
-  Application.Scaled := True;
+  Application.Title:='PadXml';
+  Application.Scaled:=True;
   {$PUSH}
   {$WARN 5044 OFF}
   Application.MainFormOnTaskbar := True;

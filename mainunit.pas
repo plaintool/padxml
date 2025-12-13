@@ -37,9 +37,9 @@ type
     Separator1: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
-    procedure FormShow(Sender: TObject);
     procedure menuCheckForUpdatesClick(Sender: TObject);
     procedure menuFileExitClick(Sender: TObject);
     procedure menuFileNewClick(Sender: TObject);
@@ -110,6 +110,17 @@ begin
   PadFormat.Free;
 end;
 
+procedure TformPadXml.FormShow(Sender: TObject);
+begin
+  if not FInitialized then
+  begin
+    FInitialized := True;
+
+    // Open file from command line if specified
+    OpenFileFromCommandLine;
+  end;
+end;
+
 procedure TformPadXml.FormCloseQuery(Sender: TObject; var CanClose: boolean);
 begin
   CanClose := IsCanClose;
@@ -122,17 +133,6 @@ begin
 
   // Get the first dropped file
   OpenFile(FileNames[0]);
-end;
-
-procedure TformPadXml.FormShow(Sender: TObject);
-begin
-  if not FInitialized then
-  begin
-    FInitialized := True;
-
-    // Open file from command line if specified
-    OpenFileFromCommandLine;
-  end;
 end;
 
 procedure TformPadXml.menuCheckForUpdatesClick(Sender: TObject);
@@ -460,7 +460,7 @@ var
   FileExt: string;
   j: integer;
 begin
-  ValidExtensions := ['.xml', '.txt', '.pad', '.config', '.cfg', '.ini'];
+  ValidExtensions := ['.xml', '.pad'];
 
   // Skip the first parameter (executable path)
   for i := 1 to ParamCount do
