@@ -201,10 +201,23 @@ type
     FFileSizeBytes: cardinal;
     FFileSizeK: cardinal;
     FFileSizeMB: double;
+    FFileNameVersioned: string;
+    FFileNamePrevious: string;
+    FFileNameGeneric: string;
+    FFileNameLong: string;
+    FFileNameVersionedExists: boolean;
+    FFileNamePreviousExists: boolean;
+    FFileNameGenericExists: boolean;
+    FFileNameLongExists: boolean;
+
   published
     property FileSizeBytes: cardinal read FFileSizeBytes write FFileSizeBytes;
     property FileSizeK: cardinal read FFileSizeK write FFileSizeK;
     property FileSizeMB: double read FFileSizeMB write FFileSizeMB;
+    property FileNameVersioned: string read FFileNameVersioned write FFileNameVersioned;
+    property FileNamePrevious: string read FFileNamePrevious write FFileNamePrevious;
+    property FileNameGeneric: string read FFileNameGeneric write FFileNameGeneric;
+    property FileNameLong: string read FFileNameLong write FFileNameLong;
   end;
 
   { TPadExpireInfo }
@@ -254,10 +267,19 @@ type
     FProgramLanguageAsian: TPadLangAsianSet;
     FProgramLanguageOtherMajor: TPadLangOtherMajorSet;
     FProgramLanguageWorld: TPadLangWorldSet;
+
     FProgramChangeInfo: string;
     FProgramSpecificCategory: string;
     FProgramCategoryClass: TPadProgramCategoryClass;
     FProgramSystemRequirements: string;
+
+    FIncludesJavaVm: boolean;
+    FIncludesVbRuntime: boolean;
+    FIncludesDirectX: boolean;
+    FIncludesJavaVmExists: boolean;
+    FIncludesVbRuntimeExists: boolean;
+    FIncludesDirectXExists: boolean;
+
     FFileInfo: TPadFileInfo;
     FExpireInfo: TPadExpireInfo;
 
@@ -313,6 +335,9 @@ type
     property ProgramSpecificCategory: string read FProgramSpecificCategory write FProgramSpecificCategory;
     property ProgramCategoryClass: TPadProgramCategoryClass read FProgramCategoryClass write FProgramCategoryClass;
     property ProgramSystemRequirements: string read FProgramSystemRequirements write FProgramSystemRequirements;
+    property IncludesJavaVm: boolean read FIncludesJavaVm write FIncludesJavaVm default False;
+    property IncludesVbRuntime: boolean read FIncludesVbRuntime write FIncludesVbRuntime default False;
+    property IncludesDirectX: boolean read FIncludesDirectX write FIncludesDirectX default False;
     property FileInfo: TPadFileInfo read FFileInfo write FFileInfo;
     property ExpireInfo: TPadExpireInfo read FExpireInfo write FExpireInfo;
   end;
@@ -1340,6 +1365,13 @@ begin
         FProgramInfo.ProgramCategoryClassAsString := GetNodeValue(Node, 'Program_Category_Class');
         FProgramInfo.ProgramSystemRequirements := GetNodeValue(Node, 'Program_System_Requirements');
 
+        FProgramInfo.FIncludesJavaVmExists := Assigned(Node.FindNode('Includes_JAVA_VM'));
+        FProgramInfo.IncludesJavaVm := UpperCase(GetNodeValue(Node, 'Includes_JAVA_VM')) = 'Y';
+        FProgramInfo.FIncludesVbRuntimeExists := Assigned(Node.FindNode('Includes_VB_Runtime'));
+        FProgramInfo.IncludesVbRuntime := UpperCase(GetNodeValue(Node, 'Includes_VB_Runtime')) = 'Y';
+        FProgramInfo.FIncludesDirectXExists := Assigned(Node.FindNode('Includes_DirectX'));
+        FProgramInfo.IncludesDirectX := UpperCase(GetNodeValue(Node, 'Includes_DirectX')) = 'Y';
+
         // Load File Info
         SubNode := Node.FindNode('File_Info');
         if Assigned(SubNode) then
@@ -1347,6 +1379,14 @@ begin
           FProgramInfo.FileInfo.FileSizeBytes := StrToInt64Safe(GetNodeValue(SubNode, 'File_Size_Bytes'));
           FProgramInfo.FileInfo.FileSizeK := StrToInt64Safe(GetNodeValue(SubNode, 'File_Size_K'));
           FProgramInfo.FileInfo.FileSizeMB := StrToFloatSafe(GetNodeValue(SubNode, 'File_Size_MB'));
+          FProgramInfo.FileInfo.FFileNameVersionedExists := Assigned(SubNode.FindNode('Filename_Versioned'));
+          FProgramInfo.FileInfo.FileNameVersioned := GetNodeValue(SubNode, 'Filename_Versioned');
+          FProgramInfo.FileInfo.FFileNamePreviousExists := Assigned(SubNode.FindNode('Filename_Previous'));
+          FProgramInfo.FileInfo.FileNamePrevious := GetNodeValue(SubNode, 'Filename_Previous');
+          FProgramInfo.FileInfo.FFileNameGenericExists := Assigned(SubNode.FindNode('Filename_Generic'));
+          FProgramInfo.FileInfo.FileNameGeneric := GetNodeValue(SubNode, 'Filename_Generic');
+          FProgramInfo.FileInfo.FFileNameLongExists := Assigned(SubNode.FindNode('Filename_Long'));
+          FProgramInfo.FileInfo.FileNameLong := GetNodeValue(SubNode, 'Filename_Long');
         end;
 
         // Load Expire Info
@@ -1759,8 +1799,26 @@ begin
     SetNodeText(Doc, Node, 'Program_System_Requirements',
       FProgramInfo.ProgramSystemRequirements);
 
+    if FProgramInfo.FIncludesJavaVmExists then
+      SetNodeText(Doc, Node, 'Includes_JAVA_VM',
+        BoolToStr(FProgramInfo.IncludesJavaVm, 'Y', 'N'));
+    if FProgramInfo.FIncludesVbRuntimeExists then
+      SetNodeText(Doc, Node, 'Includes_VB_Runtime',
+        BoolToStr(FProgramInfo.FIncludesVbRuntime, 'Y', 'N'));
+    if FProgramInfo.FIncludesDirectXExists then
+      SetNodeText(Doc, Node, 'Includes_DirectX',
+        BoolToStr(FProgramInfo.FIncludesDirectX, 'Y', 'N'));
+
     // File Info
     SubNode := AddChildNode(Node, 'File_Info');
+    if FProgramInfo.FileInfo.FFileNameVersionedExists then
+      SetNodeText(Doc, SubNode, 'Filename_Versioned', FProgramInfo.FileInfo.FFileNameVersioned);
+    if FProgramInfo.FileInfo.FFileNamePreviousExists then
+      SetNodeText(Doc, SubNode, 'Filename_Previous', FProgramInfo.FileInfo.FFileNamePrevious);
+    if FProgramInfo.FileInfo.FFileNameGenericExists then
+      SetNodeText(Doc, SubNode, 'Filename_Generic', FProgramInfo.FileInfo.FFileNameGeneric);
+    if FProgramInfo.FileInfo.FFileNameLongExists then
+      SetNodeText(Doc, SubNode, 'Filename_Long', FProgramInfo.FileInfo.FFileNameLong);
     SetNodeText(Doc, SubNode, 'File_Size_Bytes',
       IntToStr(FProgramInfo.FileInfo.FileSizeBytes));
     SetNodeText(Doc, SubNode, 'File_Size_K',
@@ -1772,6 +1830,7 @@ begin
     else
       SetNodeText(Doc, SubNode, 'File_Size_MB',
         FormatFloat('0.00##', FProgramInfo.FileInfo.FileSizeMB, FS));
+
 
     // Expire Info
     SubNode := AddChildNode(Node, 'Expire_Info');
@@ -1835,16 +1894,10 @@ begin
     SetNodeText(Doc, Node, 'Distribution_Permissions', FPermissions.DistributionPermissions);
     SetNodeText(Doc, Node, 'EULA', FPermissions.EULA);
 
-    // Save Affiliates
-    // Determine Affiliates version based on master version
-    if MasterPadVersionInfo.Version < 3.10 then
-      FAffiliates.Affiliates_VERSION := '1.2'
-    else
-      FAffiliates.Affiliates_VERSION := '1.4';
-
     // Check if we should save full section
     SaveFullSection := FAffiliates.ShouldSaveFullSection;
 
+    // Save Affiliates
     if (FAffiliates.Affiliates_FORM) then
     begin
       Node := AddChildNode(RootNode, 'Affiliates');
@@ -2128,11 +2181,25 @@ begin
   FProgramInfo.ProgramSpecificCategory := '';
   FProgramInfo.ProgramCategoryClass := pccNone;
   FProgramInfo.ProgramSystemRequirements := '';
+  FProgramInfo.IncludesJavaVm := False;
+  FProgramInfo.IncludesVbRuntime := False;
+  FProgramInfo.IncludesDirectX := False;
+  FProgramInfo.FIncludesJavaVmExists := False;
+  FProgramInfo.FIncludesVbRuntimeExists := False;
+  FProgramInfo.FIncludesDirectXExists := False;
 
   // Clear File Info
   FProgramInfo.FileInfo.FileSizeBytes := 0;
   FProgramInfo.FileInfo.FileSizeK := 0;
   FProgramInfo.FileInfo.FileSizeMB := 0;
+  FProgramInfo.FileInfo.FFileNameVersioned := '';
+  FProgramInfo.FileInfo.FFileNameVersionedExists := False;
+  FProgramInfo.FileInfo.FFileNamePrevious := '';
+  FProgramInfo.FileInfo.FFileNamePreviousExists := False;
+  FProgramInfo.FileInfo.FFileNameGeneric := '';
+  FProgramInfo.FileInfo.FFileNameGenericExists := False;
+  FProgramInfo.FileInfo.FFileNameLong := '';
+  FProgramInfo.FileInfo.FFileNameLongExists := False;
 
   // Clear Expire Info
   FProgramInfo.ExpireInfo.HasExpireInfo := False;
