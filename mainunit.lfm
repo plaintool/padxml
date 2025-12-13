@@ -57,6 +57,19 @@ object formPadXml: TformPadXml
         Caption = 'Exit'
       end
     end
+    object menuHelp: TMenuItem
+      Caption = 'Help'
+      object menuBuyMeACoffee: TMenuItem
+        Caption = 'Buy me a coffee...'
+      end
+      object menuCheckForUpdates: TMenuItem
+        Caption = 'Check for updates'
+        OnClick = menuCheckForUpdatesClick
+      end
+      object menuAbout: TMenuItem
+        Caption = 'About...'
+      end
+    end
   end
   object dialogOpen: TOpenDialog
     Options = [ofOverwritePrompt, ofFileMustExist, ofEnableSizing, ofViewDetail]

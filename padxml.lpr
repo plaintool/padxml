@@ -1,3 +1,10 @@
+//-----------------------------------------------------------------------------------
+//  PadXml © 2025 by Alexander Tverskoy
+//  https://github.com/plaintool/padxml
+//  Licensed under the MIT License
+//  You may obtain a copy of the License at https://opensource.org/licenses/MIT
+//-----------------------------------------------------------------------------------
+
 program padxml;
 
 {$mode objfpc}{$H+}
@@ -10,20 +17,25 @@ uses
   athreads,
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, mainunit, padformat, runtimetypeinfocontrols, padconst
-  { you can add units after this };
+  Forms,
+  mainunit,
+  padformat,
+  runtimetypeinfocontrols,
+  padconst,
+  settings,
+  systemtool { you can add units after this };
 
-{$R *.res}
+  {$R *.res}
 
 begin
-  RequireDerivedFormResource:=True;
-  Application.Title:='PadXml';
-  Application.Scaled:=True;
-  {$PUSH}{$WARN 5044 OFF}
-  Application.MainFormOnTaskbar:=True;
+  RequireDerivedFormResource := True;
+  Application.Title := 'PadXml';
+  Application.Scaled := True;
+  {$PUSH}
+  {$WARN 5044 OFF}
+  Application.MainFormOnTaskbar := True;
   {$POP}
   Application.Initialize;
   Application.CreateForm(TformPadXml, formPadXml);
   Application.Run;
 end.
-

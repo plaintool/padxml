@@ -1,3 +1,10 @@
+//-----------------------------------------------------------------------------------
+//  PadXml © 2025 by Alexander Tverskoy
+//  https://github.com/plaintool/padxml
+//  Licensed under the MIT License
+//  You may obtain a copy of the License at https://opensource.org/licenses/MIT
+//-----------------------------------------------------------------------------------
+
 unit mainunit;
 
 {$mode objfpc}{$H+}
@@ -21,6 +28,10 @@ type
     menuFileSaveAs: TMenuItem;
     menuFileNew: TMenuItem;
     dialogOpen: TOpenDialog;
+    menuHelp: TMenuItem;
+    menuBuyMeACoffee: TMenuItem;
+    menuCheckForUpdates: TMenuItem;
+    menuAbout: TMenuItem;
     peditPad: TTIPropertyGrid;
     dialogSave: TSaveDialog;
     Separator1: TMenuItem;
@@ -29,6 +40,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure FormShow(Sender: TObject);
+    procedure menuCheckForUpdatesClick(Sender: TObject);
     procedure menuFileExitClick(Sender: TObject);
     procedure menuFileNewClick(Sender: TObject);
     procedure menuFileOpenClick(Sender: TObject);
@@ -61,9 +73,11 @@ var
 
 implementation
 
-{$R *.lfm}
+uses systemtool;
 
-{ TformPadXml }
+  {$R *.lfm}
+
+  { TformPadXml }
 
 procedure TformPadXml.FormCreate(Sender: TObject);
 begin
@@ -119,6 +133,11 @@ begin
     // Open file from command line if specified
     OpenFileFromCommandLine;
   end;
+end;
+
+procedure TformPadXml.menuCheckForUpdatesClick(Sender: TObject);
+begin
+  CheckGithubLatestVersion;
 end;
 
 procedure TformPadXml.menuFileExitClick(Sender: TObject);
