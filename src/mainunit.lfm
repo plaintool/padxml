@@ -6,12 +6,14 @@ object formPadXml: TformPadXml
   Caption = 'formPadXml'
   ClientHeight = 457
   ClientWidth = 713
+  KeyPreview = True
   Menu = MainMenu
   LCLVersion = '4.4.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   OnDropFiles = FormDropFiles
+  OnKeyDown = FormKeyDown
   OnShow = FormShow
   object propertyPad: TTIPropertyGrid
     Left = 0
@@ -63,11 +65,12 @@ object formPadXml: TformPadXml
         ShortCut = 24659
         OnClick = menuFileSaveAsClick
       end
-      object Separator1: TMenuItem
+      object menuFileSeparator1: TMenuItem
         Caption = '-'
       end
       object menuFileExit: TMenuItem
         Caption = 'Exit'
+        OnClick = menuFileExitClick
       end
     end
     object menuHelp: TMenuItem

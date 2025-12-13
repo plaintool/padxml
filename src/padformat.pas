@@ -553,13 +553,29 @@ type
     property ASPMemberNumber: word read FASPMemberNumber write FASPMemberNumber;
   end;
 
-  { TPadFormat }
-  TPadFormat = class(TComponent)
+  { TXmlConfig }
+
+  TPadXmlCofig = class(TPersistent)
   private
     FXMLEncoding: TPadEncoding;
     FXMLUseTabIndent: boolean;
     FXMLIndentSize: integer;
-    FXmlEmptyTagType: TPadEmptyTagType;
+    FXMLEmptyTagType: TPadEmptyTagType;
+    FXMLEndsWithLineBreak: boolean;
+  public
+    constructor Create;
+  published
+    property XMLEncoding: TPadEncoding read FXMLEncoding write FXMLEncoding default peUTF8;
+    property XMLUseTabIndent: boolean read FXMLUseTabIndent write FXMLUseTabIndent default False;
+    property XMLIndentSize: integer read FXMLIndentSize write FXMLIndentSize;
+    property XMLEmptyTagType: TPadEmptyTagType read FXMLEmptyTagType write FXMLEmptyTagType default ettWithoutSpace;
+    property XMLEndsWithLineBreak: boolean read FXMLEndsWithLineBreak write FXMLEndsWithLineBreak default False;
+  end;
+
+  { TPadFormat }
+  TPadFormat = class(TComponent)
+  private
+    FXmlConfig: TPadXmlCofig;
     FMasterPadVersionInfo: TPadMasterVersionInfo;
     FCompanyInfo: TPadCompanyInfo;
     FNewsFeed: TPadNewsFeed;
@@ -579,9 +595,9 @@ type
     function DetectIndentSize(const XMLContent: string): integer;
     function DetectEmptyTagType(const XMLContent: string): TPadEmptyTagType;
     function ConvertIndentation(const XMLString: string; UseTabs: boolean; IndentSize: integer): string;
+    function ConvertEmptyTags(const XMLString: string; EmptyTagType: TPadEmptyTagType): string;
     function SetXMLDeclaration(XMLString: string; XMLVersion: string; Encoding: TPadEncoding): string;
     function RemoveXMLDeclaration(const XMLString: string): string;
-    function ConvertEmptyTags(const XMLString: string; EmptyTagType: TPadEmptyTagType): string;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -595,10 +611,7 @@ type
     // Method to clear all properties
     procedure Clear;
   published
-    property XMLEncoding: TPadEncoding read FXMLEncoding write FXMLEncoding default peUTF8;
-    property XMLUseTabIndent: boolean read FXMLUseTabIndent write FXMLUseTabIndent default False;
-    property XMLIndentSize: integer read FXMLIndentSize write FXMLIndentSize;
-    property XMLEmptyTagType: TPadEmptyTagType read FXmlEmptyTagType write FXmlEmptyTagType default ettWithoutSpace;
+    property XmlConfig: TPadXmlCofig read FXmlConfig write FXmlConfig;
     property MasterPadVersionInfo: TPadMasterVersionInfo read FMasterPadVersionInfo write FMasterPadVersionInfo;
     property CompanyInfo: TPadCompanyInfo read FCompanyInfo write FCompanyInfo;
     property NewsFeed: TPadNewsFeed read FNewsFeed write FNewsFeed;
@@ -663,8 +676,6 @@ function PadLanguagesToString(EuropeanSet: TPadLangEuropeanSet; AsianSet: TPadLa
   OtherMajorSet: TPadLangOtherMajorSet; WorldSet: TPadLangWorldSet): string;
 procedure StringToPadLanguages(const Value: string; out EuropeanSet: TPadLangEuropeanSet; out AsianSet: TPadLangAsianSet;
   out OtherMajorSet: TPadLangOtherMajorSet; out WorldSet: TPadLangWorldSet);
-
-procedure Register;
 
 implementation
 
@@ -1125,11 +1136,24 @@ begin
   Result := Trim(FAffiliates_Information_Page) = '';
 end;
 
+{ TXmlConfig }
+constructor TPadXmlCofig.Create;
+begin
+  // Initialize XML formatting options with default values
+  FXMLEncoding := peUTF8;           // Default XML encoding
+  FXMLUseTabIndent := False;         // Use spaces by default
+  FXMLIndentSize := 2;               // 2 spaces indentation
+  FXMLEmptyTagType := ettWithoutSpace; // Default empty tag format <Empty/>
+  FXMLEndsWithLineBreak := False;
+end;
+
+
 { TPadFormat }
 
 constructor TPadFormat.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
+  FXmlConfig := TPadXmlCofig.Create;
   FMasterPadVersionInfo := TPadMasterVersionInfo.Create;
   FCompanyInfo := TPadCompanyInfo.Create;
   FNewsFeed := TPadNewsFeed.Create;
@@ -1139,16 +1163,11 @@ begin
   FPermissions := TPadPermissions.Create;
   FAffiliates := TPadAffiliates.Create;
   FASP := TPadASP.Create;
-
-  // Initialize XML formatting options with default values
-  FXMLEncoding := peUTF8;           // Default XML encoding
-  FXMLUseTabIndent := False;         // Use spaces by default
-  FXMLIndentSize := 2;               // 2 spaces indentation
-  FXmlEmptyTagType := ettWithoutSpace; // Default empty tag format <Empty/>
 end;
 
 destructor TPadFormat.Destroy;
 begin
+  FXmlConfig.Free;
   FMasterPadVersionInfo.Free;
   FCompanyInfo.Free;
   FNewsFeed.Free;
@@ -1195,10 +1214,11 @@ begin
     Exit;
 
   // Detect XML formatting options from content
-  FXMLEncoding := DetectEncodingFromString(XMLContent);
-  FXmlUseTabIndent := DetectIndentationStyle(XMLContent);
-  FXmlIndentSize := DetectIndentSize(XMLContent);
-  FXmlEmptyTagType := DetectEmptyTagType(XMLContent);
+  FXmlConfig.XMLEncoding := DetectEncodingFromString(XMLContent);
+  FXmlConfig.XMLUseTabIndent := DetectIndentationStyle(XMLContent);
+  FXmlConfig.XMLIndentSize := DetectIndentSize(XMLContent);
+  FXmlConfig.XMLEmptyTagType := DetectEmptyTagType(XMLContent);
+  FXmlConfig.XMLEndsWithLineBreak := EndsStr(LineEnding, XMLContent);
 
   Stream := TStringStream.Create(XMLContent);
   try
@@ -1270,7 +1290,7 @@ begin
       Node := RootNode.FindNode('NewsFeed');
       if Assigned(Node) then
       begin
-        FNewsFeed.NewsFeed_FORM := UpperCase(GetNodeValue(Node, 'NewsFeed_FORM')) = 'Y';
+        FNewsFeed.NewsFeed_FORM := True;
         FNewsFeed.NewsFeed_VERSION := GetNodeValue(Node, 'NewsFeed_VERSION');
         FNewsFeed.NewsFeed_URL := GetNodeValue(Node, 'NewsFeed_URL');
         FNewsFeed.NewsFeed_TypeAsString := GetNodeValue(Node, 'NewsFeed_Type');
@@ -1287,7 +1307,9 @@ begin
         FNewsFeed.NewsFeed_Keywords := GetNodeValue(Node, 'NewsFeed_Keywords');
         FNewsFeed.NewsFeed_Description_70 := GetNodeValue(Node, 'NewsFeed_Description_70');
         FNewsFeed.NewsFeed_Description_250 := GetNodeValue(Node, 'NewsFeed_Description_250');
-      end;
+      end
+      else
+        FNewsFeed.NewsFeed_FORM := False;
 
       // Load Program Info
       Node := RootNode.FindNode('Program_Info');
@@ -1578,7 +1600,7 @@ begin
       Node := RootNode.FindNode('ASP');
       if Assigned(Node) then
       begin
-        FASP.ASPForm := UpperCase(GetNodeValue(Node, 'ASP_FORM')) = 'Y';
+        FASP.ASPForm := True;
         FASP.ASPMember := UpperCase(GetNodeValue(Node, 'ASP_Member')) = 'Y';
         FASP.ASPMemberNumber := StrToIntDef(GetNodeValue(Node, 'ASP_Member_Number'), 0);
       end
@@ -1744,8 +1766,12 @@ begin
     SetNodeText(Doc, SubNode, 'File_Size_K',
       IntToStr(FProgramInfo.FileInfo.FileSizeK));
     FS.DecimalSeparator := '.';
-    SetNodeText(Doc, SubNode, 'File_Size_MB',
-      FloatToStr(FProgramInfo.FileInfo.FileSizeMB, FS));
+    if Frac(FProgramInfo.FileInfo.FileSizeMB) = 0 then
+      SetNodeText(Doc, SubNode, 'File_Size_MB',
+        FormatFloat('0.####', FProgramInfo.FileInfo.FileSizeMB, FS))
+    else
+      SetNodeText(Doc, SubNode, 'File_Size_MB',
+        FormatFloat('0.00##', FProgramInfo.FileInfo.FileSizeMB, FS));
 
     // Expire Info
     SubNode := AddChildNode(Node, 'Expire_Info');
@@ -1988,22 +2014,24 @@ begin
 
     // Declaration Replace
     XMLContent := RemoveXMLDeclaration(XMLContent);
-    XMLContent := SetXMLDeclaration(XmlContent, UTF8Encode(Doc.XMLVersion), FXMLEncoding);
+    XMLContent := SetXMLDeclaration(XmlContent, UTF8Encode(Doc.XMLVersion), FXmlConfig.XMLEncoding);
 
     // Apply empty tag formatting if needed
-    if FXmlEmptyTagType <> ettWithoutSpace then
-      XMLContent := ConvertEmptyTags(XMLContent, FXmlEmptyTagType);
+    if FXmlConfig.XMLEmptyTagType <> ettWithoutSpace then
+      XMLContent := ConvertEmptyTags(XMLContent, FXmlConfig.XMLEmptyTagType);
 
-    if (FXmlUseTabIndent) or (FXmlIndentSize <> 2) then
+    if (FXmlConfig.XMLUseTabIndent) or (FXmlConfig.XMLIndentSize <> 2) then
     begin
       // Only convert if using tabs or custom space count
-      Result := ConvertIndentation(XMLContent, FXmlUseTabIndent, FXmlIndentSize);
+      Result := ConvertIndentation(XMLContent, FXmlConfig.XMLUseTabIndent, FXmlConfig.XMLIndentSize);
     end
     else
     begin
       // Keep original 2-space indentation
       Result := XMLContent;
     end;
+    if FXmlConfig.XMLEndsWithLineBreak then
+      Result += LineEnding;
   finally
     Doc.Free;
   end;
@@ -2284,10 +2312,11 @@ begin
   FASP.ASPMemberNumber := 0;
 
   // Clear XML formatting options
-  FXMLEncoding := peUTF8;
-  FXMLUseTabIndent := False;
-  FXMLIndentSize := 2;
-  FXmlEmptyTagType := ettWithoutSpace;
+  FXmlConfig.XMLEncoding := peUTF8;
+  FXmlConfig.XMLUseTabIndent := False;
+  FXmlConfig.XMLIndentSize := 2;
+  FXmlConfig.XMLEmptyTagType := ettWithoutSpace;
+  FXmlConfig.XMLEndsWithLineBreak := False;
 end;
 
 function TPadFormat.SetNodeText(Doc: TXMLDocument; ParentNode: TDOMNode; NodeName, NodeValue: string): TDOMNode;
@@ -2318,13 +2347,13 @@ begin
   begin
     if SameText(PadEncodingStrings[i], EncodingStr) then
     begin
-      FXmlEncoding := i;
+      FXmlConfig.XmlEncoding := i;
       Exit;
     end;
   end;
 
   // If not found, default to UTF-8
-  FXmlEncoding := peUTF8;
+  FXmlConfig.XmlEncoding := peUTF8;
 end;
 
 function TPadFormat.DetectEncodingFromString(const XMLContent: string): TPadEncoding;
@@ -2356,7 +2385,7 @@ begin
 
           // Convert to TPadEncoding
           SetEncodingByString(EncodingStr);
-          Result := FXmlEncoding;
+          Result := FXmlConfig.XmlEncoding;
           Exit;
         end
         else
@@ -2653,6 +2682,7 @@ begin
 
   Lines := TStringList.Create;
   try
+    Lines.TrailingLineBreak := False;
     Lines.Text := XMLString;
 
     for i := 0 to Lines.Count - 1 do
@@ -2689,48 +2719,6 @@ begin
   end;
 end;
 
-function TPadFormat.SetXMLDeclaration(XMLString: string; XMLVersion: string; Encoding: TPadEncoding): string;
-var
-  EncodingStr: string;
-  DeclarationStr: string;
-begin
-  // Get encoding string from TPadEncoding enumeration
-  if Encoding = peNone then
-    EncodingStr := ''
-  else
-    EncodingStr := PadEncodingStrings[Encoding];
-
-  // Set XML header data
-  DeclarationStr := '<?xml version="' + XMLVersion + '"';
-  if (EncodingStr <> '') then  DeclarationStr += ' encoding="' + EncodingStr + '"';
-  if FXmlEmptyTagType <> ettWithoutSpace then
-    DeclarationStr += ' ';
-  DeclarationStr += '?>';
-  Result := DeclarationStr + LineEnding + XMLString;
-end;
-
-function TPadFormat.RemoveXMLDeclaration(const XMLString: string): string;
-var
-  Lines: TStringList;
-begin
-  Lines := TStringList.Create;
-  try
-    Lines.Text := XMLString;
-
-    // Check if first line is an XML declaration
-    if (Lines.Count > 0) and (Pos('<?xml', Lines[0]) = 1) then
-      Lines.Delete(0);
-
-    // Remove any empty lines at the beginning
-    while (Lines.Count > 0) and (Trim(Lines[0]) = '') do
-      Lines.Delete(0);
-
-    Result := Lines.Text;
-  finally
-    Lines.Free;
-  end;
-end;
-
 function TPadFormat.ConvertEmptyTags(const XMLString: string; EmptyTagType: TPadEmptyTagType): string;
 var
   Lines: TStringList;
@@ -2747,6 +2735,7 @@ begin
 
   Lines := TStringList.Create;
   try
+    Lines.TrailingLineBreak := False;
     Lines.Text := XMLString;
 
     for i := 0 to Lines.Count - 1 do
@@ -2859,6 +2848,49 @@ begin
   end;
 end;
 
+function TPadFormat.SetXMLDeclaration(XMLString: string; XMLVersion: string; Encoding: TPadEncoding): string;
+var
+  EncodingStr: string;
+  DeclarationStr: string;
+begin
+  // Get encoding string from TPadEncoding enumeration
+  if Encoding = peNone then
+    EncodingStr := ''
+  else
+    EncodingStr := PadEncodingStrings[Encoding];
+
+  // Set XML header data
+  DeclarationStr := '<?xml version="' + XMLVersion + '"';
+  if (EncodingStr <> '') then  DeclarationStr += ' encoding="' + EncodingStr + '"';
+  if FXmlConfig.XMLEmptyTagType <> ettWithoutSpace then
+    DeclarationStr += ' ';
+  DeclarationStr += '?>';
+  Result := DeclarationStr + LineEnding + XMLString;
+end;
+
+function TPadFormat.RemoveXMLDeclaration(const XMLString: string): string;
+var
+  Lines: TStringList;
+begin
+  Lines := TStringList.Create;
+  try
+    Lines.TrailingLineBreak := False;
+    Lines.Text := XMLString;
+
+    // Check if first line is an XML declaration
+    if (Lines.Count > 0) and (Pos('<?xml', Lines[0]) = 1) then
+      Lines.Delete(0);
+
+    // Remove any empty lines at the beginning
+    while (Lines.Count > 0) and (Trim(Lines[0]) = '') do
+      Lines.Delete(0);
+
+    Result := Lines.Text;
+  finally
+    Lines.Free;
+  end;
+end;
+
 // Helper functions implementation
 
 function GetNodeText(Node: TDOMNode): string;
@@ -2919,7 +2951,7 @@ begin
   else if Value = 'Uninstall Only' then
     Result := pisUninstallOnly
   else
-    Result := pisInstallAndUninstall; // Default
+    Result := pisNone; // Default
 end;
 
 function PadProgramTypeToString(Value: TPadProgramType): string;
@@ -3522,11 +3554,6 @@ begin
   finally
     LangList.Free;
   end;
-end;
-
-procedure Register;
-begin
-  RegisterComponents('PAD', [TPadFormat]);
 end;
 
 end.

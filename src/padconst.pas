@@ -18,6 +18,7 @@ type
 
   // Enumerations for PAD standard values
   TPadInstallSupport = (
+    pisNone,
     pisInstallAndUninstall,
     pisInstallOnly,
     pisNoInstallSupport,

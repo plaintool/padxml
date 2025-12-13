@@ -12,8 +12,20 @@ unit mainunit;
 interface
 
 uses
-  Classes, SysUtils, Forms, Controls, Graphics, Dialogs, Menus, ComCtrls,
-  padformat, RTTIGrids, PropEdits, ObjectInspector, FileUtil;
+  Classes,
+  SysUtils,
+  FileUtil,
+  Forms,
+  Controls,
+  Graphics,
+  Dialogs,
+  Menus,
+  ComCtrls,
+  PropEdits,
+  ObjectInspector,
+  RTTIGrids,
+  LCLType,
+  padformat;
 
 type
 
@@ -34,10 +46,11 @@ type
     menuAbout: TMenuItem;
     propertyPad: TTIPropertyGrid;
     dialogSave: TSaveDialog;
-    Separator1: TMenuItem;
+    menuFileSeparator1: TMenuItem;
     StatusBar: TStatusBar;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
     procedure FormShow(Sender: TObject);
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
@@ -51,6 +64,9 @@ type
     procedure menuFileSaveClick(Sender: TObject);
     procedure propertyPadEditorFilter(Sender: TObject; aEditor: TPropertyEditor; var aShow: boolean);
     procedure propertyPadModified(Sender: TObject);
+    function EndsWithLineBreak(const Buffer: TBytes): boolean;
+    function EndsWithLineBreak(const FileName: string): boolean;
+    function LoadFileAsBytes(const FileName: string): TBytes;
   private
     PadFormat: TPadFormat;
     FFileName: string;
@@ -115,6 +131,12 @@ begin
   SaveFormSettings(Self);
 
   PadFormat.Free;
+end;
+
+procedure TformPadXml.FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 procedure TformPadXml.FormShow(Sender: TObject);
@@ -229,7 +251,7 @@ end;
 
 function TformPadXml.SaveFile(AFileName: string): boolean;
 var
-  sl: TStringList;
+  Output: TStringList;
 begin
   Result := False;
 
@@ -240,17 +262,19 @@ begin
     Exit;
   end;
 
-  sl := TStringList.Create;
+  Output := TStringList.Create;
   try
     try
+      Output.TrailingLineBreak := PadFormat.XmlConfig.XMLEndsWithLineBreak;
+
       // Get XML content
-      sl.Text := PadFormat.SaveToXML;
+      Output.Text := PadFormat.SaveToXML;
 
       // Ensure directory exists
       ForceDirectories(ExtractFilePath(AFileName));
 
       // Save file with UTF-8 encoding
-      sl.SaveToFile(AFileName, TEncoding.UTF8);
+      Output.SaveToFile(AFileName, TEncoding.UTF8);
 
       Result := True;
     except
@@ -262,13 +286,13 @@ begin
       end;
     end;
   finally
-    sl.Free;
+    Output.Free;
   end;
 end;
 
 function TformPadXml.LoadFromFile(AFileName: string): boolean;
 var
-  sl: TStringList;
+  Input: TStringList;
 begin
   Result := False;
 
@@ -290,19 +314,20 @@ begin
     // Ignore file size check errors
   end;
 
-  sl := TStringList.Create;
+  Input := TStringList.Create;
   try
+    Input.TrailingLineBreak := EndsWithLineBreak(AFileName);
     try
       // Load file with UTF-8 encoding (try UTF-8 first, fallback to ANSI)
       try
-        sl.LoadFromFile(AFileName, TEncoding.UTF8);
+        Input.LoadFromFile(AFileName, TEncoding.UTF8);
       except
         // If UTF-8 fails, try ANSI
-        sl.LoadFromFile(AFileName);
+        Input.LoadFromFile(AFileName);
       end;
 
       // Load into PadFormat
-      PadFormat.LoadFromXML(sl.Text);
+      PadFormat.LoadFromXML(Input.Text);
 
       // Refresh property grid
       propertyPad.TIObject := nil;
@@ -319,7 +344,7 @@ begin
       end;
     end;
   finally
-    sl.Free;
+    Input.Free;
   end;
 end;
 
@@ -579,15 +604,6 @@ begin
     Application.Title := Application.Title + '*';
 end;
 
-procedure TformPadXml.propertyPadModified(Sender: TObject);
-begin
-  if not FChanged then
-  begin
-    FChanged := True;
-    UpdateCaption;
-  end;
-end;
-
 procedure TformPadXml.propertyPadEditorFilter(Sender: TObject; aEditor: TPropertyEditor; var aShow: boolean);
 begin
   // hide Name
@@ -597,6 +613,50 @@ begin
   // hide Tag
   if SameText(aEditor.GetName, 'Tag') then
     aShow := False;
+end;
+
+procedure TformPadXml.propertyPadModified(Sender: TObject);
+begin
+  if not FChanged then
+  begin
+    FChanged := True;
+    UpdateCaption;
+  end;
+end;
+
+function TformPadXml.EndsWithLineBreak(const Buffer: TBytes): boolean;
+begin
+  Result := False;
+  if Length(Buffer) = 0 then Exit;
+
+  if (Buffer[High(Buffer)] = byte(#10)) or (Buffer[High(Buffer)] = byte(#13)) then
+    Result := True;
+end;
+
+function TformPadXml.EndsWithLineBreak(const FileName: string): boolean;
+var
+  Bytes: TBytes;
+begin
+  Bytes := LoadFileAsBytes(FileName);
+  Result := EndsWithLineBreak(Bytes);
+end;
+
+function TformPadXml.LoadFileAsBytes(const FileName: string): TBytes;
+var
+  FS: TFileStream;
+begin
+  Result := nil;
+  SetLength(Result, 0);
+  if not FileExists(FileName) then Exit;
+
+  FS := TFileStream.Create(FileName, fmOpenRead or fmShareDenyNone);
+  try
+    SetLength(Result, FS.Size);
+    if FS.Size > 0 then
+      FS.ReadBuffer(Result[0], FS.Size);
+  finally
+    FS.Free;
+  end;
 end;
 
 end.
