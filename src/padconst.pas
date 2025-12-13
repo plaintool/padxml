@@ -488,6 +488,12 @@ type
     peNone           // No encoding specified
     );
 
+  TPadEmptyTagType = (
+    ettWithoutSpace,   // <Empty/> (default)
+    ettWithSpace,      // <Empty />
+    ettDoubleSided     // <Empty></Empty>
+    );
+
 const
   CategoryCount = Ord(High(TPadProgramCategoryClass)) - Ord(Low(TPadProgramCategoryClass)) + 1;
 

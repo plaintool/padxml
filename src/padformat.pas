@@ -559,6 +559,7 @@ type
     FXMLEncoding: TPadEncoding;
     FXMLUseTabIndent: boolean;
     FXMLIndentSize: integer;
+    FXmlEmptyTagType: TPadEmptyTagType;
     FMasterPadVersionInfo: TPadMasterVersionInfo;
     FCompanyInfo: TPadCompanyInfo;
     FNewsFeed: TPadNewsFeed;
@@ -576,9 +577,11 @@ type
     function DetectEncodingFromString(const XMLContent: string): TPadEncoding;
     function DetectIndentationStyle(const XMLContent: string): boolean;
     function DetectIndentSize(const XMLContent: string): integer;
+    function DetectEmptyTagType(const XMLContent: string): TPadEmptyTagType;
     function ConvertIndentation(const XMLString: string; UseTabs: boolean; IndentSize: integer): string;
     function SetXMLDeclaration(XMLString: string; XMLVersion: string; Encoding: TPadEncoding): string;
     function RemoveXMLDeclaration(const XMLString: string): string;
+    function ConvertEmptyTags(const XMLString: string; EmptyTagType: TPadEmptyTagType): string;
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -593,8 +596,9 @@ type
     procedure Clear;
   published
     property XMLEncoding: TPadEncoding read FXMLEncoding write FXMLEncoding default peUTF8;
-    property XMLUseTabIndent: boolean read FXMLUseTabIndent write FXMLUseTabIndent;
+    property XMLUseTabIndent: boolean read FXMLUseTabIndent write FXMLUseTabIndent default False;
     property XMLIndentSize: integer read FXMLIndentSize write FXMLIndentSize;
+    property XMLEmptyTagType: TPadEmptyTagType read FXmlEmptyTagType write FXmlEmptyTagType default ettWithoutSpace;
     property MasterPadVersionInfo: TPadMasterVersionInfo read FMasterPadVersionInfo write FMasterPadVersionInfo;
     property CompanyInfo: TPadCompanyInfo read FCompanyInfo write FCompanyInfo;
     property NewsFeed: TPadNewsFeed read FNewsFeed write FNewsFeed;
@@ -1140,6 +1144,7 @@ begin
   FXMLEncoding := peUTF8;           // Default XML encoding
   FXMLUseTabIndent := False;         // Use spaces by default
   FXMLIndentSize := 2;               // 2 spaces indentation
+  FXmlEmptyTagType := ettWithoutSpace; // Default empty tag format <Empty/>
 end;
 
 destructor TPadFormat.Destroy;
@@ -1193,6 +1198,7 @@ begin
   FXMLEncoding := DetectEncodingFromString(XMLContent);
   FXmlUseTabIndent := DetectIndentationStyle(XMLContent);
   FXmlIndentSize := DetectIndentSize(XMLContent);
+  FXmlEmptyTagType := DetectEmptyTagType(XMLContent);
 
   Stream := TStringStream.Create(XMLContent);
   try
@@ -1982,6 +1988,10 @@ begin
     XMLContent := RemoveXMLDeclaration(XMLContent);
     XMLContent := SetXMLDeclaration(XmlContent, UTF8Encode(Doc.XMLVersion), FXMLEncoding);
 
+    // Apply empty tag formatting if needed
+    if FXmlEmptyTagType <> ettWithoutSpace then
+      XMLContent := ConvertEmptyTags(XMLContent, FXmlEmptyTagType);
+
     if (FXmlUseTabIndent) or (FXmlIndentSize <> 2) then
     begin
       // Only convert if using tabs or custom space count
@@ -2275,6 +2285,7 @@ begin
   FXMLEncoding := peUTF8;
   FXMLUseTabIndent := False;
   FXMLIndentSize := 2;
+  FXmlEmptyTagType := ettWithoutSpace;
 end;
 
 function TPadFormat.SetNodeText(Doc: TXMLDocument; ParentNode: TDOMNode; NodeName, NodeValue: string): TDOMNode;
@@ -2454,6 +2465,181 @@ begin
   end;
 end;
 
+function TPadFormat.DetectEmptyTagType(const XMLContent: string): TPadEmptyTagType;
+var
+  Lines: TStringList;
+  i, j, StartPos, EndPos: integer;
+  Line, TempLine: string;
+  InComment, InCDATA, InQuote: boolean;
+  QuoteChar: char;
+  WithoutSpaceCount, WithSpaceCount, DoubleSidedCount: integer;
+
+  function IsWhitespaceOnly(const S: string): boolean;
+  var
+    k: integer;
+  begin
+    Result := True;
+    for k := 1 to Length(S) do
+      if not (S[k] in [#9, #10, #13, #32]) then
+      begin
+        Result := False;
+        Break;
+      end;
+  end;
+
+begin
+  Result := ettWithoutSpace; // Default value
+  WithoutSpaceCount := 0;
+  WithSpaceCount := 0;
+  DoubleSidedCount := 0;
+
+  Lines := TStringList.Create;
+  try
+    Lines.Text := XMLContent;
+
+    for i := 0 to Lines.Count - 1 do
+    begin
+      Line := Lines[i];
+      InComment := False;
+      InCDATA := False;
+      InQuote := False;
+      QuoteChar := #0;
+
+      j := 1;
+      while j <= Length(Line) do
+      begin
+        // Check for comments <!-- ... -->
+        if not InCDATA and not InQuote and (j <= Length(Line) - 3) and (Line[j] = '<') and (Line[j + 1] = '!') and
+          (Line[j + 2] = '-') and (Line[j + 3] = '-') then
+        begin
+          InComment := True;
+          Inc(j, 4);
+          Continue;
+        end;
+
+        if InComment then
+        begin
+          if (j <= Length(Line) - 2) and (Line[j] = '-') and (Line[j + 1] = '-') and (Line[j + 2] = '>') then
+          begin
+            InComment := False;
+            Inc(j, 3);
+            Continue;
+          end;
+          Inc(j);
+          Continue;
+        end;
+
+        // Check for CDATA <![CDATA[ ... ]]>
+        if not InQuote and (j <= Length(Line) - 8) and (Line[j] = '<') and (Line[j + 1] = '!') and
+          (Line[j + 2] = '[') and (Line[j + 3] = 'C') and (Line[j + 4] = 'D') and (Line[j + 5] = 'A') and
+          (Line[j + 6] = 'T') and (Line[j + 7] = 'A') and (Line[j + 8] = '[') then
+        begin
+          InCDATA := True;
+          Inc(j, 9);
+          Continue;
+        end;
+
+        if InCDATA then
+        begin
+          if (j <= Length(Line) - 2) and (Line[j] = ']') and (Line[j + 1] = ']') and (Line[j + 2] = '>') then
+          begin
+            InCDATA := False;
+            Inc(j, 3);
+            Continue;
+          end;
+          Inc(j);
+          Continue;
+        end;
+
+        // Check for quote characters
+        if not InComment and not InCDATA then
+        begin
+          if (Line[j] = '"') or (Line[j] = '''') then
+          begin
+            if not InQuote then
+            begin
+              InQuote := True;
+              QuoteChar := Line[j];
+            end
+            else if Line[j] = QuoteChar then
+            begin
+              InQuote := False;
+            end;
+          end;
+        end;
+
+        // Look for empty tags when not in comments, CDATA or quotes
+        if not InComment and not InCDATA and not InQuote then
+        begin
+          // Check for self-closing tag: <tag/>
+          if (j <= Length(Line) - 1) and (Line[j] = '<') then
+          begin
+            // Find the end of the tag
+            StartPos := j;
+            EndPos := StartPos;
+            while (EndPos <= Length(Line)) and (Line[EndPos] <> '>') do
+              Inc(EndPos);
+
+            if (EndPos <= Length(Line)) and (Line[EndPos] = '>') then
+            begin
+              // Check if it's a self-closing tag (ends with />)
+              if (EndPos > StartPos + 1) and (Line[EndPos - 1] = '/') then
+              begin
+                // Check if there's a space before the slash
+                if (EndPos > StartPos + 2) and (Line[EndPos - 2] = ' ') then
+                  Inc(WithSpaceCount)   // <tag />
+                else
+                  Inc(WithoutSpaceCount); // <tag/>
+              end
+              else
+              begin
+                // It's an opening tag, check if it's followed by closing tag with no content
+                // Extract tag name
+                TempLine := Copy(Line, StartPos + 1, EndPos - StartPos - 1);
+
+                // Find closing tag for this opening tag
+                // This is simplified and assumes closing tag is on the same line
+                // For multi-line cases, we'd need more complex parsing
+                if EndPos < Length(Line) then
+                begin
+                  // Look for </tagname> after this position
+                  // First extract just the tag name without attributes
+                  if Pos(' ', TempLine) > 0 then
+                    TempLine := Copy(TempLine, 1, Pos(' ', TempLine) - 1);
+
+                  // Search for closing tag
+                  if Pos('</' + TempLine + '>', Line, EndPos + 1) > 0 then
+                  begin
+                    // Check if there's only whitespace between tags
+                    TempLine := Copy(Line, EndPos + 1, Pos('</' + TempLine + '>', Line, EndPos + 1) - EndPos - 1);
+                    if IsWhitespaceOnly(TempLine) then
+                      Inc(DoubleSidedCount);
+                  end;
+                end;
+              end;
+
+              j := EndPos; // Skip to the end of the tag
+            end;
+          end;
+        end;
+
+        Inc(j);
+      end;
+    end;
+
+    // Determine the most common empty tag type
+    if (DoubleSidedCount > WithoutSpaceCount) and (DoubleSidedCount > WithSpaceCount) then
+      Result := ettDoubleSided
+    else if WithSpaceCount > WithoutSpaceCount then
+      Result := ettWithSpace
+    else
+      Result := ettWithoutSpace;
+
+  finally
+    Lines.Free;
+  end;
+end;
+
 function TPadFormat.ConvertIndentation(const XMLString: string; UseTabs: boolean; IndentSize: integer): string;
 var
   Lines: TStringList;
@@ -2515,6 +2701,8 @@ begin
   // Set XML header data
   DeclarationStr := '<?xml version="' + XMLVersion + '"';
   if (EncodingStr <> '') then  DeclarationStr += ' encoding="' + EncodingStr + '"';
+  if FXmlEmptyTagType <> ettWithoutSpace then
+    DeclarationStr += ' ';
   DeclarationStr += '?>';
   Result := DeclarationStr + LineEnding + XMLString;
 end;
@@ -2534,6 +2722,134 @@ begin
     // Remove any empty lines at the beginning
     while (Lines.Count > 0) and (Trim(Lines[0]) = '') do
       Lines.Delete(0);
+
+    Result := Lines.Text;
+  finally
+    Lines.Free;
+  end;
+end;
+
+function TPadFormat.ConvertEmptyTags(const XMLString: string; EmptyTagType: TPadEmptyTagType): string;
+var
+  Lines: TStringList;
+  i, StartPos, EndPos: integer;
+  Line, TagName, NewTag: string;
+  InComment, InCDATA, InQuote: boolean;
+  QuoteChar: char;
+begin
+  if EmptyTagType = ettWithoutSpace then
+  begin
+    Result := XMLString;
+    Exit; // Default behavior, no conversion needed
+  end;
+
+  Lines := TStringList.Create;
+  try
+    Lines.Text := XMLString;
+
+    for i := 0 to Lines.Count - 1 do
+    begin
+      Line := Lines[i];
+      InComment := False;
+      InCDATA := False;
+      InQuote := False;
+      QuoteChar := #0;
+
+      StartPos := 1;
+      while StartPos <= Length(Line) do
+      begin
+        // Check for comments <!-- ... -->
+        if not InCDATA and not InQuote and (StartPos <= Length(Line) - 3) and (Line[StartPos] = '<') and
+          (Line[StartPos + 1] = '!') and (Line[StartPos + 2] = '-') and (Line[StartPos + 3] = '-') then
+        begin
+          InComment := True;
+        end;
+
+        // Check for CDATA <![CDATA[ ... ]]>
+        if not InComment and not InQuote and (StartPos <= Length(Line) - 8) and (Line[StartPos] = '<') and
+          (Line[StartPos + 1] = '!') and (Line[StartPos + 2] = '[') and (Line[StartPos + 3] = 'C') and
+          (Line[StartPos + 4] = 'D') and (Line[StartPos + 5] = 'A') and (Line[StartPos + 6] = 'T') and
+          (Line[StartPos + 7] = 'A') and (Line[StartPos + 8] = '[') then
+        begin
+          InCDATA := True;
+        end;
+
+        // Check for quote characters
+        if not InComment and not InCDATA then
+        begin
+          if (Line[StartPos] = '"') or (Line[StartPos] = '''') then
+          begin
+            if not InQuote then
+            begin
+              InQuote := True;
+              QuoteChar := Line[StartPos];
+            end
+            else if Line[StartPos] = QuoteChar then
+            begin
+              InQuote := False;
+            end;
+          end;
+        end;
+
+        // Look for empty tags when not in comments, CDATA or quotes
+        if not InComment and not InCDATA and not InQuote and (StartPos <= Length(Line) - 2) and (Line[StartPos] = '<') then
+        begin
+          // Find the end of the tag
+          EndPos := StartPos;
+          while (EndPos <= Length(Line)) and (Line[EndPos] <> '>') do
+            Inc(EndPos);
+
+          if (EndPos <= Length(Line)) and (Line[EndPos] = '>') then
+          begin
+            // Check if it's an empty tag (ends with />)
+            if (EndPos > StartPos + 1) and (Line[EndPos - 1] = '/') then
+            begin
+              // Extract the tag content (without < and >)
+              TagName := Copy(Line, StartPos + 1, EndPos - StartPos - 2);
+
+              // Remove trailing slash for ettWithSpace and ettDoubleSided
+              if (TagName[Length(TagName)] = '/') then
+                Delete(TagName, Length(TagName), 1);
+
+              // Remove trailing space if present
+              if (Length(TagName) > 0) and (TagName[Length(TagName)] = ' ') then
+                Delete(TagName, Length(TagName), 1);
+
+              case EmptyTagType of
+                ettWithSpace:
+                begin
+                  // Format: <tag />
+                  NewTag := '<' + TagName + ' />';
+                end;
+                ettDoubleSided:
+                begin
+                  // Format: <tag></tag>
+                  // Extract just the tag name without attributes
+                  if Pos(' ', TagName) > 0 then
+                    NewTag := '<' + TagName + '></' + Copy(TagName, 1, Pos(' ', TagName) - 1) + '>'
+                  else
+                    NewTag := '<' + TagName + '></' + TagName + '>';
+                end;
+                else
+                  NewTag := '<' + TagName + '/>';
+              end;
+
+              // Replace the tag in the line
+              Delete(Line, StartPos, EndPos - StartPos + 1);
+              Insert(NewTag, Line, StartPos);
+
+              // Adjust positions for the next search
+              StartPos := StartPos + Length(NewTag);
+              Continue;
+            end;
+          end;
+        end;
+
+        Inc(StartPos);
+      end;
+
+      Lines[i] := Line;
+    end;
 
     Result := Lines.Text;
   finally

@@ -251,8 +251,7 @@ begin
     except
       on E: Exception do
       begin
-        MessageDlg('Save Error',
-          'Error saving file:' + sLineBreak + E.Message,
+        MessageDlg('Save Error', 'Error saving file:' + sLineBreak + E.Message,
           mtError, [mbOK], 0);
         Result := False;
       end;
@@ -309,8 +308,7 @@ begin
     except
       on E: Exception do
       begin
-        MessageDlg('Load Error',
-          'Error loading file:' + sLineBreak + E.Message + sLineBreak + 'File may be corrupted or in wrong format.',
+        MessageDlg('Load Error', 'Error loading file:' + sLineBreak + E.Message + sLineBreak + 'File may be corrupted or in wrong format.',
           mtError, [mbOK], 0);
         Result := False;
       end;
