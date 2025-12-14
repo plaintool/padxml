@@ -2491,8 +2491,9 @@ end;
 function TPadFormat.DetectEncodingFromString(const XMLContent: string): TPadEncoding;
 var
   Lines: TStringList;
-  i: integer;
+  i, pStart, pEnd: integer;
   Line, EncodingStr: string;
+  QuoteChar: Char;
 begin
   Result := peNone; // Default encoding
 
@@ -2509,16 +2510,36 @@ begin
       if Pos('<?xml', Line) = 1 then
       begin
         // Look for encoding attribute
-        if Pos('encoding=', Line) > 0 then
+        pStart := Pos('encoding=', Line);
+        if pStart > 0 then
         begin
-          // Extract encoding value
-          EncodingStr := Copy(Line, Pos('encoding=', Line) + 10, MaxInt);
-          EncodingStr := Copy(EncodingStr, 1, Pos('"', EncodingStr) - 1);
+          // Skip 'encoding='
+          pStart := pStart + 9;
 
-          // Convert to TPadEncoding
-          SetEncodingByString(EncodingStr);
-          Result := FXmlConfig.XmlEncoding;
-          Exit;
+          // Find the opening quote (skip any whitespace)
+          while (pStart <= Length(Line)) and (Line[pStart] in [' ', #9]) do
+            Inc(pStart);
+
+          if (pStart <= Length(Line)) and (Line[pStart] in ['"', '''']) then
+          begin
+            QuoteChar := Line[pStart];
+
+            // Find the closing quote of the same type
+            pEnd := pStart + 1;
+            while (pEnd <= Length(Line)) and (Line[pEnd] <> QuoteChar) do
+              Inc(pEnd);
+
+            if pEnd <= Length(Line) then
+            begin
+              // Extract encoding value
+              EncodingStr := Copy(Line, pStart + 1, pEnd - pStart - 1);
+
+              // Convert to TPadEncoding
+              SetEncodingByString(EncodingStr);
+              Result := FXmlConfig.XmlEncoding;
+              Exit;
+            end;
+          end;
         end
         else
         begin
