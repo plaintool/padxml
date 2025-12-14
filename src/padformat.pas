@@ -439,14 +439,17 @@ type
     FVideoLink1URL: string;
     FVideoLink2URLExists: boolean;
     FVideoLink2URL: string;
+
+    procedure SetVideoLink1URL(const Value: string);
+    procedure SetVideoLink2URL(const Value: string);
   published
     property ApplicationInfoURL: string read FApplicationInfoURL write FApplicationInfoURL;
     property ApplicationOrderURL: string read FApplicationOrderURL write FApplicationOrderURL;
     property ApplicationScreenshotURL: string read FApplicationScreenshotURL write FApplicationScreenshotURL;
     property ApplicationIconURL: string read FApplicationIconURL write FApplicationIconURL;
     property ApplicationXMLFileURL: string read FApplicationXMLFileURL write FApplicationXMLFileURL;
-    property VideoLink1URL: string read FVideoLink1URL write FVideoLink1URL;
-    property VideoLink2URL: string read FVideoLink2URL write FVideoLink2URL;
+    property VideoLink1URL: string read FVideoLink1URL write SetVideoLink1URL;
+    property VideoLink2URL: string read FVideoLink2URL write SetVideoLink2URL;
   end;
 
   { TPadDownloadURLs }
@@ -1177,6 +1180,26 @@ destructor TPadProgramDescriptions.Destroy;
 begin
   FLanguage.Free;
   inherited Destroy;
+end;
+
+{ TPadApplicationURLs }
+
+procedure TPadApplicationURLs.SetVideoLink1URL(const Value: string);
+begin
+  if FVideoLink1URL <> Value then
+  begin
+    FVideoLink1URL := Value;
+    FVideoLink1URLExists := True;
+  end;
+end;
+
+procedure TPadApplicationURLs.SetVideoLink2URL(const Value: string);
+begin
+  if FVideoLink2URL <> Value then
+  begin
+    FVideoLink2URL := Value;
+    FVideoLink2URLExists := True;
+  end;
 end;
 
 { TPadWebInfo }
