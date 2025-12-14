@@ -2756,7 +2756,8 @@ function TPadFormat.ConvertIndentation(const XMLString: string; UseTabs: boolean
 var
   Lines: TStringList;
   i, SpaceCount, Level: integer;
-  Line, NewIndent: string;
+  Line, TrimmedLine: string;
+  InsideTextNode: boolean;
 begin
   if (IndentSize <= 0) then
     IndentSize := 2;
@@ -2766,37 +2767,77 @@ begin
     Lines.TrailingLineBreak := False;
     Lines.Text := XMLString;
 
+    InsideTextNode := False;
+
     for i := 0 to Lines.Count - 1 do
     begin
       Line := Lines[i];
+      TrimmedLine := Trim(Line);
 
-      // Count all leading spaces in the line
-      SpaceCount := 0;
-      while (SpaceCount < Length(Line)) and (Line[SpaceCount + 1] = ' ') do
-        Inc(SpaceCount);
+      // Skip empty lines
+      if TrimmedLine = '' then
+        Continue;
 
-      // Calculate level based on complete pairs of spaces
-      // WriteXML uses 2 spaces per level, so we use integer division
-      // This ignores any extra single spaces that might be part of text content
-      Level := SpaceCount div 2;
-
-      // Create new indentation string
-      if UseTabs then
-        NewIndent := StringOfChar(#9, Level * IndentSize)  // Use tabs
-      else
-        NewIndent := StringOfChar(' ', Level * IndentSize);  // Use spaces
-
-      // Replace indentation in line
-      if Level > 0 then
+      // Check if we're entering or leaving a text node
+      if not InsideTextNode then
       begin
-        // Remove only complete pairs of spaces (2 * Level)
-        // This preserves any extra single spaces that might be content
-        Delete(Line, 1, Level * 2);
-        // Add new indentation
-        Line := NewIndent + Line;
+        // If line doesn't start with '<', it's the start of text content
+        if (TrimmedLine[1] <> '<') then
+        begin
+          InsideTextNode := True;
+          // Leave text lines as-is
+          Continue;
+        end;
+      end
+      else
+      begin
+        // We're inside a text node
+        // If line starts with '<', check if it's a closing tag
+        if (TrimmedLine[1] = '<') then
+        begin
+          // Check if it's a closing tag
+          if (Length(TrimmedLine) > 1) and (TrimmedLine[2] = '/') then
+          begin
+            // This is a closing tag after text - leave it as-is
+            InsideTextNode := False;
+            Continue;
+          end;
+        end;
+        // Still inside text node - leave as-is
+        Continue;
       end;
 
-      Lines[i] := Line;
+      // If we get here, we're processing a structural tag (not inside text node)
+      // Check if line starts with space (indented structural tag)
+      if (Length(Line) > 0) and (Line[1] = ' ') then
+      begin
+        // Count leading spaces
+        SpaceCount := 0;
+        while (SpaceCount < Length(Line)) and (Line[SpaceCount + 1] = ' ') do
+          Inc(SpaceCount);
+
+        // Check if after spaces there's a '<' (should be for WriteXML structural tags)
+        if (SpaceCount < Length(Line)) and (Line[SpaceCount + 1] = '<') then
+        begin
+          // Calculate level (WriteXML uses 2 spaces per level)
+          Level := SpaceCount div 2;
+
+          // Create new indentation
+          if UseTabs then
+            Line := StringOfChar(#9, Level) + Copy(Line, SpaceCount + 1, MaxInt)
+          else
+            Line := StringOfChar(' ', Level * IndentSize) + Copy(Line, SpaceCount + 1, MaxInt);
+
+          Lines[i] := Line;
+        end;
+      end
+      else if (Length(Line) > 0) and (Line[1] = '<') then
+      begin
+        // This is a structural tag at level 0 (no leading spaces)
+        // Trim any accidental leading/trailing spaces
+        Lines[i] := TrimmedLine;
+      end;
+      // All other cases are already handled or left as-is
     end;
 
     Result := Lines.Text;
