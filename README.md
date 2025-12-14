@@ -1,11 +1,14 @@
 # PadXml
-> **Note:** `This application is still under development and may contain unfinished features or bugs!`
+
+> **⚠️Warning⚠️** `This application is still under development and may contain unfinished features or bugs!`
 
 A lightweight application designed to create, edit, and maintain PAD (Portable Application Description) XML files. PAD files are used to describe software products in a standardized format for software directories, download sites, and application catalogs, helping automate software listing and distribution.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Build with: Lazarus](https://img.shields.io/badge/Build_with-Lazarus-blueviolet)](https://www.lazarus-ide.org/)
 [![Platform: Windows](https://img.shields.io/badge/Platform-Windows-yellow)](#)
+
+![sample1](samples/sample1.png)
 
 ## Installation
 

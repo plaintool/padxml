@@ -6,7 +6,6 @@
 *.mo
 *.tar.gz
 /lib
-/samples
 /installer/debsetup/*.deb
 /installer/debsetup/DATA/usr/bin/notetask
 /installer/rpmsetup/*.rpm
