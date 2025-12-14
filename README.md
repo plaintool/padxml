@@ -18,8 +18,8 @@ A lightweight application designed to create, edit, and maintain PAD (Portable A
 
 Several installer options are available on the releases page:
 
-- **tagxml-x64.msi** / **tagxml-x86.msi** — installs the application **for the current user**.  
-- **tagxml-x64-allusers.msi** / **tagxml-x86-allusers.msi** — installs the application **for all users on the system**.  
+- **padxml-x64.msi** / **padxml-x86.msi** — installs the application **for the current user**.  
+- **padxml-x64-allusers.msi** / **padxml-x86-allusers.msi** — installs the application **for all users on the system**.  
 
 Download the installer from the [releases page](https://github.com/plaintool/padxml/releases), run it, and follow the on-screen instructions. After installation, you can launch Notetask from the Start menu or from the desktop shortcut.
 

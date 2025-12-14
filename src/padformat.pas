@@ -267,7 +267,7 @@ type
     FProgramReleaseYear: word;
     FProgramCostDollars: string;
     FProgramCostOtherCode: string;
-    FProgramCostOther: word;
+    FProgramCostOther: string;
     FProgramType: TPadProgramType;
     FProgramReleaseStatus: TPadReleaseStatus;
     FProgramInstallSupport: TPadInstallSupport;
@@ -335,7 +335,7 @@ type
     property ProgramReleaseYear: word read FProgramReleaseYear write FProgramReleaseYear;
     property ProgramCostDollars: string read FProgramCostDollars write FProgramCostDollars;
     property ProgramCostOtherCode: string read FProgramCostOtherCode write FProgramCostOtherCode;
-    property ProgramCostOther: word read FProgramCostOther write FProgramCostOther;
+    property ProgramCostOther: string read FProgramCostOther write FProgramCostOther;
     property ProgramType: TPadProgramType read FProgramType write FProgramType;
     property ProgramReleaseStatus: TPadReleaseStatus read FProgramReleaseStatus write FProgramReleaseStatus;
     property ProgramInstallSupport: TPadInstallSupport read FProgramInstallSupport write FProgramInstallSupport;
@@ -1543,7 +1543,7 @@ begin
         FProgramInfo.ProgramReleaseYear := StrToIntDef(GetNodeValue(Node, 'Program_Release_Year'), 0);
         FProgramInfo.ProgramCostDollars := GetNodeValue(Node, 'Program_Cost_Dollars');
         FProgramInfo.ProgramCostOtherCode := GetNodeValue(Node, 'Program_Cost_Other_Code');
-        FProgramInfo.ProgramCostOther := StrToIntDef(GetNodeValue(Node, 'Program_Cost_Other'), 0);
+        FProgramInfo.ProgramCostOther := GetNodeValue(Node, 'Program_Cost_Other');
 
         // Use string properties that will handle conversion
         FProgramInfo.ProgramTypeAsString := GetNodeValue(Node, 'Program_Type');
@@ -1987,7 +1987,7 @@ begin
     SetNodeText(Doc, Node, 'Program_Cost_Other_Code',
       FProgramInfo.ProgramCostOtherCode);
     SetNodeText(Doc, Node, 'Program_Cost_Other',
-      IfThen(FProgramInfo.ProgramCostOther = 0, '', IntToStr(FProgramInfo.ProgramCostOther)));
+      FProgramInfo.ProgramCostOther);
     SetNodeText(Doc, Node, 'Program_Type',
       FProgramInfo.ProgramTypeAsString);
     SetNodeText(Doc, Node, 'Program_Release_Status',
@@ -2022,14 +2022,6 @@ begin
 
     // File Info
     SubNode := AddChildNode(Node, 'File_Info');
-    if FProgramInfo.FileInfo.FFileNameVersionedExists then
-      SetNodeText(Doc, SubNode, 'Filename_Versioned', FProgramInfo.FileInfo.FFileNameVersioned);
-    if FProgramInfo.FileInfo.FFileNamePreviousExists then
-      SetNodeText(Doc, SubNode, 'Filename_Previous', FProgramInfo.FileInfo.FFileNamePrevious);
-    if FProgramInfo.FileInfo.FFileNameGenericExists then
-      SetNodeText(Doc, SubNode, 'Filename_Generic', FProgramInfo.FileInfo.FFileNameGeneric);
-    if FProgramInfo.FileInfo.FFileNameLongExists then
-      SetNodeText(Doc, SubNode, 'Filename_Long', FProgramInfo.FileInfo.FFileNameLong);
     SetNodeText(Doc, SubNode, 'File_Size_Bytes',
       IntToStr(FProgramInfo.FileInfo.FileSizeBytes));
     FS.DecimalSeparator := '.';
@@ -2045,6 +2037,14 @@ begin
     else
       SetNodeText(Doc, SubNode, 'File_Size_MB',
         FormatFloat('0.00##', FProgramInfo.FileInfo.FileSizeMB, FS));
+    if FProgramInfo.FileInfo.FFileNameVersionedExists then
+      SetNodeText(Doc, SubNode, 'Filename_Versioned', FProgramInfo.FileInfo.FFileNameVersioned);
+    if FProgramInfo.FileInfo.FFileNamePreviousExists then
+      SetNodeText(Doc, SubNode, 'Filename_Previous', FProgramInfo.FileInfo.FFileNamePrevious);
+    if FProgramInfo.FileInfo.FFileNameGenericExists then
+      SetNodeText(Doc, SubNode, 'Filename_Generic', FProgramInfo.FileInfo.FFileNameGeneric);
+    if FProgramInfo.FileInfo.FFileNameLongExists then
+      SetNodeText(Doc, SubNode, 'Filename_Long', FProgramInfo.FileInfo.FFileNameLong);
 
     // Expire Info
     SubNode := AddChildNode(Node, 'Expire_Info');
@@ -2385,7 +2385,7 @@ begin
   FProgramInfo.ProgramReleaseYear := 0;
   FProgramInfo.ProgramCostDollars := '0';
   FProgramInfo.ProgramCostOtherCode := '';
-  FProgramInfo.ProgramCostOther := 0;
+  FProgramInfo.ProgramCostOther := '';
   FProgramInfo.ProgramType := pptShareware;
   FProgramInfo.ProgramReleaseStatus := prsNewRelease;
   FProgramInfo.ProgramInstallSupport := pisInstallAndUninstall;
