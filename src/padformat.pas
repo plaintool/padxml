@@ -53,6 +53,7 @@ type
   { TPadRoboSoft }
   TPadRoboSoft = class(TPersistent)
   private
+    FEnabled: boolean;
     FCompany_UIN: string;
     FCompany_Description: string;
     FProduct_UIN: string;
@@ -67,6 +68,7 @@ type
     FComments_For_Reviewer: string;
     FBacklink: string;
   published
+    property Active: boolean read FEnabled write FEnabled default False;
     property Company_UIN: string read FCompany_UIN write FCompany_UIN;
     property Company_Description: string read FCompany_Description write FCompany_Description;
     property Product_UIN: string read FProduct_UIN write FProduct_UIN;
@@ -172,6 +174,8 @@ type
   { TPadNewsFeed }
   TPadNewsFeed = class(TPersistent)
   private
+    FEnabled: boolean;
+
     // Original fields for XML serialization
     FNewsFeed_FORM: boolean;
     FNewsFeed_VERSION: string;
@@ -212,6 +216,7 @@ type
     property NewsFeed_Description_250: string read FNewsFeed_Description_250 write FNewsFeed_Description_250;
     property NewsFeed_TypeAsString: string read GetNewsFeed_TypeAsString write SetNewsFeed_TypeAsString stored False;
   published
+    property Active: boolean read FEnabled write FEnabled default False;
     // Simple string properties
     property NewsFeed_FORM: boolean read FNewsFeed_FORM write FNewsFeed_FORM;
     property NewsFeed_VERSION: string read FNewsFeed_VERSION write FNewsFeed_VERSION;
@@ -240,6 +245,7 @@ type
   { TPadSite }
   TPadSite = class(TPersistent)
   private
+    FEnabled: boolean;
     FSite_FORM: boolean;
     FSite_VERSION: string;
     FSite_URL: string;
@@ -254,6 +260,7 @@ type
     FSite_Keywords: string;
     FSite_Description_450: string;
   published
+    property Active: boolean read FEnabled write FEnabled default False;
     property Site_FORM: boolean read FSite_FORM write FSite_FORM;
     property Site_VERSION: string read FSite_VERSION write FSite_VERSION;
     property Site_URL: string read FSite_URL write FSite_URL;
@@ -272,18 +279,20 @@ type
   { TPadPADCertificationPromotion }
   TPadPADCertificationPromotion = class(TPersistent)
   private
-    FApply_For_CertificationExists: boolean;
+    FEnabled: boolean;
     FApply_For_Certification: boolean;
   published
+    property Active: boolean read FEnabled write FEnabled default False;
     property Apply_For_Certification: boolean read FApply_For_Certification write FApply_For_Certification;
   end;
 
   { TPadDynamicPAD }
   TPadDynamicPAD = class(TPersistent)
   private
-    FDynamic_DistributiveExists: boolean;
+    FEnabled: boolean;
     FDynamic_Distributive: boolean;
   published
+    property Active: boolean read FEnabled write FEnabled default False;
     property Dynamic_Distributive: boolean read FDynamic_Distributive write FDynamic_Distributive;
   end;
 
@@ -591,6 +600,7 @@ type
   { TPadPermissions }
   TPadPermissions = class(TPersistent)
   private
+    FEnabled: boolean;
     // Original string fields for XML serialization
     FDistributionPermissions: string;
     FEULA: string;
@@ -616,6 +626,7 @@ type
     property DistributionPermissions: string read FDistributionPermissions write FDistributionPermissions;
     property EULA: string read FEULA write FEULA;
   published
+    property Active: boolean read FEnabled write FEnabled default False;
     // TStrings properties for PropertyGrid
     property DistributionPermissionsStrings: TStrings read GetDistributionPermissionsStrings
       write SetDistributionPermissionsStrings stored False;
@@ -625,6 +636,7 @@ type
   { TPadPressRelease }
   TPadPressRelease = class(TPersistent)
   private
+    FEnabled: boolean;
     // Original string fields for XML serialization
     FPressRelease: string;
     FHeadline: string;
@@ -654,6 +666,7 @@ type
     property PressRelease: string read FPressRelease write FPressRelease;
     property PressReleasePlain: string read FPressReleasePlain write FPressReleasePlain;
   published
+    property Active: boolean read FEnabled write FEnabled default False;
     // Simple string properties
     property Headline: string read FHeadline write FHeadline;
     property Summary: string read FSummary write FSummary;
@@ -682,6 +695,7 @@ type
   { TPadAffiliates }
   TPadAffiliates = class(TPersistent)
   private
+    FEnabled: boolean;
     FAffiliates_FORM: boolean;
     FAffiliates_VERSION: string;
     FAffiliates_URL: string;
@@ -719,6 +733,7 @@ type
     constructor Create;
     destructor Destroy; override;
   published
+    property Active: boolean read FEnabled write FEnabled default False;
     // Main properties
     property Affiliates_FORM: boolean read FAffiliates_FORM write FAffiliates_FORM;
     property Affiliates_VERSION: string read FAffiliates_VERSION write FAffiliates_VERSION;
@@ -770,6 +785,7 @@ type
   { TPadAppStore }
   TPadAppStore = class(TPersistent)
   private
+    FEnabled: boolean;
     FAppStore_AppID: string;
     FAppStore_Category: string;
     FAppStore_Info_URL: string;
@@ -782,6 +798,7 @@ type
     FAppStore_Advantages_And_Unique_Features: string;
     FAppStore_Awards_And_Ratings: string;
   published
+    property Active: boolean read FEnabled write FEnabled default False;
     property AppStore_AppID: string read FAppStore_AppID write FAppStore_AppID;
     property AppStore_Category: string read FAppStore_Category write FAppStore_Category;
     property AppStore_Info_URL: string read FAppStore_Info_URL write FAppStore_Info_URL;
@@ -819,7 +836,6 @@ type
   private
     FXmlConfig: TPadXmlCofig;
     FMasterPadVersionInfo: TPadMasterVersionInfo;
-    FRoboSoftExists: boolean;
     FRoboSoft: TPadRoboSoft;
     FCompanyInfo: TPadCompanyInfo;
     FNewsFeed: TPadNewsFeed;
@@ -833,7 +849,6 @@ type
     FPressRelease: TPadPressRelease;
     FAffiliates: TPadAffiliates;
     FASP: TPadASP;
-    FAppStoreExists: boolean;
     FAppStore: TPadAppStore;
     function SetNodeText(Doc: TXMLDocument; ParentNode: TDOMNode; NodeName, NodeValue: string): TDOMNode;
     function AddChildNode(ParentNode: TDOMNode; NodeName: string): TDOMNode;
@@ -1780,9 +1795,9 @@ begin
 
       // Load RoboSoft section
       Node := RootNode.FindNode('RoboSoft');
+      FRoboSoft.FEnabled := Assigned(Node);
       if Assigned(Node) then
       begin
-        FRoboSoftExists := True;
         FRoboSoft.Company_UIN := GetNodeValue(Node, 'Company_UIN');
         FRoboSoft.Company_Description := GetNodeValue(Node, 'Company_Description');
         FRoboSoft.Product_UIN := GetNodeValue(Node, 'Product_UIN');
@@ -1796,9 +1811,7 @@ begin
         FRoboSoft.RSProductType := GetNodeValue(Node, 'RSProductType');
         FRoboSoft.Comments_For_Reviewer := GetNodeValue(Node, 'Comments_For_Reviewer');
         FRoboSoft.Backlink := GetNodeValue(Node, 'Backlink');
-      end
-      else
-        FRoboSoftExists := False;
+      end;
 
       // Load Company Info
       Node := RootNode.FindNode('Company_Info');
@@ -1853,9 +1866,10 @@ begin
 
       // Load News Feed (updated with new fields)
       Node := RootNode.FindNode('NewsFeed');
+      FNewsFeed.FEnabled := Assigned(Node);
       if Assigned(Node) then
       begin
-        FNewsFeed.NewsFeed_FORM := True;
+        FNewsFeed.NewsFeed_FORM := UpperCase(GetNodeValue(Node, 'NewsFeed_FORM')) = 'Y';
         FNewsFeed.NewsFeed_VERSION := GetNodeValue(Node, 'NewsFeed_VERSION');
         FNewsFeed.NewsFeed_URL := GetNodeValue(Node, 'NewsFeed_URL');
         FNewsFeed.NewsFeed_TypeAsString := GetNodeValue(Node, 'NewsFeed_Type');
@@ -1872,15 +1886,14 @@ begin
         FNewsFeed.NewsFeed_Keywords := GetNodeValue(Node, 'NewsFeed_Keywords');
         FNewsFeed.NewsFeed_Description_70 := GetNodeValue(Node, 'NewsFeed_Description_70');
         FNewsFeed.NewsFeed_Description_250 := GetNodeValue(Node, 'NewsFeed_Description_250');
-      end
-      else
-        FNewsFeed.NewsFeed_FORM := False;
+      end;
 
       // Load Site section
       Node := RootNode.FindNode('Site');
+      FSite.FEnabled := Assigned(Node);
       if Assigned(Node) then
       begin
-        FSite.Site_FORM := True;
+        FSite.Site_FORM := UpperCase(GetNodeValue(Node, 'Site_FORM')) = 'Y';
         FSite.Site_VERSION := GetNodeValue(Node, 'Site_VERSION');
         FSite.Site_URL := GetNodeValue(Node, 'Site_URL');
         FSite.Site_DESCRIPTION := GetNodeValue(Node, 'Site_DESCRIPTION');
@@ -1893,19 +1906,17 @@ begin
         FSite.Site_Description_250 := GetNodeValue(Node, 'Site_Description_250');
         FSite.Site_Keywords := GetNodeValue(Node, 'Site_Keywords');
         FSite.Site_Description_450 := GetNodeValue(Node, 'Site_Description_450');
-      end
-      else
-        FSite.Site_FORM := False;
+      end;
 
       // Load PAD Certification Promotion
       Node := RootNode.FindNode('PAD_Certification_Promotion');
-      FPAD_Certification_Promotion.FApply_For_CertificationExists := Assigned(Node);
+      FPAD_Certification_Promotion.FEnabled := Assigned(Node);
       if Assigned(Node) then
         FPAD_Certification_Promotion.Apply_For_Certification := UpperCase(GetNodeValue(Node, 'Apply_For_Certification')) = 'Y';
 
       // Load Dynamic PAD
       Node := RootNode.FindNode('Dynamic_PAD');
-      FDynamic_PAD.FDynamic_DistributiveExists := Assigned(Node);
+      FDynamic_PAD.FEnabled := Assigned(Node);
       if Assigned(Node) then
         FDynamic_PAD.Dynamic_Distributive := UpperCase(GetNodeValue(Node, 'Dynamic_Distributive')) = 'Y';
 
@@ -2039,6 +2050,7 @@ begin
 
       // Load Permissions
       Node := RootNode.FindNode('Permissions');
+      FPermissions.FEnabled := Assigned(Node);
       if Assigned(Node) then
       begin
         FPermissions.DistributionPermissions := GetNodeValue(Node, 'Distribution_Permissions');
@@ -2047,6 +2059,7 @@ begin
 
       // Load Press Release
       Node := RootNode.FindNode('Press_Release');
+      FPressRelease.FEnabled := Assigned(Node);
       if Assigned(Node) then
       begin
         // Load main press release text (TStrings field)
@@ -2060,6 +2073,7 @@ begin
 
       // Load Affiliates
       Node := RootNode.FindNode('Affiliates');
+      FAffiliates.FEnabled := Assigned(Node);
       if Assigned(Node) then
       begin
         FAffiliates.Affiliates_FORM := UpperCase(GetNodeValue(Node, 'Affiliates_FORM')) = 'Y';
@@ -2274,9 +2288,9 @@ begin
 
       // Load AppStore
       Node := RootNode.FindNode('AppStore');
+      FAppStore.FEnabled := Assigned(Node);
       if Assigned(Node) then
       begin
-        FAppStoreExists := True;
         FAppStore.AppStore_AppID := GetNodeValue(Node, 'AppStore_AppID');
         FAppStore.AppStore_Category := GetNodeValue(Node, 'AppStore_Category');
         FAppStore.AppStore_Info_URL := GetNodeValue(Node, 'AppStore_Info_URL');
@@ -2288,9 +2302,7 @@ begin
         FAppStore.AppStore_Other_Applications := GetNodeValue(Node, 'AppStore_Other_Applications');
         FAppStore.AppStore_Advantages_And_Unique_Features := GetNodeValue(Node, 'AppStore_Advantages_And_Unique_Features');
         FAppStore.AppStore_Awards_And_Ratings := GetNodeValue(Node, 'AppStore_Awards_And_Ratings');
-      end
-      else
-        FAppStoreExists := False;
+      end;
 
       FProgramDescriptions.Language.SyncStringsToStrings;
       FNewsFeed.SyncStringsToStrings;
@@ -2335,31 +2347,23 @@ begin
       FMasterPadVersionInfo.MasterPadInfo);
 
     // RoboSoft section
-    if (MasterPadVersionInfo.Version >= 4) then
+    // Check if ANY RoboSoft field is filled
+    if (FRoboSoft.FEnabled) then
     begin
-      // Check if ANY RoboSoft field is filled
-      if (FRoboSoftExists) or (FRoboSoft.Company_UIN <> '') or (FRoboSoft.Company_Description <> '') or
-        (FRoboSoft.Product_UIN <> '') or (FRoboSoft.Search_String <> '') or (FRoboSoft.Press_Release_Search_String <> '') or
-        (FRoboSoft.NewsFeed_Search_String <> '') or (FRoboSoft.Search_Engine_Search_String <> '') or
-        (FRoboSoft.Web_Directories_Search_String <> '') or (FRoboSoft.Search_String_Unique <> '') or
-        (FRoboSoft.Publish_on_CD <> False) or (FRoboSoft.RSProductType <> '') or (FRoboSoft.Comments_For_Reviewer <> '') or
-        (FRoboSoft.Backlink <> '') then
-      begin
-        Node := AddChildNode(RootNode, 'RoboSoft');
-        SetNodeText(Doc, Node, 'Company_UIN', FRoboSoft.Company_UIN);
-        SetNodeText(Doc, Node, 'Company_Description', FRoboSoft.Company_Description);
-        SetNodeText(Doc, Node, 'Product_UIN', FRoboSoft.Product_UIN);
-        SetNodeText(Doc, Node, 'Search_String', FRoboSoft.Search_String);
-        SetNodeText(Doc, Node, 'Press_Release_Search_String', FRoboSoft.Press_Release_Search_String);
-        SetNodeText(Doc, Node, 'NewsFeed_Search_String', FRoboSoft.NewsFeed_Search_String);
-        SetNodeText(Doc, Node, 'Search_Engine_Search_String', FRoboSoft.Search_Engine_Search_String);
-        SetNodeText(Doc, Node, 'Web_Directories_Search_String', FRoboSoft.Web_Directories_Search_String);
-        SetNodeText(Doc, Node, 'Search_String_Unique', FRoboSoft.Search_String_Unique);
-        SetNodeText(Doc, Node, 'Publish_on_CD', BoolToStr(FRoboSoft.Publish_on_CD, 'TRUE', 'FALSE'));
-        SetNodeText(Doc, Node, 'RSProductType', FRoboSoft.RSProductType);
-        SetNodeText(Doc, Node, 'Comments_For_Reviewer', FRoboSoft.Comments_For_Reviewer);
-        SetNodeText(Doc, Node, 'Backlink', FRoboSoft.Backlink);
-      end;
+      Node := AddChildNode(RootNode, 'RoboSoft');
+      SetNodeText(Doc, Node, 'Company_UIN', FRoboSoft.Company_UIN);
+      SetNodeText(Doc, Node, 'Company_Description', FRoboSoft.Company_Description);
+      SetNodeText(Doc, Node, 'Product_UIN', FRoboSoft.Product_UIN);
+      SetNodeText(Doc, Node, 'Search_String', FRoboSoft.Search_String);
+      SetNodeText(Doc, Node, 'Press_Release_Search_String', FRoboSoft.Press_Release_Search_String);
+      SetNodeText(Doc, Node, 'NewsFeed_Search_String', FRoboSoft.NewsFeed_Search_String);
+      SetNodeText(Doc, Node, 'Search_Engine_Search_String', FRoboSoft.Search_Engine_Search_String);
+      SetNodeText(Doc, Node, 'Web_Directories_Search_String', FRoboSoft.Web_Directories_Search_String);
+      SetNodeText(Doc, Node, 'Search_String_Unique', FRoboSoft.Search_String_Unique);
+      SetNodeText(Doc, Node, 'Publish_on_CD', BoolToStr(FRoboSoft.Publish_on_CD, 'TRUE', 'FALSE'));
+      SetNodeText(Doc, Node, 'RSProductType', FRoboSoft.RSProductType);
+      SetNodeText(Doc, Node, 'Comments_For_Reviewer', FRoboSoft.Comments_For_Reviewer);
+      SetNodeText(Doc, Node, 'Backlink', FRoboSoft.Backlink);
     end;
 
     // Company Info
@@ -2420,7 +2424,7 @@ begin
         SetNodeText(Doc, Node, 'CompanyStorePage', FCompanyInfo.CompanyStorePage);
 
       // Save News Feed (updated with new fields)
-      if FNewsFeed.NewsFeed_FORM then
+      if FNewsFeed.FEnabled then
       begin
         Node := AddChildNode(RootNode, 'NewsFeed');
         SetNodeText(Doc, Node, 'NewsFeed_FORM', BoolToStr(FNewsFeed.NewsFeed_FORM, 'Y', 'N'));
@@ -2443,7 +2447,7 @@ begin
       end;
 
       // Save Site section
-      if FSite.Site_FORM then
+      if FSite.FEnabled then
       begin
         Node := AddChildNode(RootNode, 'Site');
         SetNodeText(Doc, Node, 'Site_FORM', BoolToStr(FSite.Site_FORM, 'Y', 'N'));
@@ -2462,15 +2466,14 @@ begin
       end;
 
       // Save PAD Certification Promotion
-      if (FPAD_Certification_Promotion.FApply_For_CertificationExists or
-        (FPAD_Certification_Promotion.Apply_For_Certification <> False)) then
+      if (FPAD_Certification_Promotion.FEnabled) then
       begin
         Node := AddChildNode(RootNode, 'PAD_Certification_Promotion');
         SetNodeText(Doc, Node, 'Apply_For_Certification', BoolToStr(FPAD_Certification_Promotion.Apply_For_Certification, 'Y', 'N'));
       end;
 
       // Save Dynamic PAD
-      if (FDynamic_PAD.FDynamic_DistributiveExists or (FDynamic_PAD.Dynamic_Distributive <> False)) then
+      if (FDynamic_PAD.FEnabled) then
       begin
         Node := AddChildNode(RootNode, 'Dynamic_PAD');
         SetNodeText(Doc, Node, 'Dynamic_Distributive', BoolToStr(FDynamic_PAD.Dynamic_Distributive, 'Y', 'N'));
@@ -2630,25 +2633,21 @@ begin
     SetNodeText(Doc, Node, 'EULA', FPermissions.EULA);
 
     // Save Press Release
-    if (MasterPadVersionInfo.Version >= 4) then
+    // Check if ANY Press Release field is filled
+    if (FPressRelease.FEnabled) then
     begin
-      // Check if ANY Press Release field is filled
-      if (FPressRelease.PressRelease <> '') or (FPressRelease.Headline <> '') or (FPressRelease.Summary <> '') or
-        (FPressRelease.Keywords <> '') or (FPressRelease.Related_URL <> '') or (FPressRelease.PressReleasePlain <> '') then
-      begin
-        Node := AddChildNode(RootNode, 'Press_Release');
-        SetNodeText(Doc, Node, 'Press_Release', FPressRelease.PressRelease);
-        SetNodeText(Doc, Node, 'Headline', FPressRelease.Headline);
-        SetNodeText(Doc, Node, 'Summary', FPressRelease.Summary);
-        SetNodeText(Doc, Node, 'Keywords', FPressRelease.Keywords);
-        SetNodeText(Doc, Node, 'Related_URL', FPressRelease.Related_URL);
-        SetNodeText(Doc, Node, 'Press_Release_Plain', FPressRelease.PressReleasePlain);
-      end;
+      Node := AddChildNode(RootNode, 'Press_Release');
+      SetNodeText(Doc, Node, 'Press_Release', FPressRelease.PressRelease);
+      SetNodeText(Doc, Node, 'Headline', FPressRelease.Headline);
+      SetNodeText(Doc, Node, 'Summary', FPressRelease.Summary);
+      SetNodeText(Doc, Node, 'Keywords', FPressRelease.Keywords);
+      SetNodeText(Doc, Node, 'Related_URL', FPressRelease.Related_URL);
+      SetNodeText(Doc, Node, 'Press_Release_Plain', FPressRelease.PressReleasePlain);
     end;
 
     // Save Affiliates
     // Check if we should save full section
-    if (FAffiliates.Affiliates_FORM) then
+    if (FAffiliates.FEnabled) then
     begin
       Node := AddChildNode(RootNode, 'Affiliates');
       SetNodeText(Doc, Node, 'Affiliates_FORM', BoolToStr(FAffiliates.Affiliates_FORM, 'Y', 'N'));
@@ -2821,29 +2820,21 @@ begin
     end;
 
     // Save AppStore section
-    if (MasterPadVersionInfo.Version >= 4) then
+    // Check if ANY AppStore field is filled
+    if (FAppStore.FEnabled) then
     begin
-      // Check if ANY AppStore field is filled
-      if (FAppStoreExists) or (FAppStore.AppStore_AppID <> '') or (FAppStore.AppStore_Category <> '') or
-        (FAppStore.AppStore_Info_URL <> '') or (FAppStore.AppStore_Download_URL <> '') or
-        (FAppStore.AppStore_Promo_Code_1 <> '') or (FAppStore.AppStore_Promo_Code_2 <> '') or
-        (FAppStore.AppStore_Promo_Code_3 <> '') or (FAppStore.AppStore_Supported_Devices <> '') or
-        (FAppStore.AppStore_Other_Applications <> '') or (FAppStore.AppStore_Advantages_And_Unique_Features <> '') or
-        (FAppStore.AppStore_Awards_And_Ratings <> '') then
-      begin
-        Node := AddChildNode(RootNode, 'AppStore');
-        SetNodeText(Doc, Node, 'AppStore_AppID', FAppStore.AppStore_AppID);
-        SetNodeText(Doc, Node, 'AppStore_Category', FAppStore.AppStore_Category);
-        SetNodeText(Doc, Node, 'AppStore_Info_URL', FAppStore.AppStore_Info_URL);
-        SetNodeText(Doc, Node, 'AppStore_Download_URL', FAppStore.AppStore_Download_URL);
-        SetNodeText(Doc, Node, 'AppStore_Promo_Code_1', FAppStore.AppStore_Promo_Code_1);
-        SetNodeText(Doc, Node, 'AppStore_Promo_Code_2', FAppStore.AppStore_Promo_Code_2);
-        SetNodeText(Doc, Node, 'AppStore_Promo_Code_3', FAppStore.AppStore_Promo_Code_3);
-        SetNodeText(Doc, Node, 'AppStore_Supported_Devices', FAppStore.AppStore_Supported_Devices);
-        SetNodeText(Doc, Node, 'AppStore_Other_Applications', FAppStore.AppStore_Other_Applications);
-        SetNodeText(Doc, Node, 'AppStore_Advantages_And_Unique_Features', FAppStore.AppStore_Advantages_And_Unique_Features);
-        SetNodeText(Doc, Node, 'AppStore_Awards_And_Ratings', FAppStore.AppStore_Awards_And_Ratings);
-      end;
+      Node := AddChildNode(RootNode, 'AppStore');
+      SetNodeText(Doc, Node, 'AppStore_AppID', FAppStore.AppStore_AppID);
+      SetNodeText(Doc, Node, 'AppStore_Category', FAppStore.AppStore_Category);
+      SetNodeText(Doc, Node, 'AppStore_Info_URL', FAppStore.AppStore_Info_URL);
+      SetNodeText(Doc, Node, 'AppStore_Download_URL', FAppStore.AppStore_Download_URL);
+      SetNodeText(Doc, Node, 'AppStore_Promo_Code_1', FAppStore.AppStore_Promo_Code_1);
+      SetNodeText(Doc, Node, 'AppStore_Promo_Code_2', FAppStore.AppStore_Promo_Code_2);
+      SetNodeText(Doc, Node, 'AppStore_Promo_Code_3', FAppStore.AppStore_Promo_Code_3);
+      SetNodeText(Doc, Node, 'AppStore_Supported_Devices', FAppStore.AppStore_Supported_Devices);
+      SetNodeText(Doc, Node, 'AppStore_Other_Applications', FAppStore.AppStore_Other_Applications);
+      SetNodeText(Doc, Node, 'AppStore_Advantages_And_Unique_Features', FAppStore.AppStore_Advantages_And_Unique_Features);
+      SetNodeText(Doc, Node, 'AppStore_Awards_And_Ratings', FAppStore.AppStore_Awards_And_Ratings);
     end;
 
     // Save to string
@@ -2886,7 +2877,7 @@ begin
     'Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://www.asp-shareware.org/pad';
 
   // Clear RoboSoft
-  FRoboSoftExists := False;
+  FRoboSoft.FEnabled := False;
   FRoboSoft.Company_UIN := '';
   FRoboSoft.Company_Description := '';
   FRoboSoft.Product_UIN := '';
@@ -2941,6 +2932,7 @@ begin
   FCompanyInfo.FCompanyStorePageExists := False;
 
   // Clear News Feed
+  FNewsFeed.FEnabled := False;
   FNewsFeed.NewsFeed_FORM := False;
   FNewsFeed.NewsFeed_VERSION := '1.0';
   FNewsFeed.NewsFeed_URL := 'http://Submit-Everywhere.com/extensions/NewsFeed.htm';
@@ -2961,6 +2953,7 @@ begin
   FNewsFeed.NewsFeed_Description_250 := '';
 
   // Clear Site section
+  FSite.FEnabled := False;
   FSite.Site_FORM := False;
   FSite.Site_VERSION := '1.0';
   FSite.Site_URL := 'http://Submit-Everywhere.com/extensions/Site.htm';
@@ -2977,12 +2970,12 @@ begin
   FSite.Site_Description_450 := '';
 
   // Clear PAD Certification Promotion
+  FPAD_Certification_Promotion.FEnabled := False;
   FPAD_Certification_Promotion.Apply_For_Certification := False;
-  FPAD_Certification_Promotion.FApply_For_CertificationExists := False;
 
   // Clear Dynamic PAD
+  FDynamic_PAD.FEnabled := False;
   FDynamic_PAD.Dynamic_Distributive := False;
-  FDynamic_PAD.FDynamic_DistributiveExists := False;
 
   // Clear Program Info
   FProgramInfo.ProgramName := '';
@@ -3085,12 +3078,14 @@ begin
   FWebInfo.DownloadURLs.AdditionalDownloadURL2 := '';
 
   // Clear Permissions
+  FPermissions.FEnabled := False;
   FPermissions.DistributionPermissions := '';
   FPermissions.EULA := '';
   FPermissions.DistributionPermissionsStrings.Clear;
   FPermissions.EULAStrings.Clear;
 
   // Clear Press Release
+  FPressRelease.FEnabled := False;
   FPressRelease.PressRelease := '';
   FPressRelease.Headline := '';
   FPressRelease.Summary := '';
@@ -3101,6 +3096,7 @@ begin
   FPressRelease.PressReleasePlainStrings.Clear;
 
   // Clear Affiliates
+  FAffiliates.FEnabled := False;
   FAffiliates.Affiliates_FORM := False;
   FAffiliates.Affiliates_VERSION := '1.4'; // Default, will be updated on save based on master version
   FAffiliates.Affiliates_URL := 'http://www.asp-shareware.org/pad/extensions/Affiliates.htm';
@@ -3238,7 +3234,7 @@ begin
   FASP.ASPMemberNumber := '';
 
   // Clear AppStore
-  FAppStoreExists := False;
+  FAppStore.FEnabled := False;
   FAppStore.AppStore_AppID := '';
   FAppStore.AppStore_Category := '';
   FAppStore.AppStore_Info_URL := '';
