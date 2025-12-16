@@ -51,7 +51,6 @@ type
   end;
 
   { TPadRoboSoft }
-  // RoboSoft section for additional product identification
   TPadRoboSoft = class(TPersistent)
   private
     FCompany_UIN: string;
@@ -63,7 +62,7 @@ type
     FSearch_Engine_Search_String: string;
     FWeb_Directories_Search_String: string;
     FSearch_String_Unique: string;
-    FPublish_on_CD: string;
+    FPublish_on_CD: boolean;
     FRSProductType: string;
     FComments_For_Reviewer: string;
     FBacklink: string;
@@ -77,7 +76,7 @@ type
     property Search_Engine_Search_String: string read FSearch_Engine_Search_String write FSearch_Engine_Search_String;
     property Web_Directories_Search_String: string read FWeb_Directories_Search_String write FWeb_Directories_Search_String;
     property Search_String_Unique: string read FSearch_String_Unique write FSearch_String_Unique;
-    property Publish_on_CD: string read FPublish_on_CD write FPublish_on_CD;
+    property Publish_on_CD: boolean read FPublish_on_CD write FPublish_on_CD;
     property RSProductType: string read FRSProductType write FRSProductType;
     property Comments_For_Reviewer: string read FComments_For_Reviewer write FComments_For_Reviewer;
     property Backlink: string read FBacklink write FBacklink;
@@ -275,18 +274,20 @@ type
   // PAD Certification and Promotion section
   TPadPADCertificationPromotion = class(TPersistent)
   private
-    FApply_For_Certification: string;
+    FApply_For_CertificationExists: boolean;
+    FApply_For_Certification: boolean;
   published
-    property Apply_For_Certification: string read FApply_For_Certification write FApply_For_Certification;
+    property Apply_For_Certification: boolean read FApply_For_Certification write FApply_For_Certification;
   end;
 
   { TPadDynamicPAD }
   // Dynamic PAD section for distributive information
   TPadDynamicPAD = class(TPersistent)
   private
-    FDynamic_Distributive: string;
+    FDynamic_DistributiveExists: boolean;
+    FDynamic_Distributive: boolean;
   published
-    property Dynamic_Distributive: string read FDynamic_Distributive write FDynamic_Distributive;
+    property Dynamic_Distributive: boolean read FDynamic_Distributive write FDynamic_Distributive;
   end;
 
   { TPadFileInfo }
@@ -618,6 +619,45 @@ type
     property EULAStrings: TStrings read GetEULAStrings write SetEULAStrings stored False;
   end;
 
+  { TPadPressRelease }
+  TPadPressRelease = class(TPersistent)
+  private
+    // Original string fields for XML serialization
+    FPressReleaseText: string;
+    FHeadline: string;
+    FSummary: string;
+    FKeywords: string;
+    FRelated_URL: string;
+    FPressRelease_Plain: string;
+
+    // TStrings field for PropertyGrid
+    FPressReleaseStrings: TStrings;
+
+    // Property getters/setters for TStrings
+    function GetPressReleaseStrings: TStrings;
+    procedure SetPressReleaseStrings(Value: TStrings);
+  public
+    constructor Create;
+    destructor Destroy; override;
+
+    // Synchronization methods
+    procedure SyncStringsToStrings;
+    procedure SyncStringToStrings;
+  protected
+    // String property for XML
+    property PressRelease: string read FPressReleaseText write FPressReleaseText;
+  published
+    // Simple string properties
+    property Headline: string read FHeadline write FHeadline;
+    property Summary: string read FSummary write FSummary;
+    property Keywords: string read FKeywords write FKeywords;
+    property Related_URL: string read FRelated_URL write FRelated_URL;
+    property PressRelease_Plain: string read FPressRelease_Plain write FPressRelease_Plain;
+
+    // TStrings property for PropertyGrid
+    property PressReleaseStrings: TStrings read GetPressReleaseStrings write SetPressReleaseStrings stored False;
+  end;
+
   { TPadAffiliateCompany }
   TPadAffiliateCompany = class(TPersistent)
   private
@@ -782,6 +822,7 @@ type
     FProgramDescriptions: TPadProgramDescriptions;
     FWebInfo: TPadWebInfo;
     FPermissions: TPadPermissions;
+    FPressRelease: TPadPressRelease;
     FAffiliates: TPadAffiliates;
     FASP: TPadASP;
     FAppStoreExists: boolean;
@@ -825,6 +866,7 @@ type
     property ProgramDescriptions: TPadProgramDescriptions read FProgramDescriptions write FProgramDescriptions;
     property WebInfo: TPadWebInfo read FWebInfo write FWebInfo;
     property Permissions: TPadPermissions read FPermissions write FPermissions;
+    property PressRelease: TPadPressRelease read FPressRelease write FPressRelease;
     property Affiliates: TPadAffiliates read FAffiliates write FAffiliates;
     property ASP: TPadASP read FASP write FASP;
     property AppStore: TPadAppStore read FAppStore write FAppStore;
@@ -1463,6 +1505,44 @@ begin
   FEULA := FEULAStrings.Text;
 end;
 
+{ TPadPressRelease }
+
+constructor TPadPressRelease.Create;
+begin
+  inherited Create;
+  FPressReleaseStrings := TStringList.Create;
+  FPressReleaseStrings.TrailingLineBreak := False;
+end;
+
+destructor TPadPressRelease.Destroy;
+begin
+  FPressReleaseStrings.Free;
+  inherited Destroy;
+end;
+
+function TPadPressRelease.GetPressReleaseStrings: TStrings;
+begin
+  Result := FPressReleaseStrings;
+end;
+
+procedure TPadPressRelease.SetPressReleaseStrings(Value: TStrings);
+begin
+  if Assigned(Value) then
+    FPressReleaseStrings.Assign(Value)
+  else
+    FPressReleaseStrings.Clear;
+end;
+
+procedure TPadPressRelease.SyncStringsToStrings;
+begin
+  FPressReleaseStrings.Text := FPressReleaseText;
+end;
+
+procedure TPadPressRelease.SyncStringToStrings;
+begin
+  FPressReleaseText := FPressReleaseStrings.Text;
+end;
+
 { TPadAffiliates }
 
 constructor TPadAffiliates.Create;
@@ -1570,6 +1650,7 @@ begin
   FProgramDescriptions := TPadProgramDescriptions.Create;
   FWebInfo := TPadWebInfo.Create;
   FPermissions := TPadPermissions.Create;
+  FPressRelease := TPadPressRelease.Create;
   FAffiliates := TPadAffiliates.Create;
   FASP := TPadASP.Create;
   FAppStore := TPadAppStore.Create;
@@ -1589,6 +1670,7 @@ begin
   FProgramDescriptions.Free;
   FWebInfo.Free;
   FPermissions.Free;
+  FPressRelease.Free;
   FAffiliates.Free;
   FASP.Free;
   FAppStore.Free;
@@ -1669,7 +1751,7 @@ begin
         FRoboSoft.Search_Engine_Search_String := GetNodeValue(Node, 'Search_Engine_Search_String');
         FRoboSoft.Web_Directories_Search_String := GetNodeValue(Node, 'Web_Directories_Search_String');
         FRoboSoft.Search_String_Unique := GetNodeValue(Node, 'Search_String_Unique');
-        FRoboSoft.Publish_on_CD := GetNodeValue(Node, 'Publish_on_CD');
+        FRoboSoft.Publish_on_CD := UpperCase(GetNodeValue(Node, 'Publish_on_CD')) = 'TRUE';
         FRoboSoft.RSProductType := GetNodeValue(Node, 'RSProductType');
         FRoboSoft.Comments_For_Reviewer := GetNodeValue(Node, 'Comments_For_Reviewer');
         FRoboSoft.Backlink := GetNodeValue(Node, 'Backlink');
@@ -1776,13 +1858,15 @@ begin
 
       // Load PAD Certification Promotion
       Node := RootNode.FindNode('PAD_Certification_Promotion');
+      FPAD_Certification_Promotion.FApply_For_CertificationExists := Assigned(Node);
       if Assigned(Node) then
-        FPAD_Certification_Promotion.Apply_For_Certification := GetNodeValue(Node, 'Apply_For_Certification');
+        FPAD_Certification_Promotion.Apply_For_Certification := UpperCase(GetNodeValue(Node, 'Apply_For_Certification')) = 'Y';
 
       // Load Dynamic PAD
       Node := RootNode.FindNode('Dynamic_PAD');
+      FDynamic_PAD.FDynamic_DistributiveExists := Assigned(Node);
       if Assigned(Node) then
-        FDynamic_PAD.Dynamic_Distributive := GetNodeValue(Node, 'Dynamic_Distributive');
+        FDynamic_PAD.Dynamic_Distributive := UpperCase(GetNodeValue(Node, 'Dynamic_Distributive')) = 'Y';
 
       // Load Program Info
       Node := RootNode.FindNode('Program_Info');
@@ -1915,6 +1999,19 @@ begin
       begin
         FPermissions.DistributionPermissions := GetNodeValue(Node, 'Distribution_Permissions');
         FPermissions.EULA := GetNodeValue(Node, 'EULA');
+      end;
+
+      // Load Press Release
+      Node := RootNode.FindNode('Press_Release');
+      if Assigned(Node) then
+      begin
+        // Load main press release text (TStrings field)
+        FPressRelease.PressRelease := GetNodeValue(Node, 'Press_Release');
+        FPressRelease.Headline := GetNodeValue(Node, 'Headline');
+        FPressRelease.Summary := GetNodeValue(Node, 'Summary');
+        FPressRelease.Keywords := GetNodeValue(Node, 'Keywords');
+        FPressRelease.Related_URL := GetNodeValue(Node, 'Related_URL');
+        FPressRelease.PressRelease_Plain := GetNodeValue(Node, 'Press_Release_Plain');
       end;
 
       // Load Affiliates
@@ -2134,6 +2231,7 @@ begin
       FProgramDescriptions.Language.SyncStringsToStrings;
       FNewsFeed.SyncStringsToStrings;
       FPermissions.SyncStringsToStrings;
+      FPressRelease.SyncStringsToStrings;
     finally
       Doc.Free;
     end;
@@ -2156,6 +2254,7 @@ begin
     FProgramDescriptions.Language.SyncStringToStrings;
     FNewsFeed.SyncStringToStrings;
     FPermissions.SyncStringToStrings;
+    FPressRelease.SyncStringToStrings;
 
     // Create root element
     RootNode := Doc.CreateElement('XML_DIZ_INFO');
@@ -2181,7 +2280,7 @@ begin
         (FRoboSoft.Product_UIN <> '') or (FRoboSoft.Search_String <> '') or (FRoboSoft.Press_Release_Search_String <> '') or
         (FRoboSoft.NewsFeed_Search_String <> '') or (FRoboSoft.Search_Engine_Search_String <> '') or
         (FRoboSoft.Web_Directories_Search_String <> '') or (FRoboSoft.Search_String_Unique <> '') or
-        (FRoboSoft.Publish_on_CD <> '') or (FRoboSoft.RSProductType <> '') or (FRoboSoft.Comments_For_Reviewer <> '') or
+        (FRoboSoft.Publish_on_CD <> False) or (FRoboSoft.RSProductType <> '') or (FRoboSoft.Comments_For_Reviewer <> '') or
         (FRoboSoft.Backlink <> '') then
       begin
         Node := AddChildNode(RootNode, 'RoboSoft');
@@ -2194,7 +2293,7 @@ begin
         SetNodeText(Doc, Node, 'Search_Engine_Search_String', FRoboSoft.Search_Engine_Search_String);
         SetNodeText(Doc, Node, 'Web_Directories_Search_String', FRoboSoft.Web_Directories_Search_String);
         SetNodeText(Doc, Node, 'Search_String_Unique', FRoboSoft.Search_String_Unique);
-        SetNodeText(Doc, Node, 'Publish_on_CD', FRoboSoft.Publish_on_CD);
+        SetNodeText(Doc, Node, 'Publish_on_CD', BoolToStr(FRoboSoft.Publish_on_CD, 'TRUE', 'FALSE'));
         SetNodeText(Doc, Node, 'RSProductType', FRoboSoft.RSProductType);
         SetNodeText(Doc, Node, 'Comments_For_Reviewer', FRoboSoft.Comments_For_Reviewer);
         SetNodeText(Doc, Node, 'Backlink', FRoboSoft.Backlink);
@@ -2301,17 +2400,18 @@ begin
       end;
 
       // Save PAD Certification Promotion
-      if (FPAD_Certification_Promotion.Apply_For_Certification <> '') then
+      if (FPAD_Certification_Promotion.FApply_For_CertificationExists or
+        (FPAD_Certification_Promotion.Apply_For_Certification <> False)) then
       begin
         Node := AddChildNode(RootNode, 'PAD_Certification_Promotion');
-        SetNodeText(Doc, Node, 'Apply_For_Certification', FPAD_Certification_Promotion.Apply_For_Certification);
+        SetNodeText(Doc, Node, 'Apply_For_Certification', BoolToStr(FPAD_Certification_Promotion.Apply_For_Certification, 'Y', 'N'));
       end;
 
       // Save Dynamic PAD
-      if (FDynamic_PAD.Dynamic_Distributive <> '') then
+      if (FDynamic_PAD.FDynamic_DistributiveExists or (FDynamic_PAD.Dynamic_Distributive <> False)) then
       begin
         Node := AddChildNode(RootNode, 'Dynamic_PAD');
-        SetNodeText(Doc, Node, 'Dynamic_Distributive', FDynamic_PAD.Dynamic_Distributive);
+        SetNodeText(Doc, Node, 'Dynamic_Distributive', BoolToStr(FDynamic_PAD.Dynamic_Distributive, 'Y', 'N'));
       end;
     end;
 
@@ -2475,10 +2575,26 @@ begin
     SetNodeText(Doc, Node, 'Distribution_Permissions', FPermissions.DistributionPermissions);
     SetNodeText(Doc, Node, 'EULA', FPermissions.EULA);
 
-    // Check if we should save full section
-    SaveFullSection := FAffiliates.ShouldSaveFullSection;
+    // Save Press Release
+    if (MasterPadVersionInfo.Version >= 4) then
+    begin
+      // Check if ANY Press Release field is filled
+      if (FPressRelease.PressRelease <> '') or (FPressRelease.Headline <> '') or (FPressRelease.Summary <> '') or
+        (FPressRelease.Keywords <> '') or (FPressRelease.Related_URL <> '') or (FPressRelease.PressRelease_Plain <> '') then
+      begin
+        Node := AddChildNode(RootNode, 'Press_Release');
+        SetNodeText(Doc, Node, 'Press_Release', FPressRelease.PressRelease);
+        SetNodeText(Doc, Node, 'Headline', FPressRelease.Headline);
+        SetNodeText(Doc, Node, 'Summary', FPressRelease.Summary);
+        SetNodeText(Doc, Node, 'Keywords', FPressRelease.Keywords);
+        SetNodeText(Doc, Node, 'Related_URL', FPressRelease.Related_URL);
+        SetNodeText(Doc, Node, 'Press_Release_Plain', FPressRelease.PressRelease_Plain);
+      end;
+    end;
 
     // Save Affiliates
+    // Check if we should save full section
+    SaveFullSection := FAffiliates.ShouldSaveFullSection;
     if (FAffiliates.Affiliates_FORM) then
     begin
       Node := AddChildNode(RootNode, 'Affiliates');
@@ -2712,7 +2828,7 @@ begin
   FRoboSoft.Search_Engine_Search_String := '';
   FRoboSoft.Web_Directories_Search_String := '';
   FRoboSoft.Search_String_Unique := '';
-  FRoboSoft.Publish_on_CD := '';
+  FRoboSoft.Publish_on_CD := False;
   FRoboSoft.RSProductType := '';
   FRoboSoft.Comments_For_Reviewer := '';
   FRoboSoft.Backlink := '';
@@ -2793,10 +2909,12 @@ begin
   FSite.Site_Description_450 := '';
 
   // Clear PAD Certification Promotion
-  FPAD_Certification_Promotion.Apply_For_Certification := '';
+  FPAD_Certification_Promotion.Apply_For_Certification := False;
+  FPAD_Certification_Promotion.FApply_For_CertificationExists := False;
 
   // Clear Dynamic PAD
-  FDynamic_PAD.Dynamic_Distributive := '';
+  FDynamic_PAD.Dynamic_Distributive := False;
+  FDynamic_PAD.FDynamic_DistributiveExists := False;
 
   // Clear Program Info
   FProgramInfo.ProgramName := '';
@@ -2899,6 +3017,15 @@ begin
   FPermissions.EULA := '';
   FPermissions.DistributionPermissionsStrings.Clear;
   FPermissions.EULAStrings.Clear;
+
+  // Clear Press Release
+  FPressRelease.PressRelease := '';
+  FPressRelease.Headline := '';
+  FPressRelease.Summary := '';
+  FPressRelease.Keywords := '';
+  FPressRelease.Related_URL := '';
+  FPressRelease.PressRelease_Plain := '';
+  FPressRelease.PressReleaseStrings.Clear;
 
   // Clear Affiliates
   FAffiliates.Affiliates_FORM := False;
