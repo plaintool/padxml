@@ -50,6 +50,39 @@ type
     property MasterPadInfo: string read FMasterPadInfo write FMasterPadInfo;
   end;
 
+  { TPadRoboSoft }
+  // RoboSoft section for additional product identification
+  TPadRoboSoft = class(TPersistent)
+  private
+    FCompany_UIN: string;
+    FCompany_Description: string;
+    FProduct_UIN: string;
+    FSearch_String: string;
+    FPress_Release_Search_String: string;
+    FNewsFeed_Search_String: string;
+    FSearch_Engine_Search_String: string;
+    FWeb_Directories_Search_String: string;
+    FSearch_String_Unique: string;
+    FPublish_on_CD: string;
+    FRSProductType: string;
+    FComments_For_Reviewer: string;
+    FBacklink: string;
+  published
+    property Company_UIN: string read FCompany_UIN write FCompany_UIN;
+    property Company_Description: string read FCompany_Description write FCompany_Description;
+    property Product_UIN: string read FProduct_UIN write FProduct_UIN;
+    property Search_String: string read FSearch_String write FSearch_String;
+    property Press_Release_Search_String: string read FPress_Release_Search_String write FPress_Release_Search_String;
+    property NewsFeed_Search_String: string read FNewsFeed_Search_String write FNewsFeed_Search_String;
+    property Search_Engine_Search_String: string read FSearch_Engine_Search_String write FSearch_Engine_Search_String;
+    property Web_Directories_Search_String: string read FWeb_Directories_Search_String write FWeb_Directories_Search_String;
+    property Search_String_Unique: string read FSearch_String_Unique write FSearch_String_Unique;
+    property Publish_on_CD: string read FPublish_on_CD write FPublish_on_CD;
+    property RSProductType: string read FRSProductType write FRSProductType;
+    property Comments_For_Reviewer: string read FComments_For_Reviewer write FComments_For_Reviewer;
+    property Backlink: string read FBacklink write FBacklink;
+  end;
+
   { TPadContactInfo }
   TPadContactInfo = class(TPersistent)
   private
@@ -203,6 +236,57 @@ type
     // TStrings property for PropertyGrid (long description only)
     property NewsFeed_Description_250_Strings: TStrings read GetNewsFeed_Description_250_Strings
       write SetNewsFeed_Description_250_Strings stored False;
+  end;
+
+  { TPadSite }
+  // Site section for website information submission
+  TPadSite = class(TPersistent)
+  private
+    FSite_FORM: boolean;
+    FSite_VERSION: string;
+    FSite_URL: string;
+    FSite_DESCRIPTION: string;
+    FSite_Contact_Email: string;
+    FSite_Contact_First_Name: string;
+    FSite_Contact_Last_Name: string;
+    FSite_Site_Title: string;
+    FSite_Site_URL: string;
+    FSite_Description_100: string;
+    FSite_Description_250: string;
+    FSite_Keywords: string;
+    FSite_Description_450: string;
+  published
+    property Site_FORM: boolean read FSite_FORM write FSite_FORM;
+    property Site_VERSION: string read FSite_VERSION write FSite_VERSION;
+    property Site_URL: string read FSite_URL write FSite_URL;
+    property Site_DESCRIPTION: string read FSite_DESCRIPTION write FSite_DESCRIPTION;
+    property Site_Contact_Email: string read FSite_Contact_Email write FSite_Contact_Email;
+    property Site_Contact_First_Name: string read FSite_Contact_First_Name write FSite_Contact_First_Name;
+    property Site_Contact_Last_Name: string read FSite_Contact_Last_Name write FSite_Contact_Last_Name;
+    property Site_Site_Title: string read FSite_Site_Title write FSite_Site_Title;
+    property Site_Site_URL: string read FSite_Site_URL write FSite_Site_URL;
+    property Site_Description_100: string read FSite_Description_100 write FSite_Description_100;
+    property Site_Description_250: string read FSite_Description_250 write FSite_Description_250;
+    property Site_Keywords: string read FSite_Keywords write FSite_Keywords;
+    property Site_Description_450: string read FSite_Description_450 write FSite_Description_450;
+  end;
+
+  { TPadPADCertificationPromotion }
+  // PAD Certification and Promotion section
+  TPadPADCertificationPromotion = class(TPersistent)
+  private
+    FApply_For_Certification: string;
+  published
+    property Apply_For_Certification: string read FApply_For_Certification write FApply_For_Certification;
+  end;
+
+  { TPadDynamicPAD }
+  // Dynamic PAD section for distributive information
+  TPadDynamicPAD = class(TPersistent)
+  private
+    FDynamic_Distributive: string;
+  published
+    property Dynamic_Distributive: string read FDynamic_Distributive write FDynamic_Distributive;
   end;
 
   { TPadFileInfo }
@@ -615,7 +699,6 @@ type
   end;
 
   { TXmlConfig }
-
   TPadXmlCofig = class(TPersistent)
   private
     FXMLEncoding: TPadEncoding;
@@ -638,8 +721,12 @@ type
   private
     FXmlConfig: TPadXmlCofig;
     FMasterPadVersionInfo: TPadMasterVersionInfo;
+    FRoboSoft: TPadRoboSoft;
     FCompanyInfo: TPadCompanyInfo;
     FNewsFeed: TPadNewsFeed;
+    FSite: TPadSite;
+    FPAD_Certification_Promotion: TPadPADCertificationPromotion;
+    FDynamic_PAD: TPadDynamicPAD;
     FProgramInfo: TPadProgramInfo;
     FProgramDescriptions: TPadProgramDescriptions;
     FWebInfo: TPadWebInfo;
@@ -674,8 +761,13 @@ type
   published
     property XmlConfig: TPadXmlCofig read FXmlConfig write FXmlConfig;
     property MasterPadVersionInfo: TPadMasterVersionInfo read FMasterPadVersionInfo write FMasterPadVersionInfo;
+    property RoboSoft: TPadRoboSoft read FRoboSoft write FRoboSoft;
     property CompanyInfo: TPadCompanyInfo read FCompanyInfo write FCompanyInfo;
     property NewsFeed: TPadNewsFeed read FNewsFeed write FNewsFeed;
+    property Site: TPadSite read FSite write FSite;
+    property PAD_Certification_Promotion: TPadPADCertificationPromotion read FPAD_Certification_Promotion
+      write FPAD_Certification_Promotion;
+    property Dynamic_PAD: TPadDynamicPAD read FDynamic_PAD write FDynamic_PAD;
     property ProgramInfo: TPadProgramInfo read FProgramInfo write FProgramInfo;
     property ProgramDescriptions: TPadProgramDescriptions read FProgramDescriptions write FProgramDescriptions;
     property WebInfo: TPadWebInfo read FWebInfo write FWebInfo;
@@ -1371,8 +1463,12 @@ begin
   inherited Create(AOwner);
   FXmlConfig := TPadXmlCofig.Create;
   FMasterPadVersionInfo := TPadMasterVersionInfo.Create;
+  FRoboSoft := TPadRoboSoft.Create;
   FCompanyInfo := TPadCompanyInfo.Create;
   FNewsFeed := TPadNewsFeed.Create;
+  FSite := TPadSite.Create;
+  FPAD_Certification_Promotion := TPadPADCertificationPromotion.Create;
+  FDynamic_PAD := TPadDynamicPAD.Create;
   FProgramInfo := TPadProgramInfo.Create;
   FProgramDescriptions := TPadProgramDescriptions.Create;
   FWebInfo := TPadWebInfo.Create;
@@ -1385,8 +1481,12 @@ destructor TPadFormat.Destroy;
 begin
   FXmlConfig.Free;
   FMasterPadVersionInfo.Free;
+  FRoboSoft.Free;
   FCompanyInfo.Free;
   FNewsFeed.Free;
+  FSite.Free;
+  FPAD_Certification_Promotion.Free;
+  FDynamic_PAD.Free;
   FProgramInfo.Free;
   FProgramDescriptions.Free;
   FWebInfo.Free;
@@ -1454,6 +1554,25 @@ begin
           GetNodeValue(Node, 'MASTER_PAD_EDITOR_URL');
         FMasterPadVersionInfo.MasterPadInfo :=
           GetNodeValue(Node, 'MASTER_PAD_INFO');
+      end;
+
+      // Load RoboSoft section
+      Node := RootNode.FindNode('RoboSoft');
+      if Assigned(Node) then
+      begin
+        FRoboSoft.Company_UIN := GetNodeValue(Node, 'Company_UIN');
+        FRoboSoft.Company_Description := GetNodeValue(Node, 'Company_Description');
+        FRoboSoft.Product_UIN := GetNodeValue(Node, 'Product_UIN');
+        FRoboSoft.Search_String := GetNodeValue(Node, 'Search_String');
+        FRoboSoft.Press_Release_Search_String := GetNodeValue(Node, 'Press_Release_Search_String');
+        FRoboSoft.NewsFeed_Search_String := GetNodeValue(Node, 'NewsFeed_Search_String');
+        FRoboSoft.Search_Engine_Search_String := GetNodeValue(Node, 'Search_Engine_Search_String');
+        FRoboSoft.Web_Directories_Search_String := GetNodeValue(Node, 'Web_Directories_Search_String');
+        FRoboSoft.Search_String_Unique := GetNodeValue(Node, 'Search_String_Unique');
+        FRoboSoft.Publish_on_CD := GetNodeValue(Node, 'Publish_on_CD');
+        FRoboSoft.RSProductType := GetNodeValue(Node, 'RSProductType');
+        FRoboSoft.Comments_For_Reviewer := GetNodeValue(Node, 'Comments_For_Reviewer');
+        FRoboSoft.Backlink := GetNodeValue(Node, 'Backlink');
       end;
 
       // Load Company Info
@@ -1531,6 +1650,37 @@ begin
       end
       else
         FNewsFeed.NewsFeed_FORM := False;
+
+      // Load Site section
+      Node := RootNode.FindNode('Site');
+      if Assigned(Node) then
+      begin
+        FSite.Site_FORM := True;
+        FSite.Site_VERSION := GetNodeValue(Node, 'Site_VERSION');
+        FSite.Site_URL := GetNodeValue(Node, 'Site_URL');
+        FSite.Site_DESCRIPTION := GetNodeValue(Node, 'Site_DESCRIPTION');
+        FSite.Site_Contact_Email := GetNodeValue(Node, 'Site_Contact_Email');
+        FSite.Site_Contact_First_Name := GetNodeValue(Node, 'Site_Contact_First_Name');
+        FSite.Site_Contact_Last_Name := GetNodeValue(Node, 'Site_Contact_Last_Name');
+        FSite.Site_Site_Title := GetNodeValue(Node, 'Site_Site_Title');
+        FSite.Site_Site_URL := GetNodeValue(Node, 'Site_Site_URL');
+        FSite.Site_Description_100 := GetNodeValue(Node, 'Site_Description_100');
+        FSite.Site_Description_250 := GetNodeValue(Node, 'Site_Description_250');
+        FSite.Site_Keywords := GetNodeValue(Node, 'Site_Keywords');
+        FSite.Site_Description_450 := GetNodeValue(Node, 'Site_Description_450');
+      end
+      else
+        FSite.Site_FORM := False;
+
+      // Load PAD Certification Promotion
+      Node := RootNode.FindNode('PAD_Certification_Promotion');
+      if Assigned(Node) then
+        FPAD_Certification_Promotion.Apply_For_Certification := GetNodeValue(Node, 'Apply_For_Certification');
+
+      // Load Dynamic PAD
+      Node := RootNode.FindNode('Dynamic_PAD');
+      if Assigned(Node) then
+        FDynamic_PAD.Dynamic_Distributive := GetNodeValue(Node, 'Dynamic_Distributive');
 
       // Load Program Info
       Node := RootNode.FindNode('Program_Info');
@@ -1892,6 +2042,29 @@ begin
     SetNodeText(Doc, Node, 'MASTER_PAD_INFO',
       FMasterPadVersionInfo.MasterPadInfo);
 
+    // RoboSoft section
+    if (MasterPadVersionInfo.Version >= 4) then
+    begin
+      if (FRoboSoft.Company_UIN <> '') or (FRoboSoft.Company_Description <> '') or (FRoboSoft.Product_UIN <> '') or
+        (FRoboSoft.Search_String <> '') then
+      begin
+        Node := AddChildNode(RootNode, 'RoboSoft');
+        SetNodeText(Doc, Node, 'Company_UIN', FRoboSoft.Company_UIN);
+        SetNodeText(Doc, Node, 'Company_Description', FRoboSoft.Company_Description);
+        SetNodeText(Doc, Node, 'Product_UIN', FRoboSoft.Product_UIN);
+        SetNodeText(Doc, Node, 'Search_String', FRoboSoft.Search_String);
+        SetNodeText(Doc, Node, 'Press_Release_Search_String', FRoboSoft.Press_Release_Search_String);
+        SetNodeText(Doc, Node, 'NewsFeed_Search_String', FRoboSoft.NewsFeed_Search_String);
+        SetNodeText(Doc, Node, 'Search_Engine_Search_String', FRoboSoft.Search_Engine_Search_String);
+        SetNodeText(Doc, Node, 'Web_Directories_Search_String', FRoboSoft.Web_Directories_Search_String);
+        SetNodeText(Doc, Node, 'Search_String_Unique', FRoboSoft.Search_String_Unique);
+        SetNodeText(Doc, Node, 'Publish_on_CD', FRoboSoft.Publish_on_CD);
+        SetNodeText(Doc, Node, 'RSProductType', FRoboSoft.RSProductType);
+        SetNodeText(Doc, Node, 'Comments_For_Reviewer', FRoboSoft.Comments_For_Reviewer);
+        SetNodeText(Doc, Node, 'Backlink', FRoboSoft.Backlink);
+      end;
+    end;
+
     // Company Info
     Node := AddChildNode(RootNode, 'Company_Info');
     SetNodeText(Doc, Node, 'Company_Name', FCompanyInfo.CompanyName);
@@ -1970,6 +2143,39 @@ begin
         SetNodeText(Doc, Node, 'NewsFeed_Keywords', FNewsFeed.NewsFeed_Keywords);
         SetNodeText(Doc, Node, 'NewsFeed_Description_70', FNewsFeed.NewsFeed_Description_70);
         SetNodeText(Doc, Node, 'NewsFeed_Description_250', FNewsFeed.NewsFeed_Description_250);
+      end;
+
+      // Save Site section
+      if FSite.Site_FORM then
+      begin
+        Node := AddChildNode(RootNode, 'Site');
+        SetNodeText(Doc, Node, 'Site_FORM', BoolToStr(FSite.Site_FORM, 'Y', 'N'));
+        SetNodeText(Doc, Node, 'Site_VERSION', FSite.Site_VERSION);
+        SetNodeText(Doc, Node, 'Site_URL', FSite.Site_URL);
+        SetNodeText(Doc, Node, 'Site_DESCRIPTION', FSite.Site_DESCRIPTION);
+        SetNodeText(Doc, Node, 'Site_Contact_Email', FSite.Site_Contact_Email);
+        SetNodeText(Doc, Node, 'Site_Contact_First_Name', FSite.Site_Contact_First_Name);
+        SetNodeText(Doc, Node, 'Site_Contact_Last_Name', FSite.Site_Contact_Last_Name);
+        SetNodeText(Doc, Node, 'Site_Site_Title', FSite.Site_Site_Title);
+        SetNodeText(Doc, Node, 'Site_Site_URL', FSite.Site_Site_URL);
+        SetNodeText(Doc, Node, 'Site_Description_100', FSite.Site_Description_100);
+        SetNodeText(Doc, Node, 'Site_Description_250', FSite.Site_Description_250);
+        SetNodeText(Doc, Node, 'Site_Keywords', FSite.Site_Keywords);
+        SetNodeText(Doc, Node, 'Site_Description_450', FSite.Site_Description_450);
+      end;
+
+      // Save PAD Certification Promotion
+      if (FPAD_Certification_Promotion.Apply_For_Certification <> '') then
+      begin
+        Node := AddChildNode(RootNode, 'PAD_Certification_Promotion');
+        SetNodeText(Doc, Node, 'Apply_For_Certification', FPAD_Certification_Promotion.Apply_For_Certification);
+      end;
+
+      // Save Dynamic PAD
+      if (FDynamic_PAD.Dynamic_Distributive <> '') then
+      begin
+        Node := AddChildNode(RootNode, 'Dynamic_PAD');
+        SetNodeText(Doc, Node, 'Dynamic_Distributive', FDynamic_PAD.Dynamic_Distributive);
       end;
     end;
 
@@ -2317,6 +2523,21 @@ begin
   FMasterPadVersionInfo.MasterPadInfo :=
     'Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://www.asp-shareware.org/pad';
 
+  // Clear RoboSoft
+  FRoboSoft.Company_UIN := '';
+  FRoboSoft.Company_Description := '';
+  FRoboSoft.Product_UIN := '';
+  FRoboSoft.Search_String := '';
+  FRoboSoft.Press_Release_Search_String := '';
+  FRoboSoft.NewsFeed_Search_String := '';
+  FRoboSoft.Search_Engine_Search_String := '';
+  FRoboSoft.Web_Directories_Search_String := '';
+  FRoboSoft.Search_String_Unique := '';
+  FRoboSoft.Publish_on_CD := '';
+  FRoboSoft.RSProductType := '';
+  FRoboSoft.Comments_For_Reviewer := '';
+  FRoboSoft.Backlink := '';
+
   // Clear Company Info
   FCompanyInfo.CompanyName := '';
   FCompanyInfo.Address1 := '';
@@ -2375,6 +2596,28 @@ begin
   FNewsFeed.NewsFeed_Keywords := '';
   FNewsFeed.NewsFeed_Description_70 := '';
   FNewsFeed.NewsFeed_Description_250 := '';
+
+  // Clear Site section
+  FSite.Site_FORM := False;
+  FSite.Site_VERSION := '1.0';
+  FSite.Site_URL := 'http://Submit-Everywhere.com/extensions/Site.htm';
+  FSite.Site_DESCRIPTION :=
+    'This PAD extension allows you to add your site info into your PAD file. This info can be used by site submission software or by web directories themselves.';
+  FSite.Site_Contact_Email := '';
+  FSite.Site_Contact_First_Name := '';
+  FSite.Site_Contact_Last_Name := '';
+  FSite.Site_Site_Title := '';
+  FSite.Site_Site_URL := '';
+  FSite.Site_Description_100 := '';
+  FSite.Site_Description_250 := '';
+  FSite.Site_Keywords := '';
+  FSite.Site_Description_450 := '';
+
+  // Clear PAD Certification Promotion
+  FPAD_Certification_Promotion.Apply_For_Certification := '';
+
+  // Clear Dynamic PAD
+  FDynamic_PAD.Dynamic_Distributive := '';
 
   // Clear Program Info
   FProgramInfo.ProgramName := '';
