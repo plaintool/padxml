@@ -298,17 +298,35 @@ type
     posWinVista,
     posWinVistax64,
     posWinXP,
-    posWindows2003,
-    posWindows8,
-    posWindows10,
-    posWindows11,
-    posWindows12
+    posWindows2003
     );
 
   // Mobile and Embedded (12 items)
   TPadOSOther = (
     posOther,
     posNotApplicable
+    );
+
+  // Modern os
+  TPadOSModern = (
+    posWindowsXP,
+    posWindowsVistaStarter,
+    posWindowsVistaHomeBasic,
+    posWindowsVistaHomePremium,
+    posWindowsVistaBusiness,
+    posWindowsVistaEnterprise,
+    posWindowsVistaUltimate,
+    posWindowsVistaStarter64,
+    posWindowsVistaHomeBasic64,
+    posWindowsVistaHomePremium64,
+    posWindowsVistaBusiness64,
+    posWindowsVistaEnterprise64,
+    posWindowsVistaUltimat64,
+    posWindows7,
+    posWindows8,
+    posWindows10,
+    posWindows11,
+    posWindows12
     );
 
   // Language groups - split by geographic regions
@@ -451,6 +469,7 @@ type
   TPadOSUnixLinuxSet = set of TPadOSUnixLinux;
   TPadOSWindowsSet = set of TPadOSWindows;
   TPadOSOtherSet = set of TPadOSOther;
+  TPadOSModernSet = set of TPadOSModern;
 
   // Sets for language groups
   TPadLangEuropeanSet = set of TPadLangEuropean;
@@ -743,16 +762,33 @@ const
     'WinVista',
     'WinVista x64',
     'WinXP',
-    'Windows2003',
-    'Windows 8',
-    'Windows 10',
-    'Windows 11',
-    'Windows 12'
+    'Windows2003'
     );
 
   PadOSOtherStrings: array[TPadOSOther] of string = (
     'Other',
     'Not Applicable');
+
+  PadOSModernStrings: array[TPadOSModern] of string = (
+    'Windows XP',
+    'Windows Vista Starter',
+    'Windows Vista Home Basic',
+    'Windows Vista Home Premium',
+    'Windows Vista Business',
+    'Windows Vista Enterprise',
+    'Windows Vista Ultimate',
+    'Windows Vista Starter x64',
+    'Windows Vista Home Basic x64',
+    'Windows Vista Home Premium x64',
+    'Windows Vista Business x64',
+    'Windows Vista Enterprise x64',
+    'Windows Vista Ultimate x64',
+    'Windows 7',
+    'Windows 8',
+    'Windows 10',
+    'Windows 11',
+    'Windows 12'
+    );
 
   // String arrays for language groups
   PadLangEuropeanStrings: array[TPadLangEuropean] of string = (

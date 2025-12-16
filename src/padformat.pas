@@ -359,6 +359,7 @@ type
     FProgramOSSupportWindows: TPadOSWindowsSet;
     FProgramOSSupportUnixLinux: TPadOSUnixLinuxSet;
     FProgramOSSupportOther: TPadOSOtherSet;
+    FProgramOSSupportModern: TPadOSModernSet;
     // Language groups
     FProgramLanguageEuropean: TPadLangEuropeanSet;
     FProgramLanguageAsian: TPadLangAsianSet;
@@ -428,6 +429,7 @@ type
     property ProgramOSSupportWindows: TPadOSWindowsSet read FProgramOSSupportWindows write FProgramOSSupportWindows;
     property ProgramOSSupportUnixLinux: TPadOSUnixLinuxSet read FProgramOSSupportUnixLinux write FProgramOSSupportUnixLinux;
     property ProgramOSSupportOther: TPadOSOtherSet read FProgramOSSupportOther write FProgramOSSupportOther;
+    property ProgramOSSupportModern: TPadOSModernSet read FProgramOSSupportModern write FProgramOSSupportModern;
 
     // Language properties for designer
     property ProgramLanguageEuropean: TPadLangEuropeanSet read FProgramLanguageEuropean write FProgramLanguageEuropean;
@@ -808,11 +810,14 @@ function PadOSUnixLinuxToString(Value: TPadOSUnixLinux): string;
 function StringToPadOSUnixLinux(const Value: string): TPadOSUnixLinux;
 function PadOSOtherToString(Value: TPadOSOther): string;
 function StringToPadOSOther(const Value: string): TPadOSOther;
+function PadOSModernToString(Value: TPadOSModern): string;
+function StringToPadOSModern(const Value: string): TPadOSModern;
 
 // Combined OS Support conversion
-function PadOSSupportToString(WindowsSet: TPadOSWindowsSet; UnixLinuxSet: TPadOSUnixLinuxSet; OtherSet: TPadOSOtherSet): string;
+function PadOSSupportToString(WindowsSet: TPadOSWindowsSet; UnixLinuxSet: TPadOSUnixLinuxSet; OtherSet: TPadOSOtherSet;
+  ModernSet: TPadOSModernSet): string;
 procedure StringToPadOSSupport(const Value: string; out WindowsSet: TPadOSWindowsSet; out UnixLinuxSet: TPadOSUnixLinuxSet;
-  out OtherSet: TPadOSOtherSet);
+  out OtherSet: TPadOSOtherSet; out ModernSet: TPadOSModernSet);
 
 // Language conversion functions
 function PadLangEuropeanToString(Value: TPadLangEuropean): string;
@@ -1049,12 +1054,12 @@ end;
 
 function TPadProgramInfo.GetProgramOSSupportAsString: string;
 begin
-  Result := PadOSSupportToString(FProgramOSSupportWindows, FProgramOSSupportUnixLinux, FProgramOSSupportOther);
+  Result := PadOSSupportToString(FProgramOSSupportWindows, FProgramOSSupportUnixLinux, FProgramOSSupportOther, FProgramOSSupportModern);
 end;
 
 procedure TPadProgramInfo.SetProgramOSSupportAsString(const Value: string);
 begin
-  StringToPadOSSupport(Value, FProgramOSSupportWindows, FProgramOSSupportUnixLinux, FProgramOSSupportOther);
+  StringToPadOSSupport(Value, FProgramOSSupportWindows, FProgramOSSupportUnixLinux, FProgramOSSupportOther, FProgramOSSupportModern);
 end;
 
 function TPadProgramInfo.GetProgramLanguageAsString: string;
@@ -2228,6 +2233,16 @@ begin
 
     // File Info
     SubNode := AddChildNode(Node, 'File_Info');
+
+    if FProgramInfo.FileInfo.FFileNameVersionedExists then
+      SetNodeText(Doc, SubNode, 'Filename_Versioned', FProgramInfo.FileInfo.FFileNameVersioned);
+    if FProgramInfo.FileInfo.FFileNamePreviousExists then
+      SetNodeText(Doc, SubNode, 'Filename_Previous', FProgramInfo.FileInfo.FFileNamePrevious);
+    if FProgramInfo.FileInfo.FFileNameGenericExists then
+      SetNodeText(Doc, SubNode, 'Filename_Generic', FProgramInfo.FileInfo.FFileNameGeneric);
+    if FProgramInfo.FileInfo.FFileNameLongExists then
+      SetNodeText(Doc, SubNode, 'Filename_Long', FProgramInfo.FileInfo.FFileNameLong);
+
     SetNodeText(Doc, SubNode, 'File_Size_Bytes',
       IntToStr(FProgramInfo.FileInfo.FileSizeBytes));
     FS.DecimalSeparator := '.';
@@ -2243,14 +2258,6 @@ begin
     else
       SetNodeText(Doc, SubNode, 'File_Size_MB',
         FormatFloat('0.00##', FProgramInfo.FileInfo.FileSizeMB, FS));
-    if FProgramInfo.FileInfo.FFileNameVersionedExists then
-      SetNodeText(Doc, SubNode, 'Filename_Versioned', FProgramInfo.FileInfo.FFileNameVersioned);
-    if FProgramInfo.FileInfo.FFileNamePreviousExists then
-      SetNodeText(Doc, SubNode, 'Filename_Previous', FProgramInfo.FileInfo.FFileNamePrevious);
-    if FProgramInfo.FileInfo.FFileNameGenericExists then
-      SetNodeText(Doc, SubNode, 'Filename_Generic', FProgramInfo.FileInfo.FFileNameGeneric);
-    if FProgramInfo.FileInfo.FFileNameLongExists then
-      SetNodeText(Doc, SubNode, 'Filename_Long', FProgramInfo.FileInfo.FFileNameLong);
 
     // Expire Info
     SubNode := AddChildNode(Node, 'Expire_Info');
@@ -3826,14 +3833,39 @@ begin
   Result := Low(TPadOSOther);
 end;
 
+function PadOSModernToString(Value: TPadOSModern): string;
+begin
+  if (Value >= Low(TPadOSModern)) and (Value <= High(TPadOSModern)) then
+    Result := PadOSModernStrings[Value]
+  else
+    Result := '';
+end;
+
+function StringToPadOSModern(const Value: string): TPadOSModern;
+var
+  OS: TPadOSModern;
+begin
+  for OS := Low(TPadOSModern) to High(TPadOSModern) do
+  begin
+    if SameText(PadOSModernStrings[OS], Value) then
+    begin
+      Result := OS;
+      Exit;
+    end;
+  end;
+  Result := Low(TPadOSModern);
+end;
+
 // Combined Language conversion
 // Combined OS Support conversion
-function PadOSSupportToString(WindowsSet: TPadOSWindowsSet; UnixLinuxSet: TPadOSUnixLinuxSet; OtherSet: TPadOSOtherSet): string;
+function PadOSSupportToString(WindowsSet: TPadOSWindowsSet; UnixLinuxSet: TPadOSUnixLinuxSet; OtherSet: TPadOSOtherSet;
+  ModernSet: TPadOSModernSet): string;
 var
   List: TStringList;
   WinOS: TPadOSWindows;
   UnixOS: TPadOSUnixLinux;
   OtherOS: TPadOSOther;
+  ModernOS: TPadOSModern;
 begin
   List := TStringList.Create;
   try
@@ -3861,6 +3893,13 @@ begin
         List.Add(PadOSOtherStrings[OtherOS]);
     end;
 
+    // Add Modern OS
+    for ModernOS := Low(TPadOSModern) to High(TPadOSModern) do
+    begin
+      if ModernOS in ModernSet then
+        List.Add(PadOSModernStrings[ModernOS]);
+    end;
+
     Result := List.DelimitedText;
   finally
     List.Free;
@@ -3868,7 +3907,7 @@ begin
 end;
 
 procedure StringToPadOSSupport(const Value: string; out WindowsSet: TPadOSWindowsSet; out UnixLinuxSet: TPadOSUnixLinuxSet;
-  out OtherSet: TPadOSOtherSet);
+  out OtherSet: TPadOSOtherSet; out ModernSet: TPadOSModernSet);
 var
   OSList: TStringList;
   i: integer;
@@ -3877,10 +3916,12 @@ var
   WinOS: TPadOSWindows;
   UnixOS: TPadOSUnixLinux;
   OtherOS: TPadOSOther;
+  ModernOS: TPadOSModern;
 begin
   WindowsSet := [];
   UnixLinuxSet := [];
   OtherSet := [];
+  ModernSet := [];
 
   if Trim(Value) = '' then
     Exit;
@@ -3929,6 +3970,19 @@ begin
           if SameText(PadOSOtherStrings[OtherOS], OSStr) then
           begin
             Include(OtherSet, OtherOS);
+            Break;
+          end;
+        end;
+      end;
+
+      if not Found then
+      begin
+        // Try to find in Modern set
+        for ModernOS := Low(TPadOSModern) to High(TPadOSModern) do
+        begin
+          if SameText(PadOSModernStrings[ModernOS], OSStr) then
+          begin
+            Include(ModernSet, ModernOS);
             Break;
           end;
         end;
