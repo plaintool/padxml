@@ -93,6 +93,9 @@ type
     FContactFirstName: string;
     FContactLastName: string;
     FContactEmail: string;
+    FContactPhoneExists: boolean;
+    FContactPhone: string;
+    procedure SetContactPhone(Value: string);
   published
     property AuthorFirstName: string read FAuthorFirstName write FAuthorFirstName;
     property AuthorLastName: string read FAuthorLastName write FAuthorLastName;
@@ -100,6 +103,7 @@ type
     property ContactFirstName: string read FContactFirstName write FContactFirstName;
     property ContactLastName: string read FContactLastName write FContactLastName;
     property ContactEmail: string read FContactEmail write FContactEmail;
+    property ContactPhone: string read FContactPhone write SetContactPhone;
   end;
 
   { TPadSupportInfo }
@@ -255,9 +259,9 @@ type
     FSite_Contact_Last_Name: string;
     FSite_Site_Title: string;
     FSite_Site_URL: string;
+    FSite_Keywords: string;
     FSite_Description_100: string;
     FSite_Description_250: string;
-    FSite_Keywords: string;
     FSite_Description_450: string;
   published
     property Active: boolean read FEnabled write FEnabled default False;
@@ -535,14 +539,46 @@ type
   { TPadProgramDescriptions }
   TPadProgramDescriptions = class(TPersistent)
   private
-    FLanguageName: string;
-    FLanguage: TPadLanguageDescription;
+    FLanguage1Name: string;
+    FLanguage1: TPadLanguageDescription;
+    FLanguage2Name: string;
+    FLanguage2: TPadLanguageDescription;
+    FLanguage3Name: string;
+    FLanguage3: TPadLanguageDescription;
+    FLanguage4Name: string;
+    FLanguage4: TPadLanguageDescription;
+    FLanguage5Name: string;
+    FLanguage5: TPadLanguageDescription;
+    FLanguage6Name: string;
+    FLanguage6: TPadLanguageDescription;
+    FLanguage7Name: string;
+    FLanguage7: TPadLanguageDescription;
+    FLanguage8Name: string;
+    FLanguage8: TPadLanguageDescription;
+    FLanguage9Name: string;
+    FLanguage9: TPadLanguageDescription;
   public
     constructor Create;
     destructor Destroy; override;
   published
-    property LanguageName: string read FLanguageName write FLanguageName;
-    property Language: TPadLanguageDescription read FLanguage write FLanguage;
+    property Language1Name: string read FLanguage1Name write FLanguage1Name;
+    property Language1: TPadLanguageDescription read FLanguage1 write FLanguage1;
+    property Language2Name: string read FLanguage2Name write FLanguage2Name;
+    property Language2: TPadLanguageDescription read FLanguage2 write FLanguage2;
+    property Language3Name: string read FLanguage3Name write FLanguage3Name;
+    property Language3: TPadLanguageDescription read FLanguage3 write FLanguage3;
+    property Language4Name: string read FLanguage4Name write FLanguage4Name;
+    property Language4: TPadLanguageDescription read FLanguage4 write FLanguage4;
+    property Language5Name: string read FLanguage5Name write FLanguage5Name;
+    property Language5: TPadLanguageDescription read FLanguage5 write FLanguage5;
+    property Language6Name: string read FLanguage6Name write FLanguage6Name;
+    property Language6: TPadLanguageDescription read FLanguage6 write FLanguage6;
+    property Language7Name: string read FLanguage7Name write FLanguage7Name;
+    property Language7: TPadLanguageDescription read FLanguage7 write FLanguage7;
+    property Language8Name: string read FLanguage8Name write FLanguage8Name;
+    property Language8: TPadLanguageDescription read FLanguage8 write FLanguage8;
+    property Language9Name: string read FLanguage9Name write FLanguage9Name;
+    property Language9: TPadLanguageDescription read FLanguage9 write FLanguage9;
   end;
 
   { TPadApplicationURLs }
@@ -961,6 +997,17 @@ begin
   FMasterPadVersion := Value;
   FVersion := StrToFloatSafe(FMasterPadVersion);
   if FVersion <= 0 then FVersion := 4;
+end;
+
+{TPadContactInfo}
+
+procedure TPadContactInfo.SetContactPhone(Value: string);
+begin
+  if FContactPhone <> Value then
+  begin
+    FContactPhone := Value;
+    FContactPhoneExists := True;
+  end;
 end;
 
 { TPadNewsFeed }
@@ -1445,13 +1492,37 @@ end;
 constructor TPadProgramDescriptions.Create;
 begin
   inherited Create;
-  FLanguage := TPadLanguageDescription.Create;
-  FLanguageName := 'English';
+  FLanguage1 := TPadLanguageDescription.Create;
+  FLanguage1Name := 'English';
+  FLanguage2 := TPadLanguageDescription.Create;
+  FLanguage2Name := '';
+  FLanguage3 := TPadLanguageDescription.Create;
+  FLanguage3Name := '';
+  FLanguage4 := TPadLanguageDescription.Create;
+  FLanguage4Name := '';
+  FLanguage5 := TPadLanguageDescription.Create;
+  FLanguage5Name := '';
+  FLanguage6 := TPadLanguageDescription.Create;
+  FLanguage6Name := '';
+  FLanguage7 := TPadLanguageDescription.Create;
+  FLanguage7Name := '';
+  FLanguage8 := TPadLanguageDescription.Create;
+  FLanguage8Name := '';
+  FLanguage9 := TPadLanguageDescription.Create;
+  FLanguage9Name := '';
 end;
 
 destructor TPadProgramDescriptions.Destroy;
 begin
-  FLanguage.Free;
+  FLanguage1.Free;
+  FLanguage2.Free;
+  FLanguage3.Free;
+  FLanguage4.Free;
+  FLanguage5.Free;
+  FLanguage6.Free;
+  FLanguage7.Free;
+  FLanguage8.Free;
+  FLanguage9.Free;
   inherited Destroy;
 end;
 
@@ -1738,6 +1809,7 @@ var
   Doc: TXMLDocument;
   Stream: TStringStream;
   RootNode, Node, SubNode: TDOMNode;
+  i: integer;
 
   function GetNodeValue(Parent: TDOMNode; const NodeName: string): string;
   var
@@ -1836,6 +1908,8 @@ begin
           FCompanyInfo.ContactInfo.ContactFirstName := GetNodeValue(SubNode, 'Contact_First_Name');
           FCompanyInfo.ContactInfo.ContactLastName := GetNodeValue(SubNode, 'Contact_Last_Name');
           FCompanyInfo.ContactInfo.ContactEmail := GetNodeValue(SubNode, 'Contact_Email');
+          FCompanyInfo.ContactInfo.FContactPhoneExists := Assigned(SubNode.FindNode('Contact_Phone'));
+          FCompanyInfo.ContactInfo.ContactPhone := GetNodeValue(SubNode, 'Contact_Phone');
         end;
 
         // Load Support Info
@@ -1869,7 +1943,7 @@ begin
       FNewsFeed.FEnabled := Assigned(Node);
       if Assigned(Node) then
       begin
-        FNewsFeed.NewsFeed_FORM := UpperCase(GetNodeValue(Node, 'NewsFeed_FORM')) = 'Y';
+        FNewsFeed.NewsFeed_FORM := UpperCase(GetNodeValue(Node, 'NewsFeed_FORM')) <> 'N';
         FNewsFeed.NewsFeed_VERSION := GetNodeValue(Node, 'NewsFeed_VERSION');
         FNewsFeed.NewsFeed_URL := GetNodeValue(Node, 'NewsFeed_URL');
         FNewsFeed.NewsFeed_TypeAsString := GetNodeValue(Node, 'NewsFeed_Type');
@@ -1893,7 +1967,7 @@ begin
       FSite.FEnabled := Assigned(Node);
       if Assigned(Node) then
       begin
-        FSite.Site_FORM := UpperCase(GetNodeValue(Node, 'Site_FORM')) = 'Y';
+        FSite.Site_FORM := UpperCase(GetNodeValue(Node, 'Site_FORM')) <> 'N';
         FSite.Site_VERSION := GetNodeValue(Node, 'Site_VERSION');
         FSite.Site_URL := GetNodeValue(Node, 'Site_URL');
         FSite.Site_DESCRIPTION := GetNodeValue(Node, 'Site_DESCRIPTION');
@@ -1902,9 +1976,9 @@ begin
         FSite.Site_Contact_Last_Name := GetNodeValue(Node, 'Site_Contact_Last_Name');
         FSite.Site_Site_Title := GetNodeValue(Node, 'Site_Site_Title');
         FSite.Site_Site_URL := GetNodeValue(Node, 'Site_Site_URL');
+        FSite.Site_Keywords := GetNodeValue(Node, 'Site_Keywords');
         FSite.Site_Description_100 := GetNodeValue(Node, 'Site_Description_100');
         FSite.Site_Description_250 := GetNodeValue(Node, 'Site_Description_250');
-        FSite.Site_Keywords := GetNodeValue(Node, 'Site_Keywords');
         FSite.Site_Description_450 := GetNodeValue(Node, 'Site_Description_450');
       end;
 
@@ -1991,7 +2065,7 @@ begin
         SubNode := Node.FindNode('Expire_Info');
         if Assigned(SubNode) then
         begin
-          FProgramInfo.ExpireInfo.HasExpireInfo := UpperCase(GetNodeValue(SubNode, 'Has_Expire_Info')) = 'Y';
+          FProgramInfo.ExpireInfo.HasExpireInfo := UpperCase(GetNodeValue(SubNode, 'Has_Expire_Info')) <> 'N';
           FProgramInfo.ExpireInfo.ExpireCount := StrToIntDef(GetNodeValue(SubNode, 'Expire_Count'), 0);
           FProgramInfo.ExpireInfo.ExpireBasedOnAsString := GetNodeValue(SubNode, 'Expire_Based_On');
           FProgramInfo.ExpireInfo.ExpireOtherInfo := GetNodeValue(SubNode, 'Expire_Other_Info');
@@ -2005,16 +2079,95 @@ begin
       Node := RootNode.FindNode('Program_Descriptions');
       if Assigned(Node) then
       begin
-        SubNode := Node.FirstChild;
-        FProgramDescriptions.FLanguageName := utf8string(SubNode.NodeName);
-        if Assigned(SubNode) then
+        for i := 0 to 9 do
         begin
-          FProgramDescriptions.FLanguage.Keywords := GetNodeValue(SubNode, 'Keywords');
-          FProgramDescriptions.FLanguage.CharDesc45 := GetNodeValue(SubNode, 'Char_Desc_45');
-          FProgramDescriptions.FLanguage.CharDesc80 := GetNodeValue(SubNode, 'Char_Desc_80');
-          FProgramDescriptions.FLanguage.CharDesc250 := GetNodeValue(SubNode, 'Char_Desc_250');
-          FProgramDescriptions.FLanguage.CharDesc450 := GetNodeValue(SubNode, 'Char_Desc_450');
-          FProgramDescriptions.FLanguage.CharDesc2000 := GetNodeValue(SubNode, 'Char_Desc_2000');
+          SubNode := Node.ChildNodes[i];
+          if Assigned(SubNode) then
+          begin
+            case i of
+              0: begin
+                FProgramDescriptions.FLanguage1Name := utf8string(SubNode.NodeName);
+                FProgramDescriptions.FLanguage1.Keywords := GetNodeValue(SubNode, 'Keywords');
+                FProgramDescriptions.FLanguage1.CharDesc45 := GetNodeValue(SubNode, 'Char_Desc_45');
+                FProgramDescriptions.FLanguage1.CharDesc80 := GetNodeValue(SubNode, 'Char_Desc_80');
+                FProgramDescriptions.FLanguage1.CharDesc250 := GetNodeValue(SubNode, 'Char_Desc_250');
+                FProgramDescriptions.FLanguage1.CharDesc450 := GetNodeValue(SubNode, 'Char_Desc_450');
+                FProgramDescriptions.FLanguage1.CharDesc2000 := GetNodeValue(SubNode, 'Char_Desc_2000');
+              end;
+              1: begin
+                FProgramDescriptions.FLanguage2Name := utf8string(SubNode.NodeName);
+                FProgramDescriptions.FLanguage2.Keywords := GetNodeValue(SubNode, 'Keywords');
+                FProgramDescriptions.FLanguage2.CharDesc45 := GetNodeValue(SubNode, 'Char_Desc_45');
+                FProgramDescriptions.FLanguage2.CharDesc80 := GetNodeValue(SubNode, 'Char_Desc_80');
+                FProgramDescriptions.FLanguage2.CharDesc250 := GetNodeValue(SubNode, 'Char_Desc_250');
+                FProgramDescriptions.FLanguage2.CharDesc450 := GetNodeValue(SubNode, 'Char_Desc_450');
+                FProgramDescriptions.FLanguage2.CharDesc2000 := GetNodeValue(SubNode, 'Char_Desc_2000');
+              end;
+              2: begin
+                FProgramDescriptions.FLanguage3Name := utf8string(SubNode.NodeName);
+                FProgramDescriptions.FLanguage3.Keywords := GetNodeValue(SubNode, 'Keywords');
+                FProgramDescriptions.FLanguage3.CharDesc45 := GetNodeValue(SubNode, 'Char_Desc_45');
+                FProgramDescriptions.FLanguage3.CharDesc80 := GetNodeValue(SubNode, 'Char_Desc_80');
+                FProgramDescriptions.FLanguage3.CharDesc250 := GetNodeValue(SubNode, 'Char_Desc_250');
+                FProgramDescriptions.FLanguage3.CharDesc450 := GetNodeValue(SubNode, 'Char_Desc_450');
+                FProgramDescriptions.FLanguage3.CharDesc2000 := GetNodeValue(SubNode, 'Char_Desc_2000');
+              end;
+              3: begin
+                FProgramDescriptions.FLanguage4Name := utf8string(SubNode.NodeName);
+                FProgramDescriptions.FLanguage4.Keywords := GetNodeValue(SubNode, 'Keywords');
+                FProgramDescriptions.FLanguage4.CharDesc45 := GetNodeValue(SubNode, 'Char_Desc_45');
+                FProgramDescriptions.FLanguage4.CharDesc80 := GetNodeValue(SubNode, 'Char_Desc_80');
+                FProgramDescriptions.FLanguage4.CharDesc250 := GetNodeValue(SubNode, 'Char_Desc_250');
+                FProgramDescriptions.FLanguage4.CharDesc450 := GetNodeValue(SubNode, 'Char_Desc_450');
+                FProgramDescriptions.FLanguage4.CharDesc2000 := GetNodeValue(SubNode, 'Char_Desc_2000');
+              end;
+              4: begin
+                FProgramDescriptions.FLanguage5Name := utf8string(SubNode.NodeName);
+                FProgramDescriptions.FLanguage5.Keywords := GetNodeValue(SubNode, 'Keywords');
+                FProgramDescriptions.FLanguage5.CharDesc45 := GetNodeValue(SubNode, 'Char_Desc_45');
+                FProgramDescriptions.FLanguage5.CharDesc80 := GetNodeValue(SubNode, 'Char_Desc_80');
+                FProgramDescriptions.FLanguage5.CharDesc250 := GetNodeValue(SubNode, 'Char_Desc_250');
+                FProgramDescriptions.FLanguage5.CharDesc450 := GetNodeValue(SubNode, 'Char_Desc_450');
+                FProgramDescriptions.FLanguage5.CharDesc2000 := GetNodeValue(SubNode, 'Char_Desc_2000');
+              end;
+              5: begin
+                FProgramDescriptions.FLanguage6Name := utf8string(SubNode.NodeName);
+                FProgramDescriptions.FLanguage6.Keywords := GetNodeValue(SubNode, 'Keywords');
+                FProgramDescriptions.FLanguage6.CharDesc45 := GetNodeValue(SubNode, 'Char_Desc_45');
+                FProgramDescriptions.FLanguage6.CharDesc80 := GetNodeValue(SubNode, 'Char_Desc_80');
+                FProgramDescriptions.FLanguage6.CharDesc250 := GetNodeValue(SubNode, 'Char_Desc_250');
+                FProgramDescriptions.FLanguage6.CharDesc450 := GetNodeValue(SubNode, 'Char_Desc_450');
+                FProgramDescriptions.FLanguage6.CharDesc2000 := GetNodeValue(SubNode, 'Char_Desc_2000');
+              end;
+              6: begin
+                FProgramDescriptions.FLanguage7Name := utf8string(SubNode.NodeName);
+                FProgramDescriptions.FLanguage7.Keywords := GetNodeValue(SubNode, 'Keywords');
+                FProgramDescriptions.FLanguage7.CharDesc45 := GetNodeValue(SubNode, 'Char_Desc_45');
+                FProgramDescriptions.FLanguage7.CharDesc80 := GetNodeValue(SubNode, 'Char_Desc_80');
+                FProgramDescriptions.FLanguage7.CharDesc250 := GetNodeValue(SubNode, 'Char_Desc_250');
+                FProgramDescriptions.FLanguage7.CharDesc450 := GetNodeValue(SubNode, 'Char_Desc_450');
+                FProgramDescriptions.FLanguage7.CharDesc2000 := GetNodeValue(SubNode, 'Char_Desc_2000');
+              end;
+              7: begin
+                FProgramDescriptions.FLanguage8Name := utf8string(SubNode.NodeName);
+                FProgramDescriptions.FLanguage8.Keywords := GetNodeValue(SubNode, 'Keywords');
+                FProgramDescriptions.FLanguage8.CharDesc45 := GetNodeValue(SubNode, 'Char_Desc_45');
+                FProgramDescriptions.FLanguage8.CharDesc80 := GetNodeValue(SubNode, 'Char_Desc_80');
+                FProgramDescriptions.FLanguage8.CharDesc250 := GetNodeValue(SubNode, 'Char_Desc_250');
+                FProgramDescriptions.FLanguage8.CharDesc450 := GetNodeValue(SubNode, 'Char_Desc_450');
+                FProgramDescriptions.FLanguage8.CharDesc2000 := GetNodeValue(SubNode, 'Char_Desc_2000');
+              end;
+              8: begin
+                FProgramDescriptions.FLanguage9Name := utf8string(SubNode.NodeName);
+                FProgramDescriptions.FLanguage9.Keywords := GetNodeValue(SubNode, 'Keywords');
+                FProgramDescriptions.FLanguage9.CharDesc45 := GetNodeValue(SubNode, 'Char_Desc_45');
+                FProgramDescriptions.FLanguage9.CharDesc80 := GetNodeValue(SubNode, 'Char_Desc_80');
+                FProgramDescriptions.FLanguage9.CharDesc250 := GetNodeValue(SubNode, 'Char_Desc_250');
+                FProgramDescriptions.FLanguage9.CharDesc450 := GetNodeValue(SubNode, 'Char_Desc_450');
+                FProgramDescriptions.FLanguage9.CharDesc2000 := GetNodeValue(SubNode, 'Char_Desc_2000');
+              end;
+            end;
+          end;
         end;
       end;
 
@@ -2076,7 +2229,7 @@ begin
       FAffiliates.FEnabled := Assigned(Node);
       if Assigned(Node) then
       begin
-        FAffiliates.Affiliates_FORM := UpperCase(GetNodeValue(Node, 'Affiliates_FORM')) = 'Y';
+        FAffiliates.Affiliates_FORM := UpperCase(GetNodeValue(Node, 'Affiliates_FORM')) <> 'N';
 
         // Set version based on master version
         if MasterPadVersionInfo.Version < 3.10 then
@@ -2304,7 +2457,15 @@ begin
         FAppStore.AppStore_Awards_And_Ratings := GetNodeValue(Node, 'AppStore_Awards_And_Ratings');
       end;
 
-      FProgramDescriptions.Language.SyncStringsToStrings;
+      FProgramDescriptions.Language1.SyncStringsToStrings;
+      FProgramDescriptions.Language2.SyncStringsToStrings;
+      FProgramDescriptions.Language3.SyncStringsToStrings;
+      FProgramDescriptions.Language4.SyncStringsToStrings;
+      FProgramDescriptions.Language5.SyncStringsToStrings;
+      FProgramDescriptions.Language6.SyncStringsToStrings;
+      FProgramDescriptions.Language7.SyncStringsToStrings;
+      FProgramDescriptions.Language9.SyncStringsToStrings;
+      FProgramDescriptions.Language9.SyncStringsToStrings;
       FNewsFeed.SyncStringsToStrings;
       FPermissions.SyncStringsToStrings;
       FPressRelease.SyncStringsToStrings;
@@ -2325,7 +2486,15 @@ var
 begin
   Doc := TXMLDocument.Create;
   try
-    FProgramDescriptions.Language.SyncStringToStrings;
+    FProgramDescriptions.Language1.SyncStringToStrings;
+    FProgramDescriptions.Language2.SyncStringToStrings;
+    FProgramDescriptions.Language3.SyncStringToStrings;
+    FProgramDescriptions.Language4.SyncStringToStrings;
+    FProgramDescriptions.Language5.SyncStringToStrings;
+    FProgramDescriptions.Language6.SyncStringToStrings;
+    FProgramDescriptions.Language7.SyncStringToStrings;
+    FProgramDescriptions.Language9.SyncStringToStrings;
+    FProgramDescriptions.Language9.SyncStringToStrings;
     FNewsFeed.SyncStringToStrings;
     FPermissions.SyncStringToStrings;
     FPressRelease.SyncStringToStrings;
@@ -2391,6 +2560,9 @@ begin
       FCompanyInfo.ContactInfo.ContactLastName);
     SetNodeText(Doc, SubNode, 'Contact_Email',
       FCompanyInfo.ContactInfo.ContactEmail);
+    if FCompanyInfo.ContactInfo.FContactPhoneExists then
+      SetNodeText(Doc, SubNode, 'Contact_Phone',
+        FCompanyInfo.ContactInfo.ContactPhone);
 
     // Support Info
     SubNode := AddChildNode(Node, 'Support_Info');
@@ -2454,15 +2626,15 @@ begin
         SetNodeText(Doc, Node, 'Site_VERSION', FSite.Site_VERSION);
         SetNodeText(Doc, Node, 'Site_URL', FSite.Site_URL);
         SetNodeText(Doc, Node, 'Site_DESCRIPTION', FSite.Site_DESCRIPTION);
-        SetNodeText(Doc, Node, 'Site_Contact_Email', FSite.Site_Contact_Email);
-        SetNodeText(Doc, Node, 'Site_Contact_First_Name', FSite.Site_Contact_First_Name);
-        SetNodeText(Doc, Node, 'Site_Contact_Last_Name', FSite.Site_Contact_Last_Name);
         SetNodeText(Doc, Node, 'Site_Site_Title', FSite.Site_Site_Title);
         SetNodeText(Doc, Node, 'Site_Site_URL', FSite.Site_Site_URL);
+        SetNodeText(Doc, Node, 'Site_Keywords', FSite.Site_Keywords);
         SetNodeText(Doc, Node, 'Site_Description_100', FSite.Site_Description_100);
         SetNodeText(Doc, Node, 'Site_Description_250', FSite.Site_Description_250);
-        SetNodeText(Doc, Node, 'Site_Keywords', FSite.Site_Keywords);
         SetNodeText(Doc, Node, 'Site_Description_450', FSite.Site_Description_450);
+        SetNodeText(Doc, Node, 'Site_Contact_First_Name', FSite.Site_Contact_First_Name);
+        SetNodeText(Doc, Node, 'Site_Contact_Last_Name', FSite.Site_Contact_Last_Name);
+        SetNodeText(Doc, Node, 'Site_Contact_Email', FSite.Site_Contact_Email);
       end;
 
       // Save PAD Certification Promotion
@@ -2580,19 +2752,150 @@ begin
 
     // Program Descriptions
     Node := AddChildNode(RootNode, 'Program_Descriptions');
-    SubNode := AddChildNode(Node, FProgramDescriptions.LanguageName);
-    SetNodeText(Doc, SubNode, 'Keywords',
-      FProgramDescriptions.Language.Keywords);
-    SetNodeText(Doc, SubNode, 'Char_Desc_45',
-      FProgramDescriptions.Language.CharDesc45);
-    SetNodeText(Doc, SubNode, 'Char_Desc_80',
-      FProgramDescriptions.Language.CharDesc80);
-    SetNodeText(Doc, SubNode, 'Char_Desc_250',
-      FProgramDescriptions.Language.CharDesc250);
-    SetNodeText(Doc, SubNode, 'Char_Desc_450',
-      FProgramDescriptions.Language.CharDesc450);
-    SetNodeText(Doc, SubNode, 'Char_Desc_2000',
-      FProgramDescriptions.Language.CharDesc2000);
+    if FProgramDescriptions.Language1Name <> '' then
+    begin
+      SubNode := AddChildNode(Node, FProgramDescriptions.Language1Name);
+      SetNodeText(Doc, SubNode, 'Keywords',
+        FProgramDescriptions.Language1.Keywords);
+      SetNodeText(Doc, SubNode, 'Char_Desc_45',
+        FProgramDescriptions.Language1.CharDesc45);
+      SetNodeText(Doc, SubNode, 'Char_Desc_80',
+        FProgramDescriptions.Language1.CharDesc80);
+      SetNodeText(Doc, SubNode, 'Char_Desc_250',
+        FProgramDescriptions.Language1.CharDesc250);
+      SetNodeText(Doc, SubNode, 'Char_Desc_450',
+        FProgramDescriptions.Language1.CharDesc450);
+      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
+        FProgramDescriptions.Language1.CharDesc2000);
+    end;
+    if FProgramDescriptions.Language2Name <> '' then
+    begin
+      SubNode := AddChildNode(Node, FProgramDescriptions.Language2Name);
+      SetNodeText(Doc, SubNode, 'Keywords',
+        FProgramDescriptions.Language2.Keywords);
+      SetNodeText(Doc, SubNode, 'Char_Desc_45',
+        FProgramDescriptions.Language2.CharDesc45);
+      SetNodeText(Doc, SubNode, 'Char_Desc_80',
+        FProgramDescriptions.Language2.CharDesc80);
+      SetNodeText(Doc, SubNode, 'Char_Desc_250',
+        FProgramDescriptions.Language2.CharDesc250);
+      SetNodeText(Doc, SubNode, 'Char_Desc_450',
+        FProgramDescriptions.Language2.CharDesc450);
+      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
+        FProgramDescriptions.Language2.CharDesc2000);
+    end;
+    if FProgramDescriptions.Language3Name <> '' then
+    begin
+      SubNode := AddChildNode(Node, FProgramDescriptions.Language3Name);
+      SetNodeText(Doc, SubNode, 'Keywords',
+        FProgramDescriptions.Language3.Keywords);
+      SetNodeText(Doc, SubNode, 'Char_Desc_45',
+        FProgramDescriptions.Language3.CharDesc45);
+      SetNodeText(Doc, SubNode, 'Char_Desc_80',
+        FProgramDescriptions.Language3.CharDesc80);
+      SetNodeText(Doc, SubNode, 'Char_Desc_250',
+        FProgramDescriptions.Language3.CharDesc250);
+      SetNodeText(Doc, SubNode, 'Char_Desc_450',
+        FProgramDescriptions.Language3.CharDesc450);
+      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
+        FProgramDescriptions.Language3.CharDesc2000);
+    end;
+    if FProgramDescriptions.Language4Name <> '' then
+    begin
+      SubNode := AddChildNode(Node, FProgramDescriptions.Language4Name);
+      SetNodeText(Doc, SubNode, 'Keywords',
+        FProgramDescriptions.Language4.Keywords);
+      SetNodeText(Doc, SubNode, 'Char_Desc_45',
+        FProgramDescriptions.Language4.CharDesc45);
+      SetNodeText(Doc, SubNode, 'Char_Desc_80',
+        FProgramDescriptions.Language4.CharDesc80);
+      SetNodeText(Doc, SubNode, 'Char_Desc_250',
+        FProgramDescriptions.Language4.CharDesc250);
+      SetNodeText(Doc, SubNode, 'Char_Desc_450',
+        FProgramDescriptions.Language4.CharDesc450);
+      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
+        FProgramDescriptions.Language4.CharDesc2000);
+    end;
+    if FProgramDescriptions.Language5Name <> '' then
+    begin
+      SubNode := AddChildNode(Node, FProgramDescriptions.Language5Name);
+      SetNodeText(Doc, SubNode, 'Keywords',
+        FProgramDescriptions.Language5.Keywords);
+      SetNodeText(Doc, SubNode, 'Char_Desc_45',
+        FProgramDescriptions.Language5.CharDesc45);
+      SetNodeText(Doc, SubNode, 'Char_Desc_80',
+        FProgramDescriptions.Language5.CharDesc80);
+      SetNodeText(Doc, SubNode, 'Char_Desc_250',
+        FProgramDescriptions.Language5.CharDesc250);
+      SetNodeText(Doc, SubNode, 'Char_Desc_450',
+        FProgramDescriptions.Language5.CharDesc450);
+      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
+        FProgramDescriptions.Language5.CharDesc2000);
+    end;
+    if FProgramDescriptions.Language6Name <> '' then
+    begin
+      SubNode := AddChildNode(Node, FProgramDescriptions.Language6Name);
+      SetNodeText(Doc, SubNode, 'Keywords',
+        FProgramDescriptions.Language6.Keywords);
+      SetNodeText(Doc, SubNode, 'Char_Desc_45',
+        FProgramDescriptions.Language6.CharDesc45);
+      SetNodeText(Doc, SubNode, 'Char_Desc_80',
+        FProgramDescriptions.Language6.CharDesc80);
+      SetNodeText(Doc, SubNode, 'Char_Desc_250',
+        FProgramDescriptions.Language6.CharDesc250);
+      SetNodeText(Doc, SubNode, 'Char_Desc_450',
+        FProgramDescriptions.Language6.CharDesc450);
+      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
+        FProgramDescriptions.Language6.CharDesc2000);
+    end;
+    if FProgramDescriptions.Language7Name <> '' then
+    begin
+      SubNode := AddChildNode(Node, FProgramDescriptions.Language7Name);
+      SetNodeText(Doc, SubNode, 'Keywords',
+        FProgramDescriptions.Language7.Keywords);
+      SetNodeText(Doc, SubNode, 'Char_Desc_45',
+        FProgramDescriptions.Language7.CharDesc45);
+      SetNodeText(Doc, SubNode, 'Char_Desc_80',
+        FProgramDescriptions.Language7.CharDesc80);
+      SetNodeText(Doc, SubNode, 'Char_Desc_250',
+        FProgramDescriptions.Language7.CharDesc250);
+      SetNodeText(Doc, SubNode, 'Char_Desc_450',
+        FProgramDescriptions.Language7.CharDesc450);
+      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
+        FProgramDescriptions.Language7.CharDesc2000);
+    end;
+    if FProgramDescriptions.Language8Name <> '' then
+    begin
+      SubNode := AddChildNode(Node, FProgramDescriptions.Language6Name);
+      SetNodeText(Doc, SubNode, 'Keywords',
+        FProgramDescriptions.Language8.Keywords);
+      SetNodeText(Doc, SubNode, 'Char_Desc_45',
+        FProgramDescriptions.Language8.CharDesc45);
+      SetNodeText(Doc, SubNode, 'Char_Desc_80',
+        FProgramDescriptions.Language8.CharDesc80);
+      SetNodeText(Doc, SubNode, 'Char_Desc_250',
+        FProgramDescriptions.Language8.CharDesc250);
+      SetNodeText(Doc, SubNode, 'Char_Desc_450',
+        FProgramDescriptions.Language8.CharDesc450);
+      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
+        FProgramDescriptions.Language8.CharDesc2000);
+    end;
+    if FProgramDescriptions.Language9Name <> '' then
+    begin
+      SubNode := AddChildNode(Node, FProgramDescriptions.Language9Name);
+      SetNodeText(Doc, SubNode, 'Keywords',
+        FProgramDescriptions.Language9.Keywords);
+      SetNodeText(Doc, SubNode, 'Char_Desc_45',
+        FProgramDescriptions.Language9.CharDesc45);
+      SetNodeText(Doc, SubNode, 'Char_Desc_80',
+        FProgramDescriptions.Language9.CharDesc80);
+      SetNodeText(Doc, SubNode, 'Char_Desc_250',
+        FProgramDescriptions.Language9.CharDesc250);
+      SetNodeText(Doc, SubNode, 'Char_Desc_450',
+        FProgramDescriptions.Language9.CharDesc450);
+      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
+        FProgramDescriptions.Language9.CharDesc2000);
+    end;
 
     // Web Info
     Node := AddChildNode(RootNode, 'Web_Info');
@@ -3048,18 +3351,100 @@ begin
   FProgramInfo.ExpireInfo.ExpireYear := 0;
 
   // Clear Program Descriptions
-  FProgramDescriptions.FLanguageName := 'English';
-  FProgramDescriptions.Language.Keywords := '';
-  FProgramDescriptions.Language.CharDesc45 := '';
-  FProgramDescriptions.Language.CharDesc80 := '';
-  FProgramDescriptions.Language.CharDesc250 := '';
-  FProgramDescriptions.Language.CharDesc450 := '';
-  FProgramDescriptions.Language.CharDesc2000 := '';
+  FProgramDescriptions.FLanguage1Name := 'English';
+  FProgramDescriptions.Language1.Keywords := '';
+  FProgramDescriptions.Language1.CharDesc45 := '';
+  FProgramDescriptions.Language1.CharDesc80 := '';
+  FProgramDescriptions.Language1.CharDesc250 := '';
+  FProgramDescriptions.Language1.CharDesc450 := '';
+  FProgramDescriptions.Language1.CharDesc2000 := '';
+  FProgramDescriptions.Language1.CharDesc250Strings.Clear;
+  FProgramDescriptions.Language1.CharDesc450Strings.Clear;
+  FProgramDescriptions.Language1.CharDesc2000Strings.Clear;
 
-  // Clear TStrings objects
-  FProgramDescriptions.Language.CharDesc250Strings.Clear;
-  FProgramDescriptions.Language.CharDesc450Strings.Clear;
-  FProgramDescriptions.Language.CharDesc2000Strings.Clear;
+  FProgramDescriptions.FLanguage2Name := '';
+  FProgramDescriptions.Language2.Keywords := '';
+  FProgramDescriptions.Language2.CharDesc45 := '';
+  FProgramDescriptions.Language2.CharDesc80 := '';
+  FProgramDescriptions.Language2.CharDesc250 := '';
+  FProgramDescriptions.Language2.CharDesc450 := '';
+  FProgramDescriptions.Language2.CharDesc2000 := '';
+  FProgramDescriptions.Language2.CharDesc250Strings.Clear;
+  FProgramDescriptions.Language2.CharDesc450Strings.Clear;
+  FProgramDescriptions.Language2.CharDesc2000Strings.Clear;
+
+  FProgramDescriptions.FLanguage3Name := '';
+  FProgramDescriptions.Language3.Keywords := '';
+  FProgramDescriptions.Language3.CharDesc45 := '';
+  FProgramDescriptions.Language3.CharDesc80 := '';
+  FProgramDescriptions.Language3.CharDesc250 := '';
+  FProgramDescriptions.Language3.CharDesc450 := '';
+  FProgramDescriptions.Language3.CharDesc2000 := '';
+  FProgramDescriptions.Language3.CharDesc250Strings.Clear;
+  FProgramDescriptions.Language3.CharDesc450Strings.Clear;
+  FProgramDescriptions.Language3.CharDesc2000Strings.Clear;
+
+  FProgramDescriptions.FLanguage4Name := '';
+  FProgramDescriptions.Language4.Keywords := '';
+  FProgramDescriptions.Language4.CharDesc45 := '';
+  FProgramDescriptions.Language4.CharDesc80 := '';
+  FProgramDescriptions.Language4.CharDesc250 := '';
+  FProgramDescriptions.Language4.CharDesc450 := '';
+  FProgramDescriptions.Language4.CharDesc2000 := '';
+  FProgramDescriptions.Language4.CharDesc250Strings.Clear;
+  FProgramDescriptions.Language4.CharDesc450Strings.Clear;
+  FProgramDescriptions.Language4.CharDesc2000Strings.Clear;
+  FProgramDescriptions.FLanguage4Name := '';
+
+  FProgramDescriptions.Language5.Keywords := '';
+  FProgramDescriptions.Language5.CharDesc45 := '';
+  FProgramDescriptions.Language5.CharDesc80 := '';
+  FProgramDescriptions.Language5.CharDesc250 := '';
+  FProgramDescriptions.Language5.CharDesc450 := '';
+  FProgramDescriptions.Language5.CharDesc2000 := '';
+  FProgramDescriptions.Language5.CharDesc250Strings.Clear;
+  FProgramDescriptions.Language5.CharDesc450Strings.Clear;
+  FProgramDescriptions.Language5.CharDesc2000Strings.Clear;
+
+  FProgramDescriptions.Language6.Keywords := '';
+  FProgramDescriptions.Language6.CharDesc45 := '';
+  FProgramDescriptions.Language6.CharDesc80 := '';
+  FProgramDescriptions.Language6.CharDesc250 := '';
+  FProgramDescriptions.Language6.CharDesc450 := '';
+  FProgramDescriptions.Language6.CharDesc2000 := '';
+  FProgramDescriptions.Language6.CharDesc250Strings.Clear;
+  FProgramDescriptions.Language6.CharDesc450Strings.Clear;
+  FProgramDescriptions.Language6.CharDesc2000Strings.Clear;
+
+  FProgramDescriptions.Language7.Keywords := '';
+  FProgramDescriptions.Language7.CharDesc45 := '';
+  FProgramDescriptions.Language7.CharDesc80 := '';
+  FProgramDescriptions.Language7.CharDesc250 := '';
+  FProgramDescriptions.Language7.CharDesc450 := '';
+  FProgramDescriptions.Language7.CharDesc2000 := '';
+  FProgramDescriptions.Language7.CharDesc250Strings.Clear;
+  FProgramDescriptions.Language7.CharDesc450Strings.Clear;
+  FProgramDescriptions.Language7.CharDesc2000Strings.Clear;
+
+  FProgramDescriptions.Language9.Keywords := '';
+  FProgramDescriptions.Language9.CharDesc45 := '';
+  FProgramDescriptions.Language9.CharDesc80 := '';
+  FProgramDescriptions.Language9.CharDesc250 := '';
+  FProgramDescriptions.Language9.CharDesc450 := '';
+  FProgramDescriptions.Language9.CharDesc2000 := '';
+  FProgramDescriptions.Language9.CharDesc250Strings.Clear;
+  FProgramDescriptions.Language9.CharDesc450Strings.Clear;
+  FProgramDescriptions.Language9.CharDesc2000Strings.Clear;
+
+  FProgramDescriptions.Language9.Keywords := '';
+  FProgramDescriptions.Language9.CharDesc45 := '';
+  FProgramDescriptions.Language9.CharDesc80 := '';
+  FProgramDescriptions.Language9.CharDesc250 := '';
+  FProgramDescriptions.Language9.CharDesc450 := '';
+  FProgramDescriptions.Language9.CharDesc2000 := '';
+  FProgramDescriptions.Language9.CharDesc250Strings.Clear;
+  FProgramDescriptions.Language9.CharDesc450Strings.Clear;
+  FProgramDescriptions.Language9.CharDesc2000Strings.Clear;
 
   // Clear Web Info
   FWebInfo.ApplicationURLs.ApplicationInfoURL := '';
@@ -3441,7 +3826,7 @@ begin
 
           // Don't accept 0 or 1 spaces as valid indentation
           // (could be just alignment, not indentation)
-          if (Result >= 2) and (Result <= 8) then
+          if (Result >= 2) and (Result <= 9) then
             Break
           else
             Result := 2; // Reset to default
@@ -3518,9 +3903,9 @@ begin
         end;
 
         // Check for CDATA <![CDATA[ ... ]]>
-        if not InQuote and (j <= Length(Line) - 8) and (Line[j] = '<') and (Line[j + 1] = '!') and
+        if not InQuote and (j <= Length(Line) - 9) and (Line[j] = '<') and (Line[j + 1] = '!') and
           (Line[j + 2] = '[') and (Line[j + 3] = 'C') and (Line[j + 4] = 'D') and (Line[j + 5] = 'A') and
-          (Line[j + 6] = 'T') and (Line[j + 7] = 'A') and (Line[j + 8] = '[') then
+          (Line[j + 6] = 'T') and (Line[j + 7] = 'A') and (Line[j + 9] = '[') then
         begin
           InCDATA := True;
           Inc(j, 9);
@@ -3792,10 +4177,10 @@ begin
         end;
 
         // Check for CDATA <![CDATA[ ... ]]>
-        if not InComment and not InQuote and (StartPos <= Length(Line) - 8) and (Line[StartPos] = '<') and
+        if not InComment and not InQuote and (StartPos <= Length(Line) - 9) and (Line[StartPos] = '<') and
           (Line[StartPos + 1] = '!') and (Line[StartPos + 2] = '[') and (Line[StartPos + 3] = 'C') and
           (Line[StartPos + 4] = 'D') and (Line[StartPos + 5] = 'A') and (Line[StartPos + 6] = 'T') and
-          (Line[StartPos + 7] = 'A') and (Line[StartPos + 8] = '[') then
+          (Line[StartPos + 7] = 'A') and (Line[StartPos + 9] = '[') then
         begin
           InCDATA := True;
         end;

@@ -127,9 +127,33 @@ begin
 
   // Chnage event handler for TStrings
   TStringList(PadFormat.NewsFeed.NewsFeed_Description_250_Strings).OnChange := @propertyPadModified;
-  TStringList(PadFormat.ProgramDescriptions.Language.CharDesc250Strings).OnChange := @propertyPadModified;
-  TStringList(PadFormat.ProgramDescriptions.Language.CharDesc450Strings).OnChange := @propertyPadModified;
-  TStringList(PadFormat.ProgramDescriptions.Language.CharDesc2000Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language1.CharDesc250Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language1.CharDesc450Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language1.CharDesc2000Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language2.CharDesc250Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language2.CharDesc450Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language2.CharDesc2000Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language3.CharDesc250Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language3.CharDesc450Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language3.CharDesc2000Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language4.CharDesc250Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language4.CharDesc450Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language4.CharDesc2000Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language5.CharDesc250Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language5.CharDesc450Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language5.CharDesc2000Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language6.CharDesc250Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language6.CharDesc450Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language6.CharDesc2000Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language7.CharDesc250Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language7.CharDesc450Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language7.CharDesc2000Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language8.CharDesc250Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language8.CharDesc450Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language8.CharDesc2000Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language9.CharDesc250Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language9.CharDesc450Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.ProgramDescriptions.Language9.CharDesc2000Strings).OnChange := @propertyPadModified;
   TStringList(PadFormat.Permissions.DistributionPermissionsStrings).OnChange := @propertyPadModified;
   TStringList(PadFormat.Permissions.EULAStrings).OnChange := @propertyPadModified;
 end;
