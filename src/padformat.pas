@@ -369,8 +369,8 @@ type
     FProgramChangeInfo: string;
     FProgramSpecificCategory: string;
     FProgramCategoryClass: TPadProgramCategoryClass;
-    FProgramCategories: string;
     FProgramCategoriesExists: boolean;
+    FProgramCategories: string;
     FProgramSystemRequirements: string;
 
     FIncludesJavaVm: boolean;
@@ -380,6 +380,15 @@ type
     FIncludesVbRuntimeExists: boolean;
     FIncludesDirectXExists: boolean;
 
+    FLimitationsExists: boolean;
+    FLimitations: string;
+    FAwardsExists: boolean;
+    FAwards: string;
+    FFacebookProductPageExists: boolean;
+    FFacebookProductPage: string;
+    FGooglePlusProductPageExists: boolean;
+    FGooglePlusProductPage: string;
+
     FFileInfo: TPadFileInfo;
     FExpireInfo: TPadExpireInfo;
 
@@ -387,6 +396,10 @@ type
     procedure SetIncludesJavaVm(const Value: boolean);
     procedure SetIncludesVbRuntime(const Value: boolean);
     procedure SetIncludesDirectX(const Value: boolean);
+    procedure SetLimitations(const Value: string);
+    procedure SetAwards(const Value: string);
+    procedure SetFacebookProductPage(const Value: string);
+    procedure SetGooglePlusProductPage(const Value: string);
 
     function GetProgramTypeAsString: string;
     procedure SetProgramTypeAsString(const Value: string);
@@ -445,6 +458,12 @@ type
     property IncludesJavaVm: boolean read FIncludesJavaVm write SetIncludesJavaVm default False;
     property IncludesVbRuntime: boolean read FIncludesVbRuntime write SetIncludesVbRuntime default False;
     property IncludesDirectX: boolean read FIncludesDirectX write SetIncludesDirectX default False;
+
+    property Limitations: string read FLimitations write SetLimitations;
+    property Awards: string read FAwards write SetAwards;
+    property FacebookProductPage: string read FFacebookProductPage write SetFacebookProductPage;
+    property GooglePlusProductPage: string read FGooglePlusProductPage write SetGooglePlusProductPage;
+
     property FileInfo: TPadFileInfo read FFileInfo write FFileInfo;
     property ExpireInfo: TPadExpireInfo read FExpireInfo write FExpireInfo;
   end;
@@ -1113,6 +1132,46 @@ begin
   end;
 end;
 
+procedure TPadProgramInfo.SetLimitations(const Value: string);
+begin
+  if FLimitations <> Value then
+  begin
+    FLimitations := Value;
+    // Set Exists flag to True when value is assigned
+    FLimitationsExists := True;
+  end;
+end;
+
+procedure TPadProgramInfo.SetAwards(const Value: string);
+begin
+  if FAwards <> Value then
+  begin
+    FAwards := Value;
+    // Set Exists flag to True when value is assigned
+    FAwardsExists := True;
+  end;
+end;
+
+procedure TPadProgramInfo.SetFacebookProductPage(const Value: string);
+begin
+  if FFacebookProductPage <> Value then
+  begin
+    FFacebookProductPage := Value;
+    // Set Exists flag to True when value is assigned
+    FFacebookProductPageExists := True;
+  end;
+end;
+
+procedure TPadProgramInfo.SetGooglePlusProductPage(const Value: string);
+begin
+  if FGooglePlusProductPage <> Value then
+  begin
+    FGooglePlusProductPage := Value;
+    // Set Exists flag to True when value is assigned
+    FGooglePlusProductPageExists := True;
+  end;
+end;
+
 { TPadCompanyInfo }
 
 constructor TPadCompanyInfo.Create;
@@ -1725,6 +1784,15 @@ begin
         FProgramInfo.FIncludesDirectXExists := Assigned(Node.FindNode('Includes_DirectX'));
         FProgramInfo.IncludesDirectX := UpperCase(GetNodeValue(Node, 'Includes_DirectX')) = 'Y';
 
+        FProgramInfo.FLimitationsExists := Assigned(Node.FindNode('Limitations'));
+        FProgramInfo.Limitations := GetNodeValue(Node, 'Limitations');
+        FProgramInfo.FAwardsExists := Assigned(Node.FindNode('Awards'));
+        FProgramInfo.FAwards := GetNodeValue(Node, 'Awards');
+        FProgramInfo.FFacebookProductPageExists := Assigned(Node.FindNode('FacebookProductPage'));
+        FProgramInfo.FFacebookProductPage := GetNodeValue(Node, 'FacebookProductPage');
+        FProgramInfo.FGooglePlusProductPageExists := Assigned(Node.FindNode('GooglePlusProductPage'));
+        FProgramInfo.FGooglePlusProductPage := GetNodeValue(Node, 'GooglePlusProductPage');
+
         // Load File Info
         SubNode := Node.FindNode('File_Info');
         if Assigned(SubNode) then
@@ -2221,6 +2289,19 @@ begin
     SetNodeText(Doc, Node, 'Program_System_Requirements',
       FProgramInfo.ProgramSystemRequirements);
 
+    if FProgramInfo.FLimitationsExists then
+      SetNodeText(Doc, Node, 'Limitations',
+        FProgramInfo.FLimitations);
+    if FProgramInfo.FAwardsExists then
+      SetNodeText(Doc, Node, 'Awards',
+        FProgramInfo.FAwards);
+    if FProgramInfo.FFacebookProductPageExists then
+      SetNodeText(Doc, Node, 'FacebookProductPage',
+        FProgramInfo.FFacebookProductPage);
+    if FProgramInfo.FGooglePlusProductPageExists then
+      SetNodeText(Doc, Node, 'GooglePlusProductPage',
+        FProgramInfo.FGooglePlusProductPage);
+
     if FProgramInfo.FIncludesJavaVmExists then
       SetNodeText(Doc, Node, 'Includes_JAVA_VM',
         BoolToStr(FProgramInfo.IncludesJavaVm, 'Y', 'N'));
@@ -2230,6 +2311,7 @@ begin
     if FProgramInfo.FIncludesDirectXExists then
       SetNodeText(Doc, Node, 'Includes_DirectX',
         BoolToStr(FProgramInfo.FIncludesDirectX, 'Y', 'N'));
+
 
     // File Info
     SubNode := AddChildNode(Node, 'File_Info');
@@ -2661,6 +2743,14 @@ begin
   FProgramInfo.FIncludesJavaVmExists := False;
   FProgramInfo.FIncludesVbRuntimeExists := False;
   FProgramInfo.FIncludesDirectXExists := False;
+  FProgramInfo.FLimitations := '';
+  FProgramInfo.FAwards := '';
+  FProgramInfo.FFacebookProductPage := '';
+  FProgramInfo.FGooglePlusProductPage := '';
+  FProgramInfo.FLimitationsExists := False;
+  FProgramInfo.FAwardsExists := False;
+  FProgramInfo.FFacebookProductPageExists := False;
+  FProgramInfo.FGooglePlusProductPageExists := False;
 
   // Clear File Info
   FProgramInfo.FileInfo.FileSizeBytes := 0;
