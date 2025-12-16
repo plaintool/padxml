@@ -238,7 +238,6 @@ type
   end;
 
   { TPadSite }
-  // Site section for website information submission
   TPadSite = class(TPersistent)
   private
     FSite_FORM: boolean;
@@ -271,7 +270,6 @@ type
   end;
 
   { TPadPADCertificationPromotion }
-  // PAD Certification and Promotion section
   TPadPADCertificationPromotion = class(TPersistent)
   private
     FApply_For_CertificationExists: boolean;
@@ -281,7 +279,6 @@ type
   end;
 
   { TPadDynamicPAD }
-  // Dynamic PAD section for distributive information
   TPadDynamicPAD = class(TPersistent)
   private
     FDynamic_DistributiveExists: boolean;
@@ -304,10 +301,13 @@ type
     FFileNamePreviousExists: boolean;
     FFileNameGenericExists: boolean;
     FFileNameLongExists: boolean;
+    FAutomaticallyDetectFileSizeExists: boolean;
+    FAutomaticallyDetectFileSize: boolean;
     procedure SetFileNameVersioned(const Value: string);
     procedure SetFileNamePrevious(const Value: string);
     procedure SetFileNameGeneric(const Value: string);
     procedure SetFileNameLong(const Value: string);
+    procedure SetAutomaticallyDetectFileSize(const Value: boolean);
   published
     property FileSizeBytes: string read FFileSizeBytes write FFileSizeBytes;
     property FileSizeK: string read FFileSizeK write FFileSizeK;
@@ -316,6 +316,7 @@ type
     property FileNamePrevious: string read FFileNamePrevious write SetFileNamePrevious;
     property FileNameGeneric: string read FFileNameGeneric write SetFileNameGeneric;
     property FileNameLong: string read FFileNameLong write SetFileNameLong;
+    property AutomaticallyDetectFileSize: boolean read FAutomaticallyDetectFileSize write SetAutomaticallyDetectFileSize;
   end;
 
   { TPadExpireInfo }
@@ -380,7 +381,8 @@ type
     FIncludesJavaVmExists: boolean;
     FIncludesVbRuntimeExists: boolean;
     FIncludesDirectXExists: boolean;
-
+    FProgramTargetPlatformExists: boolean;
+    FProgramTargetPlatform: string;
     FLimitationsExists: boolean;
     FLimitations: string;
     FAwardsExists: boolean;
@@ -397,6 +399,7 @@ type
     procedure SetIncludesJavaVm(const Value: boolean);
     procedure SetIncludesVbRuntime(const Value: boolean);
     procedure SetIncludesDirectX(const Value: boolean);
+    procedure SetProgramTargetPlatform(const Value: string);
     procedure SetLimitations(const Value: string);
     procedure SetAwards(const Value: string);
     procedure SetFacebookProductPage(const Value: string);
@@ -459,7 +462,7 @@ type
     property IncludesJavaVm: boolean read FIncludesJavaVm write SetIncludesJavaVm default False;
     property IncludesVbRuntime: boolean read FIncludesVbRuntime write SetIncludesVbRuntime default False;
     property IncludesDirectX: boolean read FIncludesDirectX write SetIncludesDirectX default False;
-
+    property ProgramTargetPlatform: string read FProgramTargetPlatform write SetProgramTargetPlatform;
     property Limitations: string read FLimitations write SetLimitations;
     property Awards: string read FAwards write SetAwards;
     property FacebookProductPage: string read FFacebookProductPage write SetFacebookProductPage;
@@ -623,19 +626,22 @@ type
   TPadPressRelease = class(TPersistent)
   private
     // Original string fields for XML serialization
-    FPressReleaseText: string;
+    FPressRelease: string;
     FHeadline: string;
     FSummary: string;
     FKeywords: string;
     FRelated_URL: string;
-    FPressRelease_Plain: string;
+    FPressReleasePlain: string;
 
     // TStrings field for PropertyGrid
     FPressReleaseStrings: TStrings;
+    FPressReleasePlainStrings: TStrings;
 
     // Property getters/setters for TStrings
     function GetPressReleaseStrings: TStrings;
     procedure SetPressReleaseStrings(Value: TStrings);
+    function GetPressReleasePlainStrings: TStrings;
+    procedure SetPressReleasePlainStrings(Value: TStrings);
   public
     constructor Create;
     destructor Destroy; override;
@@ -645,17 +651,18 @@ type
     procedure SyncStringToStrings;
   protected
     // String property for XML
-    property PressRelease: string read FPressReleaseText write FPressReleaseText;
+    property PressRelease: string read FPressRelease write FPressRelease;
+    property PressReleasePlain: string read FPressReleasePlain write FPressReleasePlain;
   published
     // Simple string properties
     property Headline: string read FHeadline write FHeadline;
     property Summary: string read FSummary write FSummary;
     property Keywords: string read FKeywords write FKeywords;
     property Related_URL: string read FRelated_URL write FRelated_URL;
-    property PressRelease_Plain: string read FPressRelease_Plain write FPressRelease_Plain;
 
     // TStrings property for PropertyGrid
     property PressReleaseStrings: TStrings read GetPressReleaseStrings write SetPressReleaseStrings stored False;
+    property PressReleasePlainStrings: TStrings read GetPressReleasePlainStrings write SetPressReleasePlainStrings stored False;
   end;
 
   { TPadAffiliateCompany }
@@ -706,9 +713,6 @@ type
     FVShare: TPadAffiliateCompany;
     FVFree: TPadAffiliateCompany;
     FYaskifo: TPadAffiliateCompany;
-
-    // Helper to check if we should save full section
-    function ShouldSaveFullSection: boolean;
   public
     constructor Create;
     destructor Destroy; override;
@@ -1069,6 +1073,15 @@ begin
   end;
 end;
 
+procedure TPadFileInfo.SetAutomaticallyDetectFileSize(const Value: boolean);
+begin
+  if FAutomaticallyDetectFileSize <> Value then
+  begin
+    FAutomaticallyDetectFileSize := Value;
+    FAutomaticallyDetectFileSizeExists := True;
+  end;
+end;
+
 { TPadExpireInfo }
 
 function TPadExpireInfo.GetExpireBasedOnAsString: string;
@@ -1204,6 +1217,16 @@ begin
     FIncludesDirectX := Value;
     // Set Exists flag to True when value is assigned
     FIncludesDirectXExists := True;
+  end;
+end;
+
+procedure TPadProgramInfo.SetProgramTargetPlatform(const Value: string);
+begin
+  if FProgramTargetPlatform <> Value then
+  begin
+    FProgramTargetPlatform := Value;
+    // Set Exists flag to True when value is assigned
+    FProgramTargetPlatformExists := True;
   end;
 end;
 
@@ -1512,11 +1535,14 @@ begin
   inherited Create;
   FPressReleaseStrings := TStringList.Create;
   FPressReleaseStrings.TrailingLineBreak := False;
+  FPressReleasePlainStrings := TStringList.Create;
+  FPressReleasePlainStrings.TrailingLineBreak := False;
 end;
 
 destructor TPadPressRelease.Destroy;
 begin
   FPressReleaseStrings.Free;
+  FPressReleasePlainStrings.Free;
   inherited Destroy;
 end;
 
@@ -1533,14 +1559,29 @@ begin
     FPressReleaseStrings.Clear;
 end;
 
+function TPadPressRelease.GetPressReleasePlainStrings: TStrings;
+begin
+  Result := FPressReleasePlainStrings;
+end;
+
+procedure TPadPressRelease.SetPressReleasePlainStrings(Value: TStrings);
+begin
+  if Assigned(Value) then
+    FPressReleasePlainStrings.Assign(Value)
+  else
+    FPressReleasePlainStrings.Clear;
+end;
+
 procedure TPadPressRelease.SyncStringsToStrings;
 begin
-  FPressReleaseStrings.Text := FPressReleaseText;
+  FPressReleaseStrings.Text := FPressRelease;
+  FPressReleasePlainStrings.Text := FPressReleasePlain;
 end;
 
 procedure TPadPressRelease.SyncStringToStrings;
 begin
-  FPressReleaseText := FPressReleaseStrings.Text;
+  FPressRelease := FPressReleaseStrings.Text;
+  FPressReleasePlain := FPressReleasePlainStrings.Text;
 end;
 
 { TPadAffiliates }
@@ -1612,14 +1653,6 @@ begin
   FYaskifo.Free;
 
   inherited Destroy;
-end;
-
-function TPadAffiliates.ShouldSaveFullSection: boolean;
-begin
-  // Check if Affiliates_Information_Page is filled
-  // If it's empty, we need to save full section with all companies
-  // If it's filled, we only save the header section
-  Result := Trim(FAffiliates_Information_Page) = '';
 end;
 
 { TXmlConfig }
@@ -1905,7 +1938,8 @@ begin
         FProgramInfo.IncludesVbRuntime := UpperCase(GetNodeValue(Node, 'Includes_VB_Runtime')) = 'Y';
         FProgramInfo.FIncludesDirectXExists := Assigned(Node.FindNode('Includes_DirectX'));
         FProgramInfo.IncludesDirectX := UpperCase(GetNodeValue(Node, 'Includes_DirectX')) = 'Y';
-
+        FProgramInfo.FProgramTargetPlatformExists := Assigned(Node.FindNode('Program_Target_Platform'));
+        FProgramInfo.ProgramTargetPlatform := GetNodeValue(Node, 'Program_Target_Platform');
         FProgramInfo.FLimitationsExists := Assigned(Node.FindNode('Limitations'));
         FProgramInfo.Limitations := GetNodeValue(Node, 'Limitations');
         FProgramInfo.FAwardsExists := Assigned(Node.FindNode('Awards'));
@@ -1930,6 +1964,8 @@ begin
           FProgramInfo.FileInfo.FileNameGeneric := GetNodeValue(SubNode, 'Filename_Generic');
           FProgramInfo.FileInfo.FFileNameLongExists := Assigned(SubNode.FindNode('Filename_Long'));
           FProgramInfo.FileInfo.FileNameLong := GetNodeValue(SubNode, 'Filename_Long');
+          FProgramInfo.FileInfo.FAutomaticallyDetectFileSizeExists := Assigned(SubNode.FindNode('Automatically_Detect_File_Size'));
+          FProgramInfo.FileInfo.FAutomaticallyDetectFileSize := UpperCase(GetNodeValue(SubNode, 'Automatically_Detect_File_Size')) = 'Y';
         end;
 
         // Load Expire Info
@@ -2011,7 +2047,7 @@ begin
         FPressRelease.Summary := GetNodeValue(Node, 'Summary');
         FPressRelease.Keywords := GetNodeValue(Node, 'Keywords');
         FPressRelease.Related_URL := GetNodeValue(Node, 'Related_URL');
-        FPressRelease.PressRelease_Plain := GetNodeValue(Node, 'Press_Release_Plain');
+        FPressRelease.PressReleasePlain := GetNodeValue(Node, 'Press_Release_Plain');
       end;
 
       // Load Affiliates
@@ -2245,7 +2281,6 @@ var
   Doc: TXMLDocument;
   RootNode, Node, SubNode: TDOMNode;
   Stream: TStringStream;
-  SaveFullSection: boolean;
   XMLContent: string;
 begin
   Doc := TXMLDocument.Create;
@@ -2450,7 +2485,9 @@ begin
         FProgramInfo.ProgramCategories);
     SetNodeText(Doc, Node, 'Program_System_Requirements',
       FProgramInfo.ProgramSystemRequirements);
-
+    if FProgramInfo.FProgramTargetPlatformExists then
+      SetNodeText(Doc, Node, 'Program_Target_Platform',
+        FProgramInfo.FProgramTargetPlatform);
     if FProgramInfo.FLimitationsExists then
       SetNodeText(Doc, Node, 'Limitations',
         FProgramInfo.FLimitations);
@@ -2474,7 +2511,6 @@ begin
       SetNodeText(Doc, Node, 'Includes_DirectX',
         BoolToStr(FProgramInfo.FIncludesDirectX, 'Y', 'N'));
 
-
     // File Info
     SubNode := AddChildNode(Node, 'File_Info');
 
@@ -2486,6 +2522,9 @@ begin
       SetNodeText(Doc, SubNode, 'Filename_Generic', FProgramInfo.FileInfo.FFileNameGeneric);
     if FProgramInfo.FileInfo.FFileNameLongExists then
       SetNodeText(Doc, SubNode, 'Filename_Long', FProgramInfo.FileInfo.FFileNameLong);
+    if FProgramInfo.FileInfo.FAutomaticallyDetectFileSizeExists then
+      SetNodeText(Doc, SubNode, 'Automatically_Detect_File_Size',
+        BoolToStr(FProgramInfo.FileInfo.FAutomaticallyDetectFileSize, 'Y', 'N'));
 
     SetNodeText(Doc, SubNode, 'File_Size_Bytes', FProgramInfo.FileInfo.FileSizeBytes);
     SetNodeText(Doc, SubNode, 'File_Size_K', FProgramInfo.FileInfo.FileSizeK);
@@ -2567,7 +2606,7 @@ begin
     begin
       // Check if ANY Press Release field is filled
       if (FPressRelease.PressRelease <> '') or (FPressRelease.Headline <> '') or (FPressRelease.Summary <> '') or
-        (FPressRelease.Keywords <> '') or (FPressRelease.Related_URL <> '') or (FPressRelease.PressRelease_Plain <> '') then
+        (FPressRelease.Keywords <> '') or (FPressRelease.Related_URL <> '') or (FPressRelease.PressReleasePlain <> '') then
       begin
         Node := AddChildNode(RootNode, 'Press_Release');
         SetNodeText(Doc, Node, 'Press_Release', FPressRelease.PressRelease);
@@ -2575,13 +2614,12 @@ begin
         SetNodeText(Doc, Node, 'Summary', FPressRelease.Summary);
         SetNodeText(Doc, Node, 'Keywords', FPressRelease.Keywords);
         SetNodeText(Doc, Node, 'Related_URL', FPressRelease.Related_URL);
-        SetNodeText(Doc, Node, 'Press_Release_Plain', FPressRelease.PressRelease_Plain);
+        SetNodeText(Doc, Node, 'Press_Release_Plain', FPressRelease.PressReleasePlain);
       end;
     end;
 
     // Save Affiliates
     // Check if we should save full section
-    SaveFullSection := FAffiliates.ShouldSaveFullSection;
     if (FAffiliates.Affiliates_FORM) then
     begin
       Node := AddChildNode(RootNode, 'Affiliates');
@@ -2591,143 +2629,140 @@ begin
       SetNodeText(Doc, Node, 'Affiliates_Information_Page', FAffiliates.Affiliates_Information_Page);
 
       // Save individual affiliate companies only if full section is needed
-      if SaveFullSection then
+      SetNodeText(Doc, Node, 'Affiliates_Avangate_Order_Page', FAffiliates.Avangate.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Avangate_Vendor_ID', FAffiliates.Avangate.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Avangate_Product_ID', FAffiliates.Avangate.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Avangate_Maximum_Commission_Rate', FAffiliates.Avangate.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Order_Page', FAffiliates.BMTMicro.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Vendor_ID', FAffiliates.BMTMicro.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Product_ID', FAffiliates.BMTMicro.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Maximum_Commission_Rate', FAffiliates.BMTMicro.MaximumCommissionRate);
+
+      // Save Cleverbridge only for version 1.4+
+      if FAffiliates.Affiliates_VERSION >= '1.4' then
       begin
-        SetNodeText(Doc, Node, 'Affiliates_Avangate_Order_Page', FAffiliates.Avangate.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Avangate_Vendor_ID', FAffiliates.Avangate.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Avangate_Product_ID', FAffiliates.Avangate.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Avangate_Maximum_Commission_Rate', FAffiliates.Avangate.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Order_Page', FAffiliates.BMTMicro.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Vendor_ID', FAffiliates.BMTMicro.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Product_ID', FAffiliates.BMTMicro.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Maximum_Commission_Rate', FAffiliates.BMTMicro.MaximumCommissionRate);
-
-        // Save Cleverbridge only for version 1.4+
-        if FAffiliates.Affiliates_VERSION >= '1.4' then
-        begin
-          SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Order_Page', FAffiliates.Cleverbridge.OrderPage);
-          SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Vendor_ID', FAffiliates.Cleverbridge.VendorID);
-          SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Product_ID', FAffiliates.Cleverbridge.ProductID);
-          SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Maximum_Commission_Rate', FAffiliates.Cleverbridge.MaximumCommissionRate);
-        end;
-
-        SetNodeText(Doc, Node, 'Affiliates_clixGalore_Order_Page', FAffiliates.ClixGalore.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_clixGalore_Vendor_ID', FAffiliates.ClixGalore.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_clixGalore_Product_ID', FAffiliates.ClixGalore.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_clixGalore_Maximum_Commission_Rate', FAffiliates.ClixGalore.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Order_Page', FAffiliates.CommissionJunction.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Vendor_ID', FAffiliates.CommissionJunction.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Product_ID', FAffiliates.CommissionJunction.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Maximum_Commission_Rate',
-          FAffiliates.CommissionJunction.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Order_Page', FAffiliates.DigiBuy.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Vendor_ID', FAffiliates.DigiBuy.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Product_ID', FAffiliates.DigiBuy.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Maximum_Commission_Rate', FAffiliates.DigiBuy.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Order_Page', FAffiliates.DigitalCandle.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Vendor_ID', FAffiliates.DigitalCandle.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Product_ID', FAffiliates.DigitalCandle.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Maximum_Commission_Rate', FAffiliates.DigitalCandle.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_Emetrix_Order_Page', FAffiliates.Emetrix.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Emetrix_Vendor_ID', FAffiliates.Emetrix.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Emetrix_Product_ID', FAffiliates.Emetrix.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Emetrix_Maximum_Commission_Rate', FAffiliates.Emetrix.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_eSellerate_Order_Page', FAffiliates.eSellerate.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_eSellerate_Vendor_ID', FAffiliates.eSellerate.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_eSellerate_Product_ID', FAffiliates.eSellerate.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_eSellerate_Maximum_Commission_Rate', FAffiliates.eSellerate.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_Kagi_Order_Page', FAffiliates.Kagi.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Kagi_Vendor_ID', FAffiliates.Kagi.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Kagi_Product_ID', FAffiliates.Kagi.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Kagi_Maximum_Commission_Rate', FAffiliates.Kagi.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_LinkShare_Order_Page', FAffiliates.LinkShare.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_LinkShare_Vendor_ID', FAffiliates.LinkShare.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_LinkShare_Product_ID', FAffiliates.LinkShare.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_LinkShare_Maximum_Commission_Rate', FAffiliates.LinkShare.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Order_Page', FAffiliates.NorthStarSol.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Vendor_ID', FAffiliates.NorthStarSol.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Product_ID', FAffiliates.NorthStarSol.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Maximum_Commission_Rate', FAffiliates.NorthStarSol.MaximumCommissionRate);
-
-        // Save OneNetworkDirect only for version 1.4+
-        if FAffiliates.Affiliates_VERSION >= '1.4' then
-        begin
-          SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Order_Page', FAffiliates.OneNetworkDirect.OrderPage);
-          SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Vendor_ID', FAffiliates.OneNetworkDirect.VendorID);
-          SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Product_ID', FAffiliates.OneNetworkDirect.ProductID);
-          SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Maximum_Commission_Rate',
-            FAffiliates.OneNetworkDirect.MaximumCommissionRate);
-        end;
-
-        SetNodeText(Doc, Node, 'Affiliates_Order1_Order_Page', FAffiliates.Order1.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Order1_Vendor_ID', FAffiliates.Order1.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Order1_Product_ID', FAffiliates.Order1.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Order1_Maximum_Commission_Rate', FAffiliates.Order1.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_Osolis_Order_Page', FAffiliates.Osolis.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Osolis_Vendor_ID', FAffiliates.Osolis.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Osolis_Product_ID', FAffiliates.Osolis.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Osolis_Maximum_Commission_Rate', FAffiliates.Osolis.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_Plimus_Order_Page', FAffiliates.Plimus.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Plimus_Vendor_ID', FAffiliates.Plimus.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Plimus_Product_ID', FAffiliates.Plimus.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Plimus_Maximum_Commission_Rate', FAffiliates.Plimus.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_Regnet_Order_Page', FAffiliates.Regnet.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Regnet_Vendor_ID', FAffiliates.Regnet.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Regnet_Product_ID', FAffiliates.Regnet.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Regnet_Maximum_Commission_Rate', FAffiliates.Regnet.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_Regnow_Order_Page', FAffiliates.Regnow.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Regnow_Vendor_ID', FAffiliates.Regnow.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Regnow_Product_ID', FAffiliates.Regnow.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Regnow_Maximum_Commission_Rate', FAffiliates.Regnow.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_Regsoft_Order_Page', FAffiliates.Regsoft.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Regsoft_Vendor_ID', FAffiliates.Regsoft.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Regsoft_Product_ID', FAffiliates.Regsoft.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Regsoft_Maximum_Commission_Rate', FAffiliates.Regsoft.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_ShareIt_Order_Page', FAffiliates.ShareIt.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_ShareIt_Vendor_ID', FAffiliates.ShareIt.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_ShareIt_Product_ID', FAffiliates.ShareIt.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_ShareIt_Maximum_Commission_Rate', FAffiliates.ShareIt.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_Shareasale_Order_Page', FAffiliates.Shareasale.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Shareasale_Vendor_ID', FAffiliates.Shareasale.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Shareasale_Product_ID', FAffiliates.Shareasale.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Shareasale_Maximum_Commission_Rate', FAffiliates.Shareasale.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_SWReg_Order_Page', FAffiliates.SWReg.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_SWReg_Vendor_ID', FAffiliates.SWReg.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_SWReg_Product_ID', FAffiliates.SWReg.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_SWReg_Maximum_Commission_Rate', FAffiliates.SWReg.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_V-Share_Order_Page', FAffiliates.VShare.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_V-Share_Vendor_ID', FAffiliates.VShare.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_V-Share_Product_ID', FAffiliates.VShare.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_V-Share_Maximum_Commission_Rate', FAffiliates.VShare.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_VFree_Order_Page', FAffiliates.VFree.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_VFree_Vendor_ID', FAffiliates.VFree.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_VFree_Product_ID', FAffiliates.VFree.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_VFree_Maximum_Commission_Rate', FAffiliates.VFree.MaximumCommissionRate);
-
-        SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Order_Page', FAffiliates.Yaskifo.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Vendor_ID', FAffiliates.Yaskifo.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Product_ID', FAffiliates.Yaskifo.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Maximum_Commission_Rate', FAffiliates.Yaskifo.MaximumCommissionRate);
+        SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Order_Page', FAffiliates.Cleverbridge.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Vendor_ID', FAffiliates.Cleverbridge.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Product_ID', FAffiliates.Cleverbridge.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Maximum_Commission_Rate', FAffiliates.Cleverbridge.MaximumCommissionRate);
       end;
+
+      SetNodeText(Doc, Node, 'Affiliates_clixGalore_Order_Page', FAffiliates.ClixGalore.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_clixGalore_Vendor_ID', FAffiliates.ClixGalore.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_clixGalore_Product_ID', FAffiliates.ClixGalore.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_clixGalore_Maximum_Commission_Rate', FAffiliates.ClixGalore.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Order_Page', FAffiliates.CommissionJunction.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Vendor_ID', FAffiliates.CommissionJunction.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Product_ID', FAffiliates.CommissionJunction.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Maximum_Commission_Rate',
+        FAffiliates.CommissionJunction.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Order_Page', FAffiliates.DigiBuy.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Vendor_ID', FAffiliates.DigiBuy.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Product_ID', FAffiliates.DigiBuy.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Maximum_Commission_Rate', FAffiliates.DigiBuy.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Order_Page', FAffiliates.DigitalCandle.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Vendor_ID', FAffiliates.DigitalCandle.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Product_ID', FAffiliates.DigitalCandle.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Maximum_Commission_Rate', FAffiliates.DigitalCandle.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_Emetrix_Order_Page', FAffiliates.Emetrix.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Emetrix_Vendor_ID', FAffiliates.Emetrix.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Emetrix_Product_ID', FAffiliates.Emetrix.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Emetrix_Maximum_Commission_Rate', FAffiliates.Emetrix.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_eSellerate_Order_Page', FAffiliates.eSellerate.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_eSellerate_Vendor_ID', FAffiliates.eSellerate.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_eSellerate_Product_ID', FAffiliates.eSellerate.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_eSellerate_Maximum_Commission_Rate', FAffiliates.eSellerate.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_Kagi_Order_Page', FAffiliates.Kagi.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Kagi_Vendor_ID', FAffiliates.Kagi.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Kagi_Product_ID', FAffiliates.Kagi.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Kagi_Maximum_Commission_Rate', FAffiliates.Kagi.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_LinkShare_Order_Page', FAffiliates.LinkShare.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_LinkShare_Vendor_ID', FAffiliates.LinkShare.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_LinkShare_Product_ID', FAffiliates.LinkShare.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_LinkShare_Maximum_Commission_Rate', FAffiliates.LinkShare.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Order_Page', FAffiliates.NorthStarSol.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Vendor_ID', FAffiliates.NorthStarSol.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Product_ID', FAffiliates.NorthStarSol.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Maximum_Commission_Rate', FAffiliates.NorthStarSol.MaximumCommissionRate);
+
+      // Save OneNetworkDirect only for version 1.4+
+      if FAffiliates.Affiliates_VERSION >= '1.4' then
+      begin
+        SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Order_Page', FAffiliates.OneNetworkDirect.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Vendor_ID', FAffiliates.OneNetworkDirect.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Product_ID', FAffiliates.OneNetworkDirect.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Maximum_Commission_Rate',
+          FAffiliates.OneNetworkDirect.MaximumCommissionRate);
+      end;
+
+      SetNodeText(Doc, Node, 'Affiliates_Order1_Order_Page', FAffiliates.Order1.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Order1_Vendor_ID', FAffiliates.Order1.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Order1_Product_ID', FAffiliates.Order1.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Order1_Maximum_Commission_Rate', FAffiliates.Order1.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_Osolis_Order_Page', FAffiliates.Osolis.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Osolis_Vendor_ID', FAffiliates.Osolis.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Osolis_Product_ID', FAffiliates.Osolis.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Osolis_Maximum_Commission_Rate', FAffiliates.Osolis.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_Plimus_Order_Page', FAffiliates.Plimus.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Plimus_Vendor_ID', FAffiliates.Plimus.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Plimus_Product_ID', FAffiliates.Plimus.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Plimus_Maximum_Commission_Rate', FAffiliates.Plimus.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_Regnet_Order_Page', FAffiliates.Regnet.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Regnet_Vendor_ID', FAffiliates.Regnet.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Regnet_Product_ID', FAffiliates.Regnet.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Regnet_Maximum_Commission_Rate', FAffiliates.Regnet.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_Regnow_Order_Page', FAffiliates.Regnow.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Regnow_Vendor_ID', FAffiliates.Regnow.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Regnow_Product_ID', FAffiliates.Regnow.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Regnow_Maximum_Commission_Rate', FAffiliates.Regnow.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_Regsoft_Order_Page', FAffiliates.Regsoft.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Regsoft_Vendor_ID', FAffiliates.Regsoft.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Regsoft_Product_ID', FAffiliates.Regsoft.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Regsoft_Maximum_Commission_Rate', FAffiliates.Regsoft.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_ShareIt_Order_Page', FAffiliates.ShareIt.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_ShareIt_Vendor_ID', FAffiliates.ShareIt.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_ShareIt_Product_ID', FAffiliates.ShareIt.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_ShareIt_Maximum_Commission_Rate', FAffiliates.ShareIt.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_Shareasale_Order_Page', FAffiliates.Shareasale.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Shareasale_Vendor_ID', FAffiliates.Shareasale.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Shareasale_Product_ID', FAffiliates.Shareasale.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Shareasale_Maximum_Commission_Rate', FAffiliates.Shareasale.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_SWReg_Order_Page', FAffiliates.SWReg.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_SWReg_Vendor_ID', FAffiliates.SWReg.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_SWReg_Product_ID', FAffiliates.SWReg.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_SWReg_Maximum_Commission_Rate', FAffiliates.SWReg.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_V-Share_Order_Page', FAffiliates.VShare.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_V-Share_Vendor_ID', FAffiliates.VShare.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_V-Share_Product_ID', FAffiliates.VShare.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_V-Share_Maximum_Commission_Rate', FAffiliates.VShare.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_VFree_Order_Page', FAffiliates.VFree.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_VFree_Vendor_ID', FAffiliates.VFree.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_VFree_Product_ID', FAffiliates.VFree.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_VFree_Maximum_Commission_Rate', FAffiliates.VFree.MaximumCommissionRate);
+
+      SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Order_Page', FAffiliates.Yaskifo.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Vendor_ID', FAffiliates.Yaskifo.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Product_ID', FAffiliates.Yaskifo.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Maximum_Commission_Rate', FAffiliates.Yaskifo.MaximumCommissionRate);
     end;
 
     // ASP
@@ -2938,14 +2973,16 @@ begin
   FProgramInfo.FIncludesJavaVmExists := False;
   FProgramInfo.FIncludesVbRuntimeExists := False;
   FProgramInfo.FIncludesDirectXExists := False;
-  FProgramInfo.FLimitations := '';
-  FProgramInfo.FAwards := '';
-  FProgramInfo.FFacebookProductPage := '';
-  FProgramInfo.FGooglePlusProductPage := '';
+  FProgramInfo.FProgramTargetPlatformExists := False;
+  FProgramInfo.FProgramTargetPlatform := '';
   FProgramInfo.FLimitationsExists := False;
+  FProgramInfo.FLimitations := '';
   FProgramInfo.FAwardsExists := False;
+  FProgramInfo.FAwards := '';
   FProgramInfo.FFacebookProductPageExists := False;
+  FProgramInfo.FFacebookProductPage := '';
   FProgramInfo.FGooglePlusProductPageExists := False;
+  FProgramInfo.FGooglePlusProductPage := '';
 
   // Clear File Info
   FProgramInfo.FileInfo.FileSizeBytes := '';
@@ -2959,6 +2996,8 @@ begin
   FProgramInfo.FileInfo.FFileNameGenericExists := False;
   FProgramInfo.FileInfo.FFileNameLong := '';
   FProgramInfo.FileInfo.FFileNameLongExists := False;
+  FProgramInfo.FileInfo.FAutomaticallyDetectFileSize := False;
+  FProgramInfo.FileInfo.FAutomaticallyDetectFileSizeExists := False;
 
   // Clear Expire Info
   FProgramInfo.ExpireInfo.HasExpireInfo := False;
@@ -3011,8 +3050,9 @@ begin
   FPressRelease.Summary := '';
   FPressRelease.Keywords := '';
   FPressRelease.Related_URL := '';
-  FPressRelease.PressRelease_Plain := '';
+  FPressRelease.PressReleasePlain := '';
   FPressRelease.PressReleaseStrings.Clear;
+  FPressRelease.PressReleasePlainStrings.Clear;
 
   // Clear Affiliates
   FAffiliates.Affiliates_FORM := False;
@@ -3815,7 +3855,7 @@ begin
   // Set XML header data
   DeclarationStr := '<?xml version="' + XMLVersion + '"';
   if (EncodingStr <> '') then  DeclarationStr += ' encoding="' + EncodingStr + '"';
-  if FXmlConfig.XMLEmptyTagType <> ettWithoutSpace then
+  if FXmlConfig.XMLEmptyTagType = ettWithSpace then
     DeclarationStr += ' ';
   DeclarationStr += '?>';
   Result := DeclarationStr + LineEnding + XMLString;

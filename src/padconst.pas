@@ -310,6 +310,8 @@ type
   // Modern OS
   TPadOSModern = (
     posWindowsXP,
+    posWindowsTabletPCEdition2005,
+    posWindowsMediaCenterEdition2005,
     posWindowsVistaStarter,
     posWindowsVistaHomeBasic,
     posWindowsVistaHomePremium,
@@ -327,6 +329,7 @@ type
     posWindows10,
     posWindows11,
     posWindows12,
+    posWindowsServer2000,
     posWindowsServer2003,
     posWindowsServer2008,
     posWindowsServer2008R2,
@@ -343,6 +346,7 @@ type
   TPadLangEuropean = (
     plEnglish,
     plFrench,
+    plFrisian,
     plGerman,
     plSpanish,
     plItalian,
@@ -780,6 +784,8 @@ const
 
   PadOSModernStrings: array[TPadOSModern] of string = (
     'Windows XP',
+    'Windows Tablet PC Edition 2005',
+    'Windows Media Center Edition 2005',
     'Windows Vista Starter',
     'Windows Vista Home Basic',
     'Windows Vista Home Premium',
@@ -797,6 +803,7 @@ const
     'Windows 10',
     'Windows 11',
     'Windows 12',
+    'Windows Server 2000',
     'Windows Server 2003',
     'Windows Server 2008',
     'Windows Server 2008R2',
@@ -812,6 +819,7 @@ const
   PadLangEuropeanStrings: array[TPadLangEuropean] of string = (
     'English',
     'French',
+    'Frisian',
     'German',
     'Spanish',
     'Italian',
