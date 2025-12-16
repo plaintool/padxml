@@ -719,6 +719,35 @@ type
     property ASPMemberNumber: string read FASPMemberNumber write FASPMemberNumber;
   end;
 
+  { TPadAppStore }
+  TPadAppStore = class(TPersistent)
+  private
+    FAppStore_AppID: string;
+    FAppStore_Category: string;
+    FAppStore_Info_URL: string;
+    FAppStore_Download_URL: string;
+    FAppStore_Promo_Code_1: string;
+    FAppStore_Promo_Code_2: string;
+    FAppStore_Promo_Code_3: string;
+    FAppStore_Supported_Devices: string;
+    FAppStore_Other_Applications: string;
+    FAppStore_Advantages_And_Unique_Features: string;
+    FAppStore_Awards_And_Ratings: string;
+  published
+    property AppStore_AppID: string read FAppStore_AppID write FAppStore_AppID;
+    property AppStore_Category: string read FAppStore_Category write FAppStore_Category;
+    property AppStore_Info_URL: string read FAppStore_Info_URL write FAppStore_Info_URL;
+    property AppStore_Download_URL: string read FAppStore_Download_URL write FAppStore_Download_URL;
+    property AppStore_Promo_Code_1: string read FAppStore_Promo_Code_1 write FAppStore_Promo_Code_1;
+    property AppStore_Promo_Code_2: string read FAppStore_Promo_Code_2 write FAppStore_Promo_Code_2;
+    property AppStore_Promo_Code_3: string read FAppStore_Promo_Code_3 write FAppStore_Promo_Code_3;
+    property AppStore_Supported_Devices: string read FAppStore_Supported_Devices write FAppStore_Supported_Devices;
+    property AppStore_Other_Applications: string read FAppStore_Other_Applications write FAppStore_Other_Applications;
+    property AppStore_Advantages_And_Unique_Features: string read FAppStore_Advantages_And_Unique_Features
+      write FAppStore_Advantages_And_Unique_Features;
+    property AppStore_Awards_And_Ratings: string read FAppStore_Awards_And_Ratings write FAppStore_Awards_And_Ratings;
+  end;
+
   { TXmlConfig }
   TPadXmlCofig = class(TPersistent)
   private
@@ -742,6 +771,7 @@ type
   private
     FXmlConfig: TPadXmlCofig;
     FMasterPadVersionInfo: TPadMasterVersionInfo;
+    FRoboSoftExists: boolean;
     FRoboSoft: TPadRoboSoft;
     FCompanyInfo: TPadCompanyInfo;
     FNewsFeed: TPadNewsFeed;
@@ -754,6 +784,8 @@ type
     FPermissions: TPadPermissions;
     FAffiliates: TPadAffiliates;
     FASP: TPadASP;
+    FAppStoreExists: boolean;
+    FAppStore: TPadAppStore;
     function SetNodeText(Doc: TXMLDocument; ParentNode: TDOMNode; NodeName, NodeValue: string): TDOMNode;
     function AddChildNode(ParentNode: TDOMNode; NodeName: string): TDOMNode;
     procedure SetNodeTextValue(Node: TDOMNode; Value: string);
@@ -795,6 +827,7 @@ type
     property Permissions: TPadPermissions read FPermissions write FPermissions;
     property Affiliates: TPadAffiliates read FAffiliates write FAffiliates;
     property ASP: TPadASP read FASP write FASP;
+    property AppStore: TPadAppStore read FAppStore write FAppStore;
   end;
 
 // Helper functions for conversions
@@ -1539,6 +1572,7 @@ begin
   FPermissions := TPadPermissions.Create;
   FAffiliates := TPadAffiliates.Create;
   FASP := TPadASP.Create;
+  FAppStore := TPadAppStore.Create;
 end;
 
 destructor TPadFormat.Destroy;
@@ -1557,6 +1591,7 @@ begin
   FPermissions.Free;
   FAffiliates.Free;
   FASP.Free;
+  FAppStore.Free;
   inherited Destroy;
 end;
 
@@ -1624,6 +1659,7 @@ begin
       Node := RootNode.FindNode('RoboSoft');
       if Assigned(Node) then
       begin
+        FRoboSoftExists := True;
         FRoboSoft.Company_UIN := GetNodeValue(Node, 'Company_UIN');
         FRoboSoft.Company_Description := GetNodeValue(Node, 'Company_Description');
         FRoboSoft.Product_UIN := GetNodeValue(Node, 'Product_UIN');
@@ -1637,7 +1673,9 @@ begin
         FRoboSoft.RSProductType := GetNodeValue(Node, 'RSProductType');
         FRoboSoft.Comments_For_Reviewer := GetNodeValue(Node, 'Comments_For_Reviewer');
         FRoboSoft.Backlink := GetNodeValue(Node, 'Backlink');
-      end;
+      end
+      else
+        FRoboSoftExists := False;
 
       // Load Company Info
       Node := RootNode.FindNode('Company_Info');
@@ -2073,6 +2111,26 @@ begin
       else
         FASP.ASPForm := False;
 
+      // Load AppStore
+      Node := RootNode.FindNode('AppStore');
+      if Assigned(Node) then
+      begin
+        FAppStoreExists := True;
+        FAppStore.AppStore_AppID := GetNodeValue(Node, 'AppStore_AppID');
+        FAppStore.AppStore_Category := GetNodeValue(Node, 'AppStore_Category');
+        FAppStore.AppStore_Info_URL := GetNodeValue(Node, 'AppStore_Info_URL');
+        FAppStore.AppStore_Download_URL := GetNodeValue(Node, 'AppStore_Download_URL');
+        FAppStore.AppStore_Promo_Code_1 := GetNodeValue(Node, 'AppStore_Promo_Code_1');
+        FAppStore.AppStore_Promo_Code_2 := GetNodeValue(Node, 'AppStore_Promo_Code_2');
+        FAppStore.AppStore_Promo_Code_3 := GetNodeValue(Node, 'AppStore_Promo_Code_3');
+        FAppStore.AppStore_Supported_Devices := GetNodeValue(Node, 'AppStore_Supported_Devices');
+        FAppStore.AppStore_Other_Applications := GetNodeValue(Node, 'AppStore_Other_Applications');
+        FAppStore.AppStore_Advantages_And_Unique_Features := GetNodeValue(Node, 'AppStore_Advantages_And_Unique_Features');
+        FAppStore.AppStore_Awards_And_Ratings := GetNodeValue(Node, 'AppStore_Awards_And_Ratings');
+      end
+      else
+        FAppStoreExists := False;
+
       FProgramDescriptions.Language.SyncStringsToStrings;
       FNewsFeed.SyncStringsToStrings;
       FPermissions.SyncStringsToStrings;
@@ -2118,8 +2176,13 @@ begin
     // RoboSoft section
     if (MasterPadVersionInfo.Version >= 4) then
     begin
-      if (FRoboSoft.Company_UIN <> '') or (FRoboSoft.Company_Description <> '') or (FRoboSoft.Product_UIN <> '') or
-        (FRoboSoft.Search_String <> '') then
+      // Check if ANY RoboSoft field is filled
+      if (FRoboSoftExists) or (FRoboSoft.Company_UIN <> '') or (FRoboSoft.Company_Description <> '') or
+        (FRoboSoft.Product_UIN <> '') or (FRoboSoft.Search_String <> '') or (FRoboSoft.Press_Release_Search_String <> '') or
+        (FRoboSoft.NewsFeed_Search_String <> '') or (FRoboSoft.Search_Engine_Search_String <> '') or
+        (FRoboSoft.Web_Directories_Search_String <> '') or (FRoboSoft.Search_String_Unique <> '') or
+        (FRoboSoft.Publish_on_CD <> '') or (FRoboSoft.RSProductType <> '') or (FRoboSoft.Comments_For_Reviewer <> '') or
+        (FRoboSoft.Backlink <> '') then
       begin
         Node := AddChildNode(RootNode, 'RoboSoft');
         SetNodeText(Doc, Node, 'Company_UIN', FRoboSoft.Company_UIN);
@@ -2573,6 +2636,32 @@ begin
       SetNodeText(Doc, Node, 'ASP_Member_Number', FASP.ASPMemberNumber);
     end;
 
+    // Save AppStore section
+    if (MasterPadVersionInfo.Version >= 4) then
+    begin
+      // Check if ANY AppStore field is filled
+      if (FAppStoreExists) or (FAppStore.AppStore_AppID <> '') or (FAppStore.AppStore_Category <> '') or
+        (FAppStore.AppStore_Info_URL <> '') or (FAppStore.AppStore_Download_URL <> '') or
+        (FAppStore.AppStore_Promo_Code_1 <> '') or (FAppStore.AppStore_Promo_Code_2 <> '') or
+        (FAppStore.AppStore_Promo_Code_3 <> '') or (FAppStore.AppStore_Supported_Devices <> '') or
+        (FAppStore.AppStore_Other_Applications <> '') or (FAppStore.AppStore_Advantages_And_Unique_Features <> '') or
+        (FAppStore.AppStore_Awards_And_Ratings <> '') then
+      begin
+        Node := AddChildNode(RootNode, 'AppStore');
+        SetNodeText(Doc, Node, 'AppStore_AppID', FAppStore.AppStore_AppID);
+        SetNodeText(Doc, Node, 'AppStore_Category', FAppStore.AppStore_Category);
+        SetNodeText(Doc, Node, 'AppStore_Info_URL', FAppStore.AppStore_Info_URL);
+        SetNodeText(Doc, Node, 'AppStore_Download_URL', FAppStore.AppStore_Download_URL);
+        SetNodeText(Doc, Node, 'AppStore_Promo_Code_1', FAppStore.AppStore_Promo_Code_1);
+        SetNodeText(Doc, Node, 'AppStore_Promo_Code_2', FAppStore.AppStore_Promo_Code_2);
+        SetNodeText(Doc, Node, 'AppStore_Promo_Code_3', FAppStore.AppStore_Promo_Code_3);
+        SetNodeText(Doc, Node, 'AppStore_Supported_Devices', FAppStore.AppStore_Supported_Devices);
+        SetNodeText(Doc, Node, 'AppStore_Other_Applications', FAppStore.AppStore_Other_Applications);
+        SetNodeText(Doc, Node, 'AppStore_Advantages_And_Unique_Features', FAppStore.AppStore_Advantages_And_Unique_Features);
+        SetNodeText(Doc, Node, 'AppStore_Awards_And_Ratings', FAppStore.AppStore_Awards_And_Ratings);
+      end;
+    end;
+
     // Save to string
     Stream := TStringStream.Create('');
     try
@@ -2613,6 +2702,7 @@ begin
     'Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://www.asp-shareware.org/pad';
 
   // Clear RoboSoft
+  FRoboSoftExists := False;
   FRoboSoft.Company_UIN := '';
   FRoboSoft.Company_Description := '';
   FRoboSoft.Product_UIN := '';
@@ -2946,6 +3036,20 @@ begin
   FASP.ASPForm := True;
   FASP.ASPMember := False;
   FASP.ASPMemberNumber := '';
+
+  // Clear AppStore
+  FAppStoreExists := False;
+  FAppStore.AppStore_AppID := '';
+  FAppStore.AppStore_Category := '';
+  FAppStore.AppStore_Info_URL := '';
+  FAppStore.AppStore_Download_URL := '';
+  FAppStore.AppStore_Promo_Code_1 := '';
+  FAppStore.AppStore_Promo_Code_2 := '';
+  FAppStore.AppStore_Promo_Code_3 := '';
+  FAppStore.AppStore_Supported_Devices := '';
+  FAppStore.AppStore_Other_Applications := '';
+  FAppStore.AppStore_Advantages_And_Unique_Features := '';
+  FAppStore.AppStore_Awards_And_Ratings := '';
 
   // Clear XML formatting options
   FXmlConfig.XMLEncoding := peUTF8;

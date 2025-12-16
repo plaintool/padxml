@@ -307,7 +307,7 @@ type
     posNotApplicable
     );
 
-  // Modern os
+  // Modern OS
   TPadOSModern = (
     posWindowsXP,
     posWindowsVistaStarter,
@@ -326,7 +326,16 @@ type
     posWindows8,
     posWindows10,
     posWindows11,
-    posWindows12
+    posWindows12,
+    posWindowsServer2003,
+    posWindowsServer2008,
+    posWindowsServer2008R2,
+    posWindowsServer2012,
+    posWindowsServer2012R2,
+    posWindowsServer2016,
+    posWindowsServer2019,
+    posWindowsServer2022,
+    posWindowsServer2025
     );
 
   // Language groups - split by geographic regions
@@ -787,7 +796,16 @@ const
     'Windows 8',
     'Windows 10',
     'Windows 11',
-    'Windows 12'
+    'Windows 12',
+    'Windows Server 2003',
+    'Windows Server 2008',
+    'Windows Server 2008R2',
+    'Windows Server 2012',
+    'Windows Server 2012R2',
+    'Windows Server 2016',
+    'Windows Server 2019',
+    'Windows Server 2022',
+    'Windows Server 2025'
     );
 
   // String arrays for language groups
