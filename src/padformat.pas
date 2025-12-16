@@ -293,9 +293,9 @@ type
   { TPadFileInfo }
   TPadFileInfo = class(TPersistent)
   private
-    FFileSizeBytes: cardinal;
-    FFileSizeK: double;
-    FFileSizeMB: double;
+    FFileSizeBytes: string;
+    FFileSizeK: string;
+    FFileSizeMB: string;
     FFileNameVersioned: string;
     FFileNamePrevious: string;
     FFileNameGeneric: string;
@@ -309,9 +309,9 @@ type
     procedure SetFileNameGeneric(const Value: string);
     procedure SetFileNameLong(const Value: string);
   published
-    property FileSizeBytes: cardinal read FFileSizeBytes write FFileSizeBytes;
-    property FileSizeK: double read FFileSizeK write FFileSizeK;
-    property FileSizeMB: double read FFileSizeMB write FFileSizeMB;
+    property FileSizeBytes: string read FFileSizeBytes write FFileSizeBytes;
+    property FileSizeK: string read FFileSizeK write FFileSizeK;
+    property FileSizeMB: string read FFileSizeMB write FFileSizeMB;
     property FileNameVersioned: string read FFileNameVersioned write SetFileNameVersioned;
     property FileNamePrevious: string read FFileNamePrevious write SetFileNamePrevious;
     property FileNameGeneric: string read FFileNameGeneric write SetFileNameGeneric;
@@ -1919,9 +1919,9 @@ begin
         SubNode := Node.FindNode('File_Info');
         if Assigned(SubNode) then
         begin
-          FProgramInfo.FileInfo.FileSizeBytes := StrToInt64Safe(GetNodeValue(SubNode, 'File_Size_Bytes'));
-          FProgramInfo.FileInfo.FileSizeK := StrToFloatSafe(GetNodeValue(SubNode, 'File_Size_K'));
-          FProgramInfo.FileInfo.FileSizeMB := StrToFloatSafe(GetNodeValue(SubNode, 'File_Size_MB'));
+          FProgramInfo.FileInfo.FileSizeBytes := GetNodeValue(SubNode, 'File_Size_Bytes');
+          FProgramInfo.FileInfo.FileSizeK := GetNodeValue(SubNode, 'File_Size_K');
+          FProgramInfo.FileInfo.FileSizeMB := GetNodeValue(SubNode, 'File_Size_MB');
           FProgramInfo.FileInfo.FFileNameVersionedExists := Assigned(SubNode.FindNode('Filename_Versioned'));
           FProgramInfo.FileInfo.FileNameVersioned := GetNodeValue(SubNode, 'Filename_Versioned');
           FProgramInfo.FileInfo.FFileNamePreviousExists := Assigned(SubNode.FindNode('Filename_Previous'));
@@ -2245,7 +2245,6 @@ var
   Doc: TXMLDocument;
   RootNode, Node, SubNode: TDOMNode;
   Stream: TStringStream;
-  FS: TFormatSettings;
   SaveFullSection: boolean;
   XMLContent: string;
 begin
@@ -2488,21 +2487,9 @@ begin
     if FProgramInfo.FileInfo.FFileNameLongExists then
       SetNodeText(Doc, SubNode, 'Filename_Long', FProgramInfo.FileInfo.FFileNameLong);
 
-    SetNodeText(Doc, SubNode, 'File_Size_Bytes',
-      IntToStr(FProgramInfo.FileInfo.FileSizeBytes));
-    FS.DecimalSeparator := '.';
-    if Frac(FProgramInfo.FileInfo.FileSizeK) = 0 then
-      SetNodeText(Doc, SubNode, 'File_Size_K',
-        FormatFloat('0.####', FProgramInfo.FileInfo.FileSizeK, FS))
-    else
-      SetNodeText(Doc, SubNode, 'File_Size_K',
-        FormatFloat('0.00##', FProgramInfo.FileInfo.FileSizeK, FS));
-    if Frac(FProgramInfo.FileInfo.FileSizeMB) = 0 then
-      SetNodeText(Doc, SubNode, 'File_Size_MB',
-        FormatFloat('0.####', FProgramInfo.FileInfo.FileSizeMB, FS))
-    else
-      SetNodeText(Doc, SubNode, 'File_Size_MB',
-        FormatFloat('0.00##', FProgramInfo.FileInfo.FileSizeMB, FS));
+    SetNodeText(Doc, SubNode, 'File_Size_Bytes', FProgramInfo.FileInfo.FileSizeBytes);
+    SetNodeText(Doc, SubNode, 'File_Size_K', FProgramInfo.FileInfo.FileSizeK);
+    SetNodeText(Doc, SubNode, 'File_Size_MB', FProgramInfo.FileInfo.FileSizeMB);
 
     // Expire Info
     SubNode := AddChildNode(Node, 'Expire_Info');
@@ -2961,9 +2948,9 @@ begin
   FProgramInfo.FGooglePlusProductPageExists := False;
 
   // Clear File Info
-  FProgramInfo.FileInfo.FileSizeBytes := 0;
-  FProgramInfo.FileInfo.FileSizeK := 0;
-  FProgramInfo.FileInfo.FileSizeMB := 0;
+  FProgramInfo.FileInfo.FileSizeBytes := '';
+  FProgramInfo.FileInfo.FileSizeK := '';
+  FProgramInfo.FileInfo.FileSizeMB := '';
   FProgramInfo.FileInfo.FFileNameVersioned := '';
   FProgramInfo.FileInfo.FFileNameVersionedExists := False;
   FProgramInfo.FileInfo.FFileNamePrevious := '';
