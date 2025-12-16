@@ -338,7 +338,8 @@ type
     posWindowsServer2016,
     posWindowsServer2019,
     posWindowsServer2022,
-    posWindowsServer2025
+    posWindowsServer2025,
+    posMacOs
     );
 
   // Language groups - split by geographic regions
@@ -812,7 +813,8 @@ const
     'Windows Server 2016',
     'Windows Server 2019',
     'Windows Server 2022',
-    'Windows Server 2025'
+    'Windows Server 2025',
+    'MacOS'
     );
 
   // String arrays for language groups

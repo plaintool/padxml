@@ -690,19 +690,21 @@ type
     // Individual affiliate companies
     FAvangate: TPadAffiliateCompany;
     FBMTMicro: TPadAffiliateCompany;
-    FCleverbridge: TPadAffiliateCompany;  // New in version 1.4
+    FCleverbridge: TPadAffiliateCompany; // New in version 1.4
     FClixGalore: TPadAffiliateCompany;
     FCommissionJunction: TPadAffiliateCompany;
     FDigiBuy: TPadAffiliateCompany;
     FDigitalCandle: TPadAffiliateCompany;
     FEmetrix: TPadAffiliateCompany;
     FeSellerate: TPadAffiliateCompany;
+    FiPortis: TPadAffiliateCompany; // New in version 1.4
     FKagi: TPadAffiliateCompany;
     FLinkShare: TPadAffiliateCompany;
     FNorthStarSol: TPadAffiliateCompany;
     FOneNetworkDirect: TPadAffiliateCompany;  // New in version 1.4
     FOrder1: TPadAffiliateCompany;
     FOsolis: TPadAffiliateCompany;
+    FPayPro: TPadAffiliateCompany; // New in version 1.4
     FPlimus: TPadAffiliateCompany;
     FRegnet: TPadAffiliateCompany;
     FRegnow: TPadAffiliateCompany;
@@ -733,12 +735,14 @@ type
     property DigitalCandle: TPadAffiliateCompany read FDigitalCandle write FDigitalCandle;
     property Emetrix: TPadAffiliateCompany read FEmetrix write FEmetrix;
     property eSellerate: TPadAffiliateCompany read FeSellerate write FeSellerate;
+    property iPortis: TPadAffiliateCompany read FiPortis write FiPortis;
     property Kagi: TPadAffiliateCompany read FKagi write FKagi;
     property LinkShare: TPadAffiliateCompany read FLinkShare write FLinkShare;
     property NorthStarSol: TPadAffiliateCompany read FNorthStarSol write FNorthStarSol;
     property OneNetworkDirect: TPadAffiliateCompany read FOneNetworkDirect write FOneNetworkDirect;
     property Order1: TPadAffiliateCompany read FOrder1 write FOrder1;
     property Osolis: TPadAffiliateCompany read FOsolis write FOsolis;
+    property PayPro: TPadAffiliateCompany read FPayPro write FPayPro;
     property Plimus: TPadAffiliateCompany read FPlimus write FPlimus;
     property Regnet: TPadAffiliateCompany read FRegnet write FRegnet;
     property Regnow: TPadAffiliateCompany read FRegnow write FRegnow;
@@ -1605,12 +1609,14 @@ begin
   FDigitalCandle := TPadAffiliateCompany.Create;
   FEmetrix := TPadAffiliateCompany.Create;
   FeSellerate := TPadAffiliateCompany.Create;
+  FiPortis := TPadAffiliateCompany.Create;
   FKagi := TPadAffiliateCompany.Create;
   FLinkShare := TPadAffiliateCompany.Create;
   FNorthStarSol := TPadAffiliateCompany.Create;
   FOneNetworkDirect := TPadAffiliateCompany.Create;
   FOrder1 := TPadAffiliateCompany.Create;
   FOsolis := TPadAffiliateCompany.Create;
+  FPayPro := TPadAffiliateCompany.Create;
   FPlimus := TPadAffiliateCompany.Create;
   FRegnet := TPadAffiliateCompany.Create;
   FRegnow := TPadAffiliateCompany.Create;
@@ -1635,12 +1641,14 @@ begin
   FDigitalCandle.Free;
   FEmetrix.Free;
   FeSellerate.Free;
+  FiPortis.Free;
   FKagi.Free;
   FLinkShare.Free;
   FNorthStarSol.Free;
   FOneNetworkDirect.Free;
   FOrder1.Free;
   FOsolis.Free;
+  FPayPro.Free;
   FPlimus.Free;
   FRegnet.Free;
   FRegnow.Free;
@@ -2131,6 +2139,16 @@ begin
             'Affiliates_eSellerate_Product_ID',
             'Affiliates_eSellerate_Maximum_Commission_Rate');
 
+          // Load Cleverbridge only for version 1.4+
+          if FAffiliates.Affiliates_VERSION >= '1.4' then
+          begin
+            LoadAffiliateCompany(FAffiliates.iPortis,
+              'Affiliates_iPortis_Order_Page',
+              'Affiliates_iPortis_Ven',
+              'Affiliates_iPortis_Product_ID',
+              'Affiliates_iPortis_Maximum_Commission_Rate');
+          end;
+
           LoadAffiliateCompany(FAffiliates.Kagi,
             'Affiliates_Kagi_Order_Page',
             'Affiliates_Kagi_Vendor_ID',
@@ -2170,6 +2188,16 @@ begin
             'Affiliates_Osolis_Vendor_ID',
             'Affiliates_Osolis_Product_ID',
             'Affiliates_Osolis_Maximum_Commission_Rate');
+
+          // Load Cleverbridge only for version 1.4+
+          if FAffiliates.Affiliates_VERSION >= '1.4' then
+          begin
+            LoadAffiliateCompany(FAffiliates.PayPro,
+              'Affiliates_PayPro_Order_Page',
+              'Affiliates_PayPro_Vendor_ID',
+              'Affiliates_PayPro_Product_ID',
+              'Affiliates_PayPro_Maximum_Commission_Rate');
+          end;
 
           LoadAffiliateCompany(FAffiliates.Plimus,
             'Affiliates_Plimus_Order_Page',
@@ -2679,6 +2707,15 @@ begin
       SetNodeText(Doc, Node, 'Affiliates_eSellerate_Product_ID', FAffiliates.eSellerate.ProductID);
       SetNodeText(Doc, Node, 'Affiliates_eSellerate_Maximum_Commission_Rate', FAffiliates.eSellerate.MaximumCommissionRate);
 
+      // Save Cleverbridge only for version 1.4+
+      if FAffiliates.Affiliates_VERSION >= '1.4' then
+      begin
+        SetNodeText(Doc, Node, 'Affiliates_iPortis_Order_Page', FAffiliates.iPortis.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_iPortis_Vendor_ID', FAffiliates.iPortis.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_iPortis_Product_ID', FAffiliates.iPortis.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_iPortis_Maximum_Commission_Rate', FAffiliates.iPortis.MaximumCommissionRate);
+      end;
+
       SetNodeText(Doc, Node, 'Affiliates_Kagi_Order_Page', FAffiliates.Kagi.OrderPage);
       SetNodeText(Doc, Node, 'Affiliates_Kagi_Vendor_ID', FAffiliates.Kagi.VendorID);
       SetNodeText(Doc, Node, 'Affiliates_Kagi_Product_ID', FAffiliates.Kagi.ProductID);
@@ -2713,6 +2750,15 @@ begin
       SetNodeText(Doc, Node, 'Affiliates_Osolis_Vendor_ID', FAffiliates.Osolis.VendorID);
       SetNodeText(Doc, Node, 'Affiliates_Osolis_Product_ID', FAffiliates.Osolis.ProductID);
       SetNodeText(Doc, Node, 'Affiliates_Osolis_Maximum_Commission_Rate', FAffiliates.Osolis.MaximumCommissionRate);
+
+      // Save Cleverbridge only for version 1.4+
+      if FAffiliates.Affiliates_VERSION >= '1.4' then
+      begin
+        SetNodeText(Doc, Node, 'Affiliates_PayPro_Order_Page', FAffiliates.PayPro.OrderPage);
+        SetNodeText(Doc, Node, 'Affiliates_PayPro_Vendor_ID', FAffiliates.PayPro.VendorID);
+        SetNodeText(Doc, Node, 'Affiliates_PayPro_Product_ID', FAffiliates.PayPro.ProductID);
+        SetNodeText(Doc, Node, 'Affiliates_PayPro_Maximum_Commission_Rate', FAffiliates.PayPro.MaximumCommissionRate);
+      end;
 
       SetNodeText(Doc, Node, 'Affiliates_Plimus_Order_Page', FAffiliates.Plimus.OrderPage);
       SetNodeText(Doc, Node, 'Affiliates_Plimus_Vendor_ID', FAffiliates.Plimus.VendorID);
@@ -3889,7 +3935,7 @@ end;
 function GetNodeText(Node: TDOMNode): string;
 begin
   if Assigned(Node) and Assigned(Node.FirstChild) then
-    Result := UTF8Encode(Node.FirstChild.NodeValue)
+    Result := string(Node.FirstChild.NodeValue)
   else
     Result := '';
 end;
