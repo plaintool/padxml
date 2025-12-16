@@ -2594,63 +2594,64 @@ begin
         SetNodeText(Doc, Node, 'FacebookCompanyPage', FCompanyInfo.FacebookCompanyPage);
       if FCompanyInfo.FCompanyStorePageExists then
         SetNodeText(Doc, Node, 'CompanyStorePage', FCompanyInfo.CompanyStorePage);
-
-      // Save News Feed (updated with new fields)
-      if FNewsFeed.FEnabled then
-      begin
-        Node := AddChildNode(RootNode, 'NewsFeed');
-        SetNodeText(Doc, Node, 'NewsFeed_FORM', BoolToStr(FNewsFeed.NewsFeed_FORM, 'Y', 'N'));
-        SetNodeText(Doc, Node, 'NewsFeed_VERSION', FNewsFeed.NewsFeed_VERSION);
-        SetNodeText(Doc, Node, 'NewsFeed_URL', FNewsFeed.NewsFeed_URL);
-        SetNodeText(Doc, Node, 'NewsFeed_Type', FNewsFeed.NewsFeed_TypeAsString);
-        SetNodeText(Doc, Node, 'NewsFeed_Language', FNewsFeed.NewsFeed_Language);
-        SetNodeText(Doc, Node, 'NewsFeed_Purpose', FNewsFeed.NewsFeed_Purpose);
-        SetNodeText(Doc, Node, 'NewsFeed_Author_Email', FNewsFeed.NewsFeed_Author_Email);
-        SetNodeText(Doc, Node, 'NewsFeed_Author_First_Name', FNewsFeed.NewsFeed_Author_First_Name);
-        SetNodeText(Doc, Node, 'NewsFeed_Author_Last_Name', FNewsFeed.NewsFeed_Author_Last_Name);
-        SetNodeText(Doc, Node, 'NewsFeed_DESCRIPTION', FNewsFeed.NewsFeed_DESCRIPTION);
-        SetNodeText(Doc, Node, 'NewsFeed_Feed_URL', FNewsFeed.NewsFeed_Feed_URL);
-        SetNodeText(Doc, Node, 'NewsFeed_Site_Name', FNewsFeed.NewsFeed_Site_Name);
-        SetNodeText(Doc, Node, 'NewsFeed_Site_URL', FNewsFeed.NewsFeed_Site_URL);
-        SetNodeText(Doc, Node, 'NewsFeed_Title', FNewsFeed.NewsFeed_Title);
-        SetNodeText(Doc, Node, 'NewsFeed_Keywords', FNewsFeed.NewsFeed_Keywords);
-        SetNodeText(Doc, Node, 'NewsFeed_Description_70', FNewsFeed.NewsFeed_Description_70);
-        SetNodeText(Doc, Node, 'NewsFeed_Description_250', FNewsFeed.NewsFeed_Description_250);
-      end;
-
-      // Save Site section
-      if FSite.FEnabled then
-      begin
-        Node := AddChildNode(RootNode, 'Site');
-        SetNodeText(Doc, Node, 'Site_FORM', BoolToStr(FSite.Site_FORM, 'Y', 'N'));
-        SetNodeText(Doc, Node, 'Site_VERSION', FSite.Site_VERSION);
-        SetNodeText(Doc, Node, 'Site_URL', FSite.Site_URL);
-        SetNodeText(Doc, Node, 'Site_DESCRIPTION', FSite.Site_DESCRIPTION);
-        SetNodeText(Doc, Node, 'Site_Site_Title', FSite.Site_Site_Title);
-        SetNodeText(Doc, Node, 'Site_Site_URL', FSite.Site_Site_URL);
-        SetNodeText(Doc, Node, 'Site_Keywords', FSite.Site_Keywords);
-        SetNodeText(Doc, Node, 'Site_Description_100', FSite.Site_Description_100);
-        SetNodeText(Doc, Node, 'Site_Description_250', FSite.Site_Description_250);
-        SetNodeText(Doc, Node, 'Site_Description_450', FSite.Site_Description_450);
-        SetNodeText(Doc, Node, 'Site_Contact_First_Name', FSite.Site_Contact_First_Name);
-        SetNodeText(Doc, Node, 'Site_Contact_Last_Name', FSite.Site_Contact_Last_Name);
-        SetNodeText(Doc, Node, 'Site_Contact_Email', FSite.Site_Contact_Email);
-      end;
-
-      // Save PAD Certification Promotion
-      if (FPAD_Certification_Promotion.FEnabled) then
-      begin
-        Node := AddChildNode(RootNode, 'PAD_Certification_Promotion');
-        SetNodeText(Doc, Node, 'Apply_For_Certification', BoolToStr(FPAD_Certification_Promotion.Apply_For_Certification, 'Y', 'N'));
-      end;
-
-      // Save Dynamic PAD
-      if (FDynamic_PAD.FEnabled) then
-      begin
-        Node := AddChildNode(RootNode, 'Dynamic_PAD');
-        SetNodeText(Doc, Node, 'Dynamic_Distributive', BoolToStr(FDynamic_PAD.Dynamic_Distributive, 'Y', 'N'));
-      end;
     end;
+
+    // Save News Feed (updated with new fields)
+    if FNewsFeed.FEnabled then
+    begin
+      Node := AddChildNode(RootNode, 'NewsFeed');
+      SetNodeText(Doc, Node, 'NewsFeed_FORM', BoolToStr(FNewsFeed.NewsFeed_FORM, 'Y', 'N'));
+      SetNodeText(Doc, Node, 'NewsFeed_VERSION', FNewsFeed.NewsFeed_VERSION);
+      SetNodeText(Doc, Node, 'NewsFeed_URL', FNewsFeed.NewsFeed_URL);
+      SetNodeText(Doc, Node, 'NewsFeed_Type', FNewsFeed.NewsFeed_TypeAsString);
+      SetNodeText(Doc, Node, 'NewsFeed_Language', FNewsFeed.NewsFeed_Language);
+      SetNodeText(Doc, Node, 'NewsFeed_Purpose', FNewsFeed.NewsFeed_Purpose);
+      SetNodeText(Doc, Node, 'NewsFeed_Author_Email', FNewsFeed.NewsFeed_Author_Email);
+      SetNodeText(Doc, Node, 'NewsFeed_Author_First_Name', FNewsFeed.NewsFeed_Author_First_Name);
+      SetNodeText(Doc, Node, 'NewsFeed_Author_Last_Name', FNewsFeed.NewsFeed_Author_Last_Name);
+      SetNodeText(Doc, Node, 'NewsFeed_DESCRIPTION', FNewsFeed.NewsFeed_DESCRIPTION);
+      SetNodeText(Doc, Node, 'NewsFeed_Feed_URL', FNewsFeed.NewsFeed_Feed_URL);
+      SetNodeText(Doc, Node, 'NewsFeed_Site_Name', FNewsFeed.NewsFeed_Site_Name);
+      SetNodeText(Doc, Node, 'NewsFeed_Site_URL', FNewsFeed.NewsFeed_Site_URL);
+      SetNodeText(Doc, Node, 'NewsFeed_Title', FNewsFeed.NewsFeed_Title);
+      SetNodeText(Doc, Node, 'NewsFeed_Keywords', FNewsFeed.NewsFeed_Keywords);
+      SetNodeText(Doc, Node, 'NewsFeed_Description_70', FNewsFeed.NewsFeed_Description_70);
+      SetNodeText(Doc, Node, 'NewsFeed_Description_250', FNewsFeed.NewsFeed_Description_250);
+    end;
+
+    // Save Site section
+    if FSite.FEnabled then
+    begin
+      Node := AddChildNode(RootNode, 'Site');
+      SetNodeText(Doc, Node, 'Site_FORM', BoolToStr(FSite.Site_FORM, 'Y', 'N'));
+      SetNodeText(Doc, Node, 'Site_VERSION', FSite.Site_VERSION);
+      SetNodeText(Doc, Node, 'Site_URL', FSite.Site_URL);
+      SetNodeText(Doc, Node, 'Site_DESCRIPTION', FSite.Site_DESCRIPTION);
+      SetNodeText(Doc, Node, 'Site_Site_Title', FSite.Site_Site_Title);
+      SetNodeText(Doc, Node, 'Site_Site_URL', FSite.Site_Site_URL);
+      SetNodeText(Doc, Node, 'Site_Keywords', FSite.Site_Keywords);
+      SetNodeText(Doc, Node, 'Site_Description_100', FSite.Site_Description_100);
+      SetNodeText(Doc, Node, 'Site_Description_250', FSite.Site_Description_250);
+      SetNodeText(Doc, Node, 'Site_Description_450', FSite.Site_Description_450);
+      SetNodeText(Doc, Node, 'Site_Contact_First_Name', FSite.Site_Contact_First_Name);
+      SetNodeText(Doc, Node, 'Site_Contact_Last_Name', FSite.Site_Contact_Last_Name);
+      SetNodeText(Doc, Node, 'Site_Contact_Email', FSite.Site_Contact_Email);
+    end;
+
+    // Save PAD Certification Promotion
+    if (FPAD_Certification_Promotion.FEnabled) then
+    begin
+      Node := AddChildNode(RootNode, 'PAD_Certification_Promotion');
+      SetNodeText(Doc, Node, 'Apply_For_Certification', BoolToStr(FPAD_Certification_Promotion.Apply_For_Certification, 'Y', 'N'));
+    end;
+
+    // Save Dynamic PAD
+    if (FDynamic_PAD.FEnabled) then
+    begin
+      Node := AddChildNode(RootNode, 'Dynamic_PAD');
+      SetNodeText(Doc, Node, 'Dynamic_Distributive', BoolToStr(FDynamic_PAD.Dynamic_Distributive, 'Y', 'N'));
+    end;
+
 
     // Program Info
     Node := AddChildNode(RootNode, 'Program_Info');
