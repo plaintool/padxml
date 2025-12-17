@@ -95,11 +95,6 @@ object formPadXml: TformPadXml
         Caption = 'ArticleContents'
         OnClick = menuSectionClick
       end
-      object menuASBMPlanner: TMenuItem
-        AutoCheck = True
-        Caption = 'ASBMPlanner'
-        OnClick = menuSectionClick
-      end
       object menuDeuPAD: TMenuItem
         AutoCheck = True
         Caption = 'DeuPAD'

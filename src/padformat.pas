@@ -1032,18 +1032,6 @@ type
     property Allmyapps_Terms_And_Conditions: boolean read FAllmyapps_Terms_And_Conditions write FAllmyapps_Terms_And_Conditions;
   end;
 
-  { TPadASBMPlanner }
-  TPadASBMPlanner = class(TPersistent)
-  private
-    FASBMPlannerID1stRound: string;
-    FIssues: string;
-    FASBMPlannerID2ndRound: string;
-  published
-    property ASBMPlannerID1stRound: string read FASBMPlannerID1stRound write FASBMPlannerID1stRound;
-    property Issues: string read FIssues write FIssues;
-    property ASBMPlannerID2ndRound: string read FASBMPlannerID2ndRound write FASBMPlannerID2ndRound;
-  end;
-
   { TPadAppStore }
   TPadAppStore = class(TPersistent)
   private

@@ -49,7 +49,6 @@ type
     menuAffiliates: TMenuItem;
     menuArticleContents: TMenuItem;
     menuAllmyapps: TMenuItem;
-    menuASBMPlanner: TMenuItem;
     menuAppStore: TMenuItem;
     menuMisc: TMenuItem;
     menuTPA: TMenuItem;
@@ -96,6 +95,7 @@ type
     FCommandLineFile: string;
     function SaveFile(AFileName: string): boolean;
     function LoadFromFile(AFileName: string): boolean;
+    procedure SetView;
     function IsCanClose: boolean;
     function PromptSaveChanges: TModalResult;
     procedure ClearEditor;
@@ -242,6 +242,7 @@ begin
   if not IsCanClose then Exit;
 
   ClearEditor;
+  SetView;
   FFileName := '';
   FChanged := False;
   UpdateCaption;
@@ -386,8 +387,8 @@ begin
       propertyPad.TIObject := nil;
       propertyPad.TIObject := PadFormat;
 
+      SetView;
       Result := True;
-
     except
       on E: Exception do
       begin
@@ -399,6 +400,29 @@ begin
   finally
     Input.Free;
   end;
+end;
+
+procedure TformPadXml.SetView;
+begin
+  menuAffiliates.Checked := PadFormat.Affiliates.Active;
+  menuAllmyapps.Checked := PadFormat.Allmyapps.Active;
+  menuAppStore.Checked := PadFormat.AppStore.Active;
+  menuArticleContents.Checked := PadFormat.Article_Contents.Active;
+  menuDeuPAD.Checked := PadFormat.DeuPAD.Active;
+  menuDynamicPAD.Checked := PadFormat.Dynamic_PAD.Active;
+  menuMSN.Checked := PadFormat.MSN.Active;
+  menuNewsFeed.Checked := PadFormat.NewsFeed.Active;
+  menuOnlineShops.Checked := PadFormat.OnlineShops.Active;
+  menuPADCertificationPromotion.Checked := PadFormat.PAD_Certification_Promotion.Active;
+  menuPADmap.Checked := PadFormat.PADmap.Active;
+  menuPADRING.Checked := PadFormat.PADRING.Active;
+  menuPressRelease.Checked := PadFormat.PressRelease.Active;
+  menuRoboSoft.Checked := PadFormat.RoboSoft.Active;
+  menuSimtel.Checked := PadFormat.Simtel.Active;
+  menuSite.Checked := PadFormat.Site.Active;
+  menuTPA.Checked := PadFormat.TPA.Active;
+
+  menuSectionClick(Self);
 end;
 
 function TformPadXml.IsCanClose: boolean;
@@ -613,7 +637,7 @@ begin
   end;
 
   // Check if file is valid (optional - you can remove this if you want to accept any file)
-  ValidExtensions := ['.xml', '.txt', '.pad', '.config', '.cfg', '.ini'];
+  ValidExtensions := ['.xml', '.pad'];
   FileExt := LowerCase(ExtractFileExt(AFileName));
 
   for i := 0 to High(ValidExtensions) do
@@ -732,10 +756,6 @@ begin
   // ArticleContents
   if SameText(aEditor.GetName, 'Article_Contents') then
     aShow := menuArticleContents.Checked;
-
-  // ASBMPlanner
-  if SameText(aEditor.GetName, 'ASBMPlanner') then
-    aShow := menuASBMPlanner.Checked;
 
   // DeuPAD
   if SameText(aEditor.GetName, 'DeuPAD') then
