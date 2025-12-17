@@ -2866,7 +2866,7 @@ begin
       if Assigned(Node) then
       begin
         FSimtel.Simtel_FORM := UpperCase(GetNodeValue(Node, 'Simtel_FORM')) <> 'N';
-        FSimtel.Simtel_FORM_VER := GetNodeValue(Node, 'Simtel_FORM_VER');
+        FSimtel.Simtel_FORM_VER := GetNodeValue(Node, 'SIMTEL_FORM_VER');
         FSimtel.Simtel_Platform := GetNodeValue(Node, 'Simtel_Platform');
         FSimtel.Simtel_Category := GetNodeValue(Node, 'Simtel_Category');
       end;
@@ -3486,11 +3486,16 @@ begin
     begin
       Node := AddChildNode(RootNode, 'Press_Release');
       SetNodeText(Doc, Node, 'Press_Release', FPressRelease.PressRelease);
-      SetNodeText(Doc, Node, 'Headline', FPressRelease.Headline);
-      SetNodeText(Doc, Node, 'Summary', FPressRelease.Summary);
-      SetNodeText(Doc, Node, 'Keywords', FPressRelease.Keywords);
-      SetNodeText(Doc, Node, 'Related_URL', FPressRelease.Related_URL);
-      SetNodeText(Doc, Node, 'Press_Release_Plain', FPressRelease.PressReleasePlain);
+      if FPressRelease.Headline <> '' then
+        SetNodeText(Doc, Node, 'Headline', FPressRelease.Headline);
+      if FPressRelease.Summary <> '' then
+        SetNodeText(Doc, Node, 'Summary', FPressRelease.Summary);
+      if FPressRelease.Keywords <> '' then
+        SetNodeText(Doc, Node, 'Keywords', FPressRelease.Keywords);
+      if FPressRelease.Related_URL <> '' then
+        SetNodeText(Doc, Node, 'Related_URL', FPressRelease.Related_URL);
+      if FPressRelease.PressReleasePlain <> '' then
+        SetNodeText(Doc, Node, 'Press_Release_Plain', FPressRelease.PressReleasePlain);
     end;
 
     // Save Affiliates
@@ -3673,7 +3678,7 @@ begin
     begin
       Node := AddChildNode(RootNode, 'Simtel');
       SetNodeText(Doc, Node, 'Simtel_FORM', BoolToStr(FSimtel.Simtel_FORM, 'Y', 'N'));
-      SetNodeText(Doc, Node, 'Simtel_FORM_VER', FSimtel.Simtel_FORM_VER);
+      SetNodeText(Doc, Node, 'SIMTEL_FORM_VER', FSimtel.Simtel_FORM_VER);
       SetNodeText(Doc, Node, 'Simtel_Platform', FSimtel.Simtel_Platform);
       SetNodeText(Doc, Node, 'Simtel_Category', FSimtel.Simtel_Category);
     end;
