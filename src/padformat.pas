@@ -731,7 +731,6 @@ type
   { TPadPermissions }
   TPadPermissions = class(TPersistent)
   private
-    FActive: boolean;
     // Original string fields for XML serialization
     FDistributionPermissions: string;
     FEULA: string;
@@ -757,7 +756,6 @@ type
     property DistributionPermissions: string read FDistributionPermissions write FDistributionPermissions;
     property EULA: string read FEULA write FEULA;
   published
-    property Active: boolean read FActive write FActive default False;
     // TStrings properties for PropertyGrid
     property DistributionPermissionsStrings: TStrings read GetDistributionPermissionsStrings
       write SetDistributionPermissionsStrings stored False;
@@ -997,12 +995,10 @@ type
   { TPadASP }
   TPadASP = class(TPersistent)
   private
-    FActive: boolean;
     FASPForm: boolean;
     FASPMember: boolean;
     FASPMemberNumber: string;
   published
-    property Active: boolean read FActive write FActive default False;
     property ASPForm: boolean read FASPForm write FASPForm;
     property ASPMember: boolean read FASPMember write FASPMember;
     property ASPMemberNumber: string read FASPMemberNumber write FASPMemberNumber;
@@ -2617,7 +2613,6 @@ begin
 
       // Load Permissions
       Node := RootNode.FindNode('Permissions');
-      FPermissions.FActive := Assigned(Node);
       if Assigned(Node) then
       begin
         FPermissions.DistributionPermissions := GetNodeValue(Node, 'Distribution_Permissions');
@@ -2864,13 +2859,14 @@ begin
 
       // Load ASP
       Node := RootNode.FindNode('ASP');
-      FASP.FActive := Assigned(Node);
       if Assigned(Node) then
       begin
-        FASP.ASPForm := UpperCase(GetNodeValue(Node, 'ASP_FORM')) <> 'N';
+        FASP.ASPForm := True;
         FASP.ASPMember := UpperCase(GetNodeValue(Node, 'ASP_Member')) = 'Y';
         FASP.ASPMemberNumber := GetNodeValue(Node, 'ASP_Member_Number');
-      end;
+      end
+      else
+        FASP.ASPForm := False;
 
       // Load TPA
       Node := RootNode.FindNode('TPA');
@@ -3738,7 +3734,7 @@ begin
     end;
 
     // ASP
-    if FASP.FActive then
+    if FASP.ASPForm then
     begin
       Node := AddChildNode(RootNode, 'ASP');
       SetNodeText(Doc, Node, 'ASP_FORM', BoolToStr(FASP.ASPForm, 'Y', 'N'));
@@ -4117,7 +4113,6 @@ begin
   FWebInfo.DownloadURLs.AdditionalDownloadURL2 := '';
 
   // Clear Permissions
-  FPermissions.FActive := False;
   FPermissions.DistributionPermissions := '';
   FPermissions.EULA := '';
   FPermissions.DistributionPermissionsStrings.Clear;
