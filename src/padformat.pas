@@ -280,6 +280,76 @@ type
     property Site_Description_450: string read FSite_Description_450 write FSite_Description_450;
   end;
 
+  { TPadPADmap }
+  TPadPADmap = class(TPersistent)
+  private
+    FEnabled: boolean;
+    FPADmap_FORM: boolean;
+    FPADmap_URL: string;
+    FPADmap_VERSION: string;
+    FPADmap_SCOPE: string;
+    FPADmap_DESCRIPTION: string;
+    FPADmap_Location: string;
+  published
+    property Active: boolean read FEnabled write FEnabled default False;
+    property PADmap_FORM: boolean read FPADmap_FORM write FPADmap_FORM;
+    property PADmap_URL: string read FPADmap_URL write FPADmap_URL;
+    property PADmap_VERSION: string read FPADmap_VERSION write FPADmap_VERSION;
+    property PADmap_SCOPE: string read FPADmap_SCOPE write FPADmap_SCOPE;
+    property PADmap_DESCRIPTION: string read FPADmap_DESCRIPTION write FPADmap_DESCRIPTION;
+    property PADmap_Location: string read FPADmap_Location write FPADmap_Location;
+  end;
+
+  { TPadOnlineShops }
+  TPadOnlineShops = class(TPersistent)
+  private
+    FEnabled: boolean;
+    FOnlineShops_FORM: boolean;
+    FOnlineShops_VERSION: string;
+    FOnlineShops_PalmGear: boolean;
+    FOnlineShops_PocketLand: boolean;
+    FOnlineShops_PDAssi: boolean;
+    FOnlineShops_PDATopSoft: boolean;
+    FOnlineShops_PocketGear: boolean;
+    FOnlineShops_Softonic: boolean;
+    FOnlineShops_Winowin: boolean;
+    FOnlineShops_SoftSearch: boolean;
+    FOnlineShops_Handango_Agreement: boolean;
+    FOnlineShops_Handango: boolean;
+  published
+    property Active: boolean read FEnabled write FEnabled default False;
+    property OnlineShops_FORM: boolean read FOnlineShops_FORM write FOnlineShops_FORM;
+    property OnlineShops_VERSION: string read FOnlineShops_VERSION write FOnlineShops_VERSION;
+    property OnlineShops_PalmGear: boolean read FOnlineShops_PalmGear write FOnlineShops_PalmGear;
+    property OnlineShops_PocketLand: boolean read FOnlineShops_PocketLand write FOnlineShops_PocketLand;
+    property OnlineShops_PDAssi: boolean read FOnlineShops_PDAssi write FOnlineShops_PDAssi;
+    property OnlineShops_PDATopSoft: boolean read FOnlineShops_PDATopSoft write FOnlineShops_PDATopSoft;
+    property OnlineShops_PocketGear: boolean read FOnlineShops_PocketGear write FOnlineShops_PocketGear;
+    property OnlineShops_Softonic: boolean read FOnlineShops_Softonic write FOnlineShops_Softonic;
+    property OnlineShops_Winowin: boolean read FOnlineShops_Winowin write FOnlineShops_Winowin;
+    property OnlineShops_SoftSearch: boolean read FOnlineShops_SoftSearch write FOnlineShops_SoftSearch;
+    property OnlineShops_Handango_Agreement: boolean read FOnlineShops_Handango_Agreement write FOnlineShops_Handango_Agreement;
+    property OnlineShops_Handango: boolean read FOnlineShops_Handango write FOnlineShops_Handango;
+  end;
+
+  { TPadDeuPAD }
+  TPadDeuPAD = class(TPersistent)
+  private
+    FEnabled: boolean;
+    FDeuPAD_Extension_Version: string;
+    FDeuPAD_Extension_Info: string;
+    FSAVE_Member: boolean;
+    FSAVE_Member_Number: string;
+    FProgram_Cost_EUR: string;
+  published
+    property Active: boolean read FEnabled write FEnabled default False;
+    property DeuPAD_Extension_Version: string read FDeuPAD_Extension_Version write FDeuPAD_Extension_Version;
+    property DeuPAD_Extension_Info: string read FDeuPAD_Extension_Info write FDeuPAD_Extension_Info;
+    property SAVE_Member: boolean read FSAVE_Member write FSAVE_Member;
+    property SAVE_Member_Number: string read FSAVE_Member_Number write FSAVE_Member_Number;
+    property Program_Cost_EUR: string read FProgram_Cost_EUR write FProgram_Cost_EUR;
+  end;
+
   { TPadPADCertificationPromotion }
   TPadPADCertificationPromotion = class(TPersistent)
   private
@@ -290,14 +360,39 @@ type
     property Apply_For_Certification: boolean read FApply_For_Certification write FApply_For_Certification;
   end;
 
+  { TPadDynamicPADGeneral }
+  TPadDynamicPADGeneral = class(TPersistent)
+  private
+    FEnabled: boolean;
+    FDP_Pad_Mask: string;
+    FDP_Script_Base_URL: string;
+    FDP_Pad_Enabled: boolean;
+    FDP_Distributive_Enabled: boolean;
+    FDP_AtFormFill_Enabled: boolean;
+    FDP_ControlPanel_Hosted: string;
+  published
+    property Active: boolean read FEnabled write FEnabled default False;
+    property DP_Pad_Mask: string read FDP_Pad_Mask write FDP_Pad_Mask;
+    property DP_Script_Base_URL: string read FDP_Script_Base_URL write FDP_Script_Base_URL;
+    property DP_Pad_Enabled: boolean read FDP_Pad_Enabled write FDP_Pad_Enabled;
+    property DP_Distributive_Enabled: boolean read FDP_Distributive_Enabled write FDP_Distributive_Enabled;
+    property DP_AtFormFill_Enabled: boolean read FDP_AtFormFill_Enabled write FDP_AtFormFill_Enabled;
+    property DP_ControlPanel_Hosted: string read FDP_ControlPanel_Hosted write FDP_ControlPanel_Hosted;
+  end;
+
   { TPadDynamicPAD }
   TPadDynamicPAD = class(TPersistent)
   private
     FEnabled: boolean;
     FDynamic_Distributive: boolean;
+    FGeneral: TPadDynamicPADGeneral;
+  public
+    constructor Create;
+    destructor Destroy; override;
   published
     property Active: boolean read FEnabled write FEnabled default False;
     property Dynamic_Distributive: boolean read FDynamic_Distributive write FDynamic_Distributive;
+    property General: TPadDynamicPADGeneral read FGeneral write FGeneral;
   end;
 
   { TPadFileInfo }
@@ -733,6 +828,7 @@ type
   private
     FEnabled: boolean;
     FAffiliates_FORM: boolean;
+    FAffiliates_FORM_VER: string;
     FAffiliates_VERSION: string;
     FAffiliates_URL: string;
     FAffiliates_Information_Page: string;
@@ -772,6 +868,7 @@ type
     property Active: boolean read FEnabled write FEnabled default False;
     // Main properties
     property Affiliates_FORM: boolean read FAffiliates_FORM write FAffiliates_FORM;
+    property Affiliates_FORM_VER: string read FAffiliates_FORM_VER write FAffiliates_FORM_VER;
     property Affiliates_VERSION: string read FAffiliates_VERSION write FAffiliates_VERSION;
     property Affiliates_URL: string read FAffiliates_URL write FAffiliates_URL;
     property Affiliates_Information_Page: string read FAffiliates_Information_Page write FAffiliates_Information_Page;
@@ -806,16 +903,145 @@ type
     property Yaskifo: TPadAffiliateCompany read FYaskifo write FYaskifo;
   end;
 
+  { TPadPADRING }
+  TPadPADRING = class(TPersistent)
+  private
+    FEnabled: boolean;
+    FPADRING_FORM: boolean;
+    // Original string field for XML serialization
+    FPADRING: string;
+    // TStrings field for PropertyGrid
+    FPADRINGStrings: TStrings;
+    // Property getters/setters for TStrings
+    function GetPADRINGStrings: TStrings;
+    procedure SetPADRINGStrings(Value: TStrings);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    // Synchronization methods
+    procedure SyncStringsToStrings;
+    procedure SyncStringToStrings;
+  protected
+    // String property for XML
+    property PADRING: string read FPADRING write FPADRING;
+  published
+    property Active: boolean read FEnabled write FEnabled default False;
+    property PADRING_FORM: boolean read FPADRING_FORM write FPADRING_FORM;
+    // TStrings property for PropertyGrid
+    property PADRINGStrings: TStrings read GetPADRINGStrings write SetPADRINGStrings stored False;
+  end;
+
+  { TPadSimtel }
+  TPadSimtel = class(TPersistent)
+  private
+    FEnabled: boolean;
+    FSimtel_FORM: boolean;
+    FSimtel_FORM_VER: string;
+    FSimtel_Platform: string;
+    FSimtel_Category: string;
+  published
+    property Active: boolean read FEnabled write FEnabled default False;
+    property Simtel_FORM: boolean read FSimtel_FORM write FSimtel_FORM;
+    property Simtel_FORM_VER: string read FSimtel_FORM_VER write FSimtel_FORM_VER;
+    property Simtel_Platform: string read FSimtel_Platform write FSimtel_Platform;
+    property Simtel_Category: string read FSimtel_Category write FSimtel_Category;
+  end;
+
+  { TPadArticleContents }
+  TPadArticleContents = class(TPersistent)
+  private
+    FEnabled: boolean;
+    // Original string fields for XML serialization
+    FTitle: string;
+    FSummary: string;
+    FBody: string;
+    FResources: string;
+    // TStrings field for PropertyGrid (Body field)
+    FBodyStrings: TStrings;
+    // Property getters/setters for TStrings
+    function GetBodyStrings: TStrings;
+    procedure SetBodyStrings(Value: TStrings);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    // Synchronization methods
+    procedure SyncStringsToStrings;
+    procedure SyncStringToStrings;
+  protected
+    // String property for XML
+    property Body: string read FBody write FBody;
+  published
+    property Active: boolean read FEnabled write FEnabled default False;
+    // Simple string properties
+    property Title: string read FTitle write FTitle;
+    property Summary: string read FSummary write FSummary;
+    property Resources: string read FResources write FResources;
+    // TStrings property for PropertyGrid (Body field)
+    property BodyStrings: TStrings read GetBodyStrings write SetBodyStrings stored False;
+  end;
+
+  { TPadMSN }
+  TPadMSN = class(TPersistent)
+  private
+    FEnabled: boolean;
+    FMSN_FORM: boolean;
+    FMSN_IS_32bit: boolean;
+  published
+    property Active: boolean read FEnabled write FEnabled default False;
+    property MSN_FORM: boolean read FMSN_FORM write FMSN_FORM;
+    property MSN_IS_32bit: boolean read FMSN_IS_32bit write FMSN_IS_32bit;
+  end;
+
   { TPadASP }
   TPadASP = class(TPersistent)
   private
+    FEnabled: boolean;
     FASPForm: boolean;
     FASPMember: boolean;
     FASPMemberNumber: string;
   published
+    property Active: boolean read FEnabled write FEnabled default False;
     property ASPForm: boolean read FASPForm write FASPForm;
     property ASPMember: boolean read FASPMember write FASPMember;
     property ASPMemberNumber: string read FASPMemberNumber write FASPMemberNumber;
+  end;
+
+  { TPadTPA }
+  TPadTPA = class(TPersistent)
+  private
+    FEnabled: boolean;
+    FTPA_FORM: boolean;
+    FTPA_Member: boolean;
+    FTPA_Member_ID: string;
+    FTrial_License_Type: string;
+  published
+    property Active: boolean read FEnabled write FEnabled default False;
+    property TPA_FORM: boolean read FTPA_FORM write FTPA_FORM;
+    property TPA_Member: boolean read FTPA_Member write FTPA_Member;
+    property TPA_Member_ID: string read FTPA_Member_ID write FTPA_Member_ID;
+    property Trial_License_Type: string read FTrial_License_Type write FTrial_License_Type;
+  end;
+
+  { TPadAllmyapps }
+  TPadAllmyapps = class(TPersistent)
+  private
+    FEnabled: boolean;
+    FAllmyapps_Terms_And_Conditions: boolean;
+  published
+    property Active: boolean read FEnabled write FEnabled default False;
+    property Allmyapps_Terms_And_Conditions: boolean read FAllmyapps_Terms_And_Conditions write FAllmyapps_Terms_And_Conditions;
+  end;
+
+  { TPadASBMPlanner }
+  TPadASBMPlanner = class(TPersistent)
+  private
+    FASBMPlannerID1stRound: string;
+    FIssues: string;
+    FASBMPlannerID2ndRound: string;
+  published
+    property ASBMPlannerID1stRound: string read FASBMPlannerID1stRound write FASBMPlannerID1stRound;
+    property Issues: string read FIssues write FIssues;
+    property ASBMPlannerID2ndRound: string read FASBMPlannerID2ndRound write FASBMPlannerID2ndRound;
   end;
 
   { TPadAppStore }
@@ -885,7 +1111,20 @@ type
     FPressRelease: TPadPressRelease;
     FAffiliates: TPadAffiliates;
     FASP: TPadASP;
+    FTPA: TPadTPA;
     FAppStore: TPadAppStore;
+    FASBMPlannerID1stRound: string;
+    FIssues: string;
+    FASBMPlannerID2ndRound: string;
+    FDownload_Link_Points_To_Non_Binary_File: boolean;
+    FAllmyapps: TPadAllmyapps;
+    FPADmap: TPadPADmap;
+    FOnlineShops: TPadOnlineShops;
+    FDeuPAD: TPadDeuPAD;
+    FPADRING: TPadPADRING;
+    FSimtel: TPadSimtel;
+    FArticle_Contents: TPadArticleContents;
+    FMSN: TPadMSN;
     function SetNodeText(Doc: TXMLDocument; ParentNode: TDOMNode; NodeName, NodeValue: string): TDOMNode;
     function AddChildNode(ParentNode: TDOMNode; NodeName: string): TDOMNode;
     procedure SetNodeTextValue(Node: TDOMNode; Value: string);
@@ -929,6 +1168,20 @@ type
     property Affiliates: TPadAffiliates read FAffiliates write FAffiliates;
     property ASP: TPadASP read FASP write FASP;
     property AppStore: TPadAppStore read FAppStore write FAppStore;
+    property ASBMPlannerID1stRound: string read FASBMPlannerID1stRound write FASBMPlannerID1stRound;
+    property Issues: string read FIssues write FIssues;
+    property ASBMPlannerID2ndRound: string read FASBMPlannerID2ndRound write FASBMPlannerID2ndRound;
+    property Download_Link_Points_To_Non_Binary_File: boolean read FDownload_Link_Points_To_Non_Binary_File
+      write FDownload_Link_Points_To_Non_Binary_File;
+    property TPA: TPadTPA read FTPA write FTPA;
+    property Allmyapps: TPadAllmyapps read FAllmyapps write FAllmyapps;
+    property PADmap: TPadPADmap read FPADmap write FPADmap;
+    property OnlineShops: TPadOnlineShops read FOnlineShops write FOnlineShops;
+    property DeuPAD: TPadDeuPAD read FDeuPAD write FDeuPAD;
+    property PADRING: TPadPADRING read FPADRING write FPADRING;
+    property Simtel: TPadSimtel read FSimtel write FSimtel;
+    property Article_Contents: TPadArticleContents read FArticle_Contents write FArticle_Contents;
+    property MSN: TPadMSN read FMSN write FMSN;
   end;
 
 // Helper functions for conversions
@@ -1749,6 +2002,96 @@ begin
   inherited Destroy;
 end;
 
+{ TPadDynamicPAD }
+
+constructor TPadDynamicPAD.Create;
+begin
+  inherited Create;
+  FGeneral := TPadDynamicPADGeneral.Create;
+end;
+
+destructor TPadDynamicPAD.Destroy;
+begin
+  FGeneral.Free;
+  inherited Destroy;
+end;
+
+{ TPadPADRING }
+
+constructor TPadPADRING.Create;
+begin
+  inherited Create;
+  FPADRINGStrings := TStringList.Create;
+  FPADRINGStrings.TrailingLineBreak := False;
+end;
+
+destructor TPadPADRING.Destroy;
+begin
+  FPADRINGStrings.Free;
+  inherited Destroy;
+end;
+
+function TPadPADRING.GetPADRINGStrings: TStrings;
+begin
+  Result := FPADRINGStrings;
+end;
+
+procedure TPadPADRING.SetPADRINGStrings(Value: TStrings);
+begin
+  if Assigned(Value) then
+    FPADRINGStrings.Assign(Value)
+  else
+    FPADRINGStrings.Clear;
+end;
+
+procedure TPadPADRING.SyncStringsToStrings;
+begin
+  FPADRINGStrings.Text := FPADRING;
+end;
+
+procedure TPadPADRING.SyncStringToStrings;
+begin
+  FPADRING := FPADRINGStrings.Text;
+end;
+
+{ TPadArticleContents }
+
+constructor TPadArticleContents.Create;
+begin
+  inherited Create;
+  FBodyStrings := TStringList.Create;
+  FBodyStrings.TrailingLineBreak := False;
+end;
+
+destructor TPadArticleContents.Destroy;
+begin
+  FBodyStrings.Free;
+  inherited Destroy;
+end;
+
+function TPadArticleContents.GetBodyStrings: TStrings;
+begin
+  Result := FBodyStrings;
+end;
+
+procedure TPadArticleContents.SetBodyStrings(Value: TStrings);
+begin
+  if Assigned(Value) then
+    FBodyStrings.Assign(Value)
+  else
+    FBodyStrings.Clear;
+end;
+
+procedure TPadArticleContents.SyncStringsToStrings;
+begin
+  FBodyStrings.Text := FBody;
+end;
+
+procedure TPadArticleContents.SyncStringToStrings;
+begin
+  FBody := FBodyStrings.Text;
+end;
+
 { TXmlConfig }
 constructor TPadXmlCofig.Create;
 begin
@@ -1780,7 +2123,16 @@ begin
   FPressRelease := TPadPressRelease.Create;
   FAffiliates := TPadAffiliates.Create;
   FASP := TPadASP.Create;
+  FTPA := TPadTPA.Create;
   FAppStore := TPadAppStore.Create;
+  FAllmyapps := TPadAllmyapps.Create;
+  FPADmap := TPadPADmap.Create;
+  FOnlineShops := TPadOnlineShops.Create;
+  FDeuPAD := TPadDeuPAD.Create;
+  FPADRING := TPadPADRING.Create;
+  FSimtel := TPadSimtel.Create;
+  FArticle_Contents := TPadArticleContents.Create;
+  FMSN := TPadMSN.Create;
 end;
 
 destructor TPadFormat.Destroy;
@@ -1800,7 +2152,16 @@ begin
   FPressRelease.Free;
   FAffiliates.Free;
   FASP.Free;
+  FTPA.Free;
   FAppStore.Free;
+  FAllmyapps.Free;
+  FPADmap.Free;
+  FOnlineShops.Free;
+  FDeuPAD.Free;
+  FPADRING.Free;
+  FSimtel.Free;
+  FArticle_Contents.Free;
+  FMSN.Free;
   inherited Destroy;
 end;
 
@@ -1982,6 +2343,53 @@ begin
         FSite.Site_Description_450 := GetNodeValue(Node, 'Site_Description_450');
       end;
 
+      // Load PADmap
+      Node := RootNode.FindNode('PADmap');
+      FPADmap.FEnabled := Assigned(Node);
+      if Assigned(Node) then
+      begin
+        FPADmap.PADmap_FORM := UpperCase(GetNodeValue(Node, 'PADmap_FORM')) <> 'N';
+        FPADmap.PADmap_URL := GetNodeValue(Node, 'PADmap_URL');
+        FPADmap.PADmap_VERSION := GetNodeValue(Node, 'PADmap_VERSION');
+        FPADmap.PADmap_SCOPE := GetNodeValue(Node, 'PADmap_SCOPE');
+        FPADmap.PADmap_DESCRIPTION := GetNodeValue(Node, 'PADmap_DESCRIPTION');
+        FPADmap.PADmap_Location := GetNodeValue(Node, 'PADmap_Location');
+      end;
+
+      // Load Download_Link_Points_To_Non_Binary_File (root level)
+      FDownload_Link_Points_To_Non_Binary_File := UpperCase(GetNodeValue(RootNode, 'Download_Link_Points_To_Non_Binary_File')) = 'TRUE';
+
+      // Load OnlineShops
+      Node := RootNode.FindNode('OnlineShops');
+      FOnlineShops.FEnabled := Assigned(Node);
+      if Assigned(Node) then
+      begin
+        FOnlineShops.OnlineShops_FORM := UpperCase(GetNodeValue(Node, 'OnlineShops_FORM')) <> 'N';
+        FOnlineShops.OnlineShops_VERSION := GetNodeValue(Node, 'OnlineShops_VERSION');
+        FOnlineShops.OnlineShops_PalmGear := UpperCase(GetNodeValue(Node, 'OnlineShops_PalmGear')) = 'ON';
+        FOnlineShops.OnlineShops_PocketLand := UpperCase(GetNodeValue(Node, 'OnlineShops_PocketLand')) = 'ON';
+        FOnlineShops.OnlineShops_PDAssi := UpperCase(GetNodeValue(Node, 'OnlineShops_PDAssi')) = 'ON';
+        FOnlineShops.OnlineShops_PDATopSoft := UpperCase(GetNodeValue(Node, 'OnlineShops_PDATopSoft')) = 'ON';
+        FOnlineShops.OnlineShops_PocketGear := UpperCase(GetNodeValue(Node, 'OnlineShops_PocketGear')) = 'ON';
+        FOnlineShops.OnlineShops_Softonic := UpperCase(GetNodeValue(Node, 'OnlineShops_Softonic')) = 'ON';
+        FOnlineShops.OnlineShops_Winowin := UpperCase(GetNodeValue(Node, 'OnlineShops_Winowin')) = 'ON';
+        FOnlineShops.OnlineShops_SoftSearch := UpperCase(GetNodeValue(Node, 'OnlineShops_SoftSearch')) = 'ON';
+        FOnlineShops.OnlineShops_Handango_Agreement := UpperCase(GetNodeValue(Node, 'OnlineShops_Handango_Agreement')) = 'ON';
+        FOnlineShops.OnlineShops_Handango := UpperCase(GetNodeValue(Node, 'OnlineShops_Handango')) = 'ON';
+      end;
+
+      // Load DeuPAD
+      Node := RootNode.FindNode('DeuPAD');
+      FDeuPAD.FEnabled := Assigned(Node);
+      if Assigned(Node) then
+      begin
+        FDeuPAD.DeuPAD_Extension_Version := GetNodeValue(Node, 'DeuPAD_Extension_Version');
+        FDeuPAD.DeuPAD_Extension_Info := GetNodeValue(Node, 'DeuPAD_Extension_Info');
+        FDeuPAD.SAVE_Member := UpperCase(GetNodeValue(Node, 'SAVE_Member')) = 'Y';
+        FDeuPAD.SAVE_Member_Number := GetNodeValue(Node, 'SAVE_Member_Number');
+        FDeuPAD.Program_Cost_EUR := GetNodeValue(Node, 'Program_Cost_EUR');
+      end;
+
       // Load PAD Certification Promotion
       Node := RootNode.FindNode('PAD_Certification_Promotion');
       FPAD_Certification_Promotion.FEnabled := Assigned(Node);
@@ -1992,7 +2400,22 @@ begin
       Node := RootNode.FindNode('Dynamic_PAD');
       FDynamic_PAD.FEnabled := Assigned(Node);
       if Assigned(Node) then
+      begin
         FDynamic_PAD.Dynamic_Distributive := UpperCase(GetNodeValue(Node, 'Dynamic_Distributive')) = 'Y';
+
+        // Check for General subnode
+        SubNode := Node.FindNode('General');
+        FDynamic_PAD.General.FEnabled := Assigned(SubNode);
+        if Assigned(SubNode) then
+        begin
+          FDynamic_PAD.General.DP_Pad_Mask := GetNodeValue(SubNode, 'DP_Pad_Mask');
+          FDynamic_PAD.General.DP_Script_Base_URL := GetNodeValue(SubNode, 'DP_Script_Base_URL');
+          FDynamic_PAD.General.DP_Pad_Enabled := UpperCase(GetNodeValue(SubNode, 'DP_Pad_Enabled')) = 'TRUE';
+          FDynamic_PAD.General.DP_Distributive_Enabled := UpperCase(GetNodeValue(SubNode, 'DP_Distributive_Enabled')) = 'TRUE';
+          FDynamic_PAD.General.DP_AtFormFill_Enabled := UpperCase(GetNodeValue(SubNode, 'DP_AtFormFill_Enabled')) = 'TRUE';
+          FDynamic_PAD.General.DP_ControlPanel_Hosted := GetNodeValue(SubNode, 'DP_ControlPanel_Hosted');
+        end;
+      end;
 
       // Load Program Info
       Node := RootNode.FindNode('Program_Info');
@@ -2240,7 +2663,7 @@ begin
         // But if version is specified in XML, use it
         if GetNodeValue(Node, 'Affiliates_VERSION') <> '' then
           FAffiliates.Affiliates_VERSION := GetNodeValue(Node, 'Affiliates_VERSION');
-
+        FAffiliates.Affiliates_FORM_VER := GetNodeValue(Node, 'Affiliates_FORM_VER');
         FAffiliates.Affiliates_URL := GetNodeValue(Node, 'Affiliates_URL');
         FAffiliates.Affiliates_Information_Page := GetNodeValue(Node, 'Affiliates_Information_Page');
 
@@ -2428,16 +2851,77 @@ begin
         end;
       end;
 
-      // Load ASP
-      Node := RootNode.FindNode('ASP');
+      // Load PADRING
+      Node := RootNode.FindNode('PADRING');
+      FPADRING.FEnabled := Assigned(Node);
       if Assigned(Node) then
       begin
-        FASP.ASPForm := True;
+        FPADRING.PADRING_FORM := UpperCase(GetNodeValue(Node, 'PADRING_FORM')) <> 'N';
+        FPADRING.PADRING := GetNodeValue(Node, 'PADRING');
+      end;
+
+      // Load Simtel
+      Node := RootNode.FindNode('Simtel');
+      FSimtel.FEnabled := Assigned(Node);
+      if Assigned(Node) then
+      begin
+        FSimtel.Simtel_FORM := UpperCase(GetNodeValue(Node, 'Simtel_FORM')) <> 'N';
+        FSimtel.Simtel_FORM_VER := GetNodeValue(Node, 'Simtel_FORM_VER');
+        FSimtel.Simtel_Platform := GetNodeValue(Node, 'Simtel_Platform');
+        FSimtel.Simtel_Category := GetNodeValue(Node, 'Simtel_Category');
+      end;
+
+      // Load Article_Contents
+      Node := RootNode.FindNode('Article_Contents');
+      FArticle_Contents.FEnabled := Assigned(Node);
+      if Assigned(Node) then
+      begin
+        FArticle_Contents.Title := GetNodeValue(Node, 'Title');
+        FArticle_Contents.Summary := GetNodeValue(Node, 'Summary');
+        FArticle_Contents.Body := GetNodeValue(Node, 'Body');
+        FArticle_Contents.Resources := GetNodeValue(Node, 'Resources');
+      end;
+
+      // Load MSN
+      Node := RootNode.FindNode('MSN');
+      FMSN.FEnabled := Assigned(Node);
+      if Assigned(Node) then
+      begin
+        FMSN.MSN_FORM := UpperCase(GetNodeValue(Node, 'MSN_FORM')) <> 'N';
+        FMSN.MSN_IS_32bit := UpperCase(GetNodeValue(Node, 'MSN_IS_32bit')) = 'Y';
+      end;
+
+      // Load ASP
+      Node := RootNode.FindNode('ASP');
+      FASP.FEnabled := Assigned(Node);
+      if Assigned(Node) then
+      begin
+        FASP.ASPForm := UpperCase(GetNodeValue(Node, 'ASP_FORM')) <> 'N';
         FASP.ASPMember := UpperCase(GetNodeValue(Node, 'ASP_Member')) = 'Y';
         FASP.ASPMemberNumber := GetNodeValue(Node, 'ASP_Member_Number');
-      end
-      else
-        FASP.ASPForm := False;
+      end;
+
+      // Load TPA
+      Node := RootNode.FindNode('TPA');
+      FTPA.FEnabled := Assigned(Node);
+      if Assigned(Node) then
+      begin
+        FTPA.TPA_FORM := UpperCase(GetNodeValue(Node, 'TPA_FORM')) <> 'N';
+        FTPA.TPA_Member := UpperCase(GetNodeValue(Node, 'TPA_Member')) = 'Y';
+        FTPA.TPA_Member_ID := GetNodeValue(Node, 'TPA_Member_ID');
+        FTPA.Trial_License_Type := GetNodeValue(Node, 'Trial_License_Type');
+      end;
+
+      // Load ASBMPlanner fields (root level)
+      FIssues := GetNodeValue(RootNode, 'Issues');
+      FASBMPlannerID1stRound := GetNodeValue(RootNode, 'ASBMPlannerID1stRound');
+      FASBMPlannerID2ndRound := GetNodeValue(RootNode, 'ASBMPlannerID2ndRound');
+
+      // Load Allmyapps
+      Node := RootNode.FindNode('Allmyapps');
+      FAllmyapps.FEnabled := Assigned(Node);
+      if Assigned(Node) then
+        FAllmyapps.Allmyapps_Terms_And_Conditions := UpperCase(GetNodeValue(Node, 'Allmyapps_Terms_And_Conditions')) = 'Y';
 
       // Load AppStore
       Node := RootNode.FindNode('AppStore');
@@ -2469,6 +2953,8 @@ begin
       FNewsFeed.SyncStringsToStrings;
       FPermissions.SyncStringsToStrings;
       FPressRelease.SyncStringsToStrings;
+      FPADRING.SyncStringsToStrings;
+      FArticle_Contents.SyncStringsToStrings;
     finally
       Doc.Free;
     end;
@@ -2498,6 +2984,8 @@ begin
     FNewsFeed.SyncStringToStrings;
     FPermissions.SyncStringToStrings;
     FPressRelease.SyncStringToStrings;
+    FPADRING.SyncStringToStrings;
+    FArticle_Contents.SyncStringToStrings;
 
     // Create root element
     RootNode := Doc.CreateElement('XML_DIZ_INFO');
@@ -2638,6 +3126,51 @@ begin
       SetNodeText(Doc, Node, 'Site_Contact_Email', FSite.Site_Contact_Email);
     end;
 
+    // Save PADmap
+    if FPADmap.FEnabled then
+    begin
+      Node := AddChildNode(RootNode, 'PADmap');
+      SetNodeText(Doc, Node, 'PADmap_FORM', BoolToStr(FPADmap.PADmap_FORM, 'Y', 'N'));
+      SetNodeText(Doc, Node, 'PADmap_URL', FPADmap.PADmap_URL);
+      SetNodeText(Doc, Node, 'PADmap_VERSION', FPADmap.PADmap_VERSION);
+      SetNodeText(Doc, Node, 'PADmap_SCOPE', FPADmap.PADmap_SCOPE);
+      SetNodeText(Doc, Node, 'PADmap_DESCRIPTION', FPADmap.PADmap_DESCRIPTION);
+      SetNodeText(Doc, Node, 'PADmap_Location', FPADmap.PADmap_Location);
+    end;
+
+    // Save Download_Link_Points_To_Non_Binary_File (root level)
+    if FDownload_Link_Points_To_Non_Binary_File then
+      SetNodeText(Doc, RootNode, 'Download_Link_Points_To_Non_Binary_File', 'TRUE');
+
+    // Save OnlineShops
+    if FOnlineShops.FEnabled then
+    begin
+      Node := AddChildNode(RootNode, 'OnlineShops');
+      SetNodeText(Doc, Node, 'OnlineShops_FORM', BoolToStr(FOnlineShops.OnlineShops_FORM, 'Y', 'N'));
+      SetNodeText(Doc, Node, 'OnlineShops_VERSION', FOnlineShops.OnlineShops_VERSION);
+      SetNodeText(Doc, Node, 'OnlineShops_PalmGear', IfThen(FOnlineShops.OnlineShops_PalmGear, 'on', 'off'));
+      SetNodeText(Doc, Node, 'OnlineShops_PocketLand', IfThen(FOnlineShops.OnlineShops_PocketLand, 'on', 'off'));
+      SetNodeText(Doc, Node, 'OnlineShops_PDAssi', IfThen(FOnlineShops.OnlineShops_PDAssi, 'on', 'off'));
+      SetNodeText(Doc, Node, 'OnlineShops_PDATopSoft', IfThen(FOnlineShops.OnlineShops_PDATopSoft, 'on', 'off'));
+      SetNodeText(Doc, Node, 'OnlineShops_PocketGear', IfThen(FOnlineShops.OnlineShops_PocketGear, 'on', 'off'));
+      SetNodeText(Doc, Node, 'OnlineShops_Softonic', IfThen(FOnlineShops.OnlineShops_Softonic, 'on', 'off'));
+      SetNodeText(Doc, Node, 'OnlineShops_Winowin', IfThen(FOnlineShops.OnlineShops_Winowin, 'on', 'off'));
+      SetNodeText(Doc, Node, 'OnlineShops_SoftSearch', IfThen(FOnlineShops.OnlineShops_SoftSearch, 'on', 'off'));
+      SetNodeText(Doc, Node, 'OnlineShops_Handango_Agreement', IfThen(FOnlineShops.OnlineShops_Handango_Agreement, 'on', 'off'));
+      SetNodeText(Doc, Node, 'OnlineShops_Handango', IfThen(FOnlineShops.OnlineShops_Handango, 'on', 'off'));
+    end;
+
+    // Save DeuPAD
+    if FDeuPAD.FEnabled then
+    begin
+      Node := AddChildNode(RootNode, 'DeuPAD');
+      SetNodeText(Doc, Node, 'DeuPAD_Extension_Version', FDeuPAD.DeuPAD_Extension_Version);
+      SetNodeText(Doc, Node, 'DeuPAD_Extension_Info', FDeuPAD.DeuPAD_Extension_Info);
+      SetNodeText(Doc, Node, 'SAVE_Member', BoolToStr(FDeuPAD.SAVE_Member, 'Y', 'N'));
+      SetNodeText(Doc, Node, 'SAVE_Member_Number', FDeuPAD.SAVE_Member_Number);
+      SetNodeText(Doc, Node, 'Program_Cost_EUR', FDeuPAD.Program_Cost_EUR);
+    end;
+
     // Save PAD Certification Promotion
     if (FPAD_Certification_Promotion.FEnabled) then
     begin
@@ -2650,8 +3183,19 @@ begin
     begin
       Node := AddChildNode(RootNode, 'Dynamic_PAD');
       SetNodeText(Doc, Node, 'Dynamic_Distributive', BoolToStr(FDynamic_PAD.Dynamic_Distributive, 'Y', 'N'));
-    end;
 
+      // Check if General section should be saved
+      if (FDynamic_PAD.General.FEnabled) then
+      begin
+        SubNode := AddChildNode(Node, 'General');
+        SetNodeText(Doc, SubNode, 'DP_Pad_Mask', FDynamic_PAD.General.DP_Pad_Mask);
+        SetNodeText(Doc, SubNode, 'DP_Script_Base_URL', FDynamic_PAD.General.DP_Script_Base_URL);
+        SetNodeText(Doc, SubNode, 'DP_Pad_Enabled', BoolToStr(FDynamic_PAD.General.DP_Pad_Enabled, 'TRUE', 'FALSE'));
+        SetNodeText(Doc, SubNode, 'DP_Distributive_Enabled', BoolToStr(FDynamic_PAD.General.DP_Distributive_Enabled, 'TRUE', 'FALSE'));
+        SetNodeText(Doc, SubNode, 'DP_AtFormFill_Enabled', BoolToStr(FDynamic_PAD.General.DP_AtFormFill_Enabled, 'TRUE', 'FALSE'));
+        SetNodeText(Doc, SubNode, 'DP_ControlPanel_Hosted', FDynamic_PAD.General.DP_ControlPanel_Hosted);
+      end;
+    end;
 
     // Program Info
     Node := AddChildNode(RootNode, 'Program_Info');
@@ -2955,6 +3499,8 @@ begin
     begin
       Node := AddChildNode(RootNode, 'Affiliates');
       SetNodeText(Doc, Node, 'Affiliates_FORM', BoolToStr(FAffiliates.Affiliates_FORM, 'Y', 'N'));
+      if FAffiliates.Affiliates_FORM_VER <> '' then
+        SetNodeText(Doc, Node, 'Affiliates_FORM_VER', FAffiliates.Affiliates_FORM_VER);
       SetNodeText(Doc, Node, 'Affiliates_VERSION', FAffiliates.Affiliates_VERSION);
       SetNodeText(Doc, Node, 'Affiliates_URL', FAffiliates.Affiliates_URL);
       SetNodeText(Doc, Node, 'Affiliates_Information_Page', FAffiliates.Affiliates_Information_Page);
@@ -3114,13 +3660,79 @@ begin
       SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Maximum_Commission_Rate', FAffiliates.Yaskifo.MaximumCommissionRate);
     end;
 
+    // Save PADRING
+    if FPADRING.FEnabled then
+    begin
+      Node := AddChildNode(RootNode, 'PADRING');
+      SetNodeText(Doc, Node, 'PADRING_FORM', BoolToStr(FPADRING.PADRING_FORM, 'Y', 'N'));
+      SetNodeText(Doc, Node, 'PADRING', FPADRING.PADRING);
+    end;
+
+    // Save Simtel
+    if FSimtel.FEnabled then
+    begin
+      Node := AddChildNode(RootNode, 'Simtel');
+      SetNodeText(Doc, Node, 'Simtel_FORM', BoolToStr(FSimtel.Simtel_FORM, 'Y', 'N'));
+      SetNodeText(Doc, Node, 'Simtel_FORM_VER', FSimtel.Simtel_FORM_VER);
+      SetNodeText(Doc, Node, 'Simtel_Platform', FSimtel.Simtel_Platform);
+      SetNodeText(Doc, Node, 'Simtel_Category', FSimtel.Simtel_Category);
+    end;
+
+    // Save Article_Contents
+    if FArticle_Contents.FEnabled then
+    begin
+      Node := AddChildNode(RootNode, 'Article_Contents');
+      SetNodeText(Doc, Node, 'Title', FArticle_Contents.Title);
+      SetNodeText(Doc, Node, 'Summary', FArticle_Contents.Summary);
+      SetNodeText(Doc, Node, 'Body', FArticle_Contents.Body);
+      SetNodeText(Doc, Node, 'Resources', FArticle_Contents.Resources);
+    end;
+
+    // Save MSN
+    if FMSN.FEnabled then
+    begin
+      Node := AddChildNode(RootNode, 'MSN');
+      SetNodeText(Doc, Node, 'MSN_FORM', BoolToStr(FMSN.MSN_FORM, 'Y', 'N'));
+      SetNodeText(Doc, Node, 'MSN_IS_32bit', BoolToStr(FMSN.MSN_IS_32bit, 'Y', 'N'));
+    end;
+
     // ASP
-    if FASP.ASPForm then
+    if FASP.FEnabled then
     begin
       Node := AddChildNode(RootNode, 'ASP');
       SetNodeText(Doc, Node, 'ASP_FORM', BoolToStr(FASP.ASPForm, 'Y', 'N'));
       SetNodeText(Doc, Node, 'ASP_Member', BoolToStr(FASP.ASPMember, 'Y', 'N'));
       SetNodeText(Doc, Node, 'ASP_Member_Number', FASP.ASPMemberNumber);
+    end;
+
+    // Save TPA
+    if FTPA.FEnabled then
+    begin
+      Node := AddChildNode(RootNode, 'TPA');
+      SetNodeText(Doc, Node, 'TPA_FORM', BoolToStr(FTPA.TPA_FORM, 'Y', 'N'));
+      SetNodeText(Doc, Node, 'TPA_Member', BoolToStr(FTPA.TPA_Member, 'Y', 'N'));
+
+      // TPA_Member_ID should always be saved, even if empty
+      SetNodeText(Doc, Node, 'TPA_Member_ID', FTPA.TPA_Member_ID);
+
+      if FTPA.Trial_License_Type <> '' then
+        SetNodeText(Doc, Node, 'Trial_License_Type', FTPA.Trial_License_Type);
+    end;
+
+    // Save ASBMPlanner fields (root level)
+    if FIssues <> '' then
+      SetNodeText(Doc, RootNode, 'Issues', FIssues);
+    if FASBMPlannerID1stRound <> '' then
+      SetNodeText(Doc, RootNode, 'ASBMPlannerID1stRound', FASBMPlannerID1stRound);
+    if FASBMPlannerID2ndRound <> '' then
+      SetNodeText(Doc, RootNode, 'ASBMPlannerID2ndRound', FASBMPlannerID2ndRound);
+
+    // Save Allmyapps
+    if FAllmyapps.FEnabled then
+    begin
+      Node := AddChildNode(RootNode, 'Allmyapps');
+      SetNodeText(Doc, Node, 'Allmyapps_Terms_And_Conditions',
+        BoolToStr(FAllmyapps.Allmyapps_Terms_And_Conditions, 'Y', 'N'));
     end;
 
     // Save AppStore section
@@ -3485,6 +4097,7 @@ begin
   FAffiliates.FEnabled := False;
   FAffiliates.Affiliates_FORM := False;
   FAffiliates.Affiliates_VERSION := '1.4'; // Default, will be updated on save based on master version
+  FAffiliates.Affiliates_FORM_VER := '';
   FAffiliates.Affiliates_URL := 'http://www.asp-shareware.org/pad/extensions/Affiliates.htm';
   FAffiliates.Affiliates_Information_Page := '';
 
@@ -3619,6 +4232,13 @@ begin
   FASP.ASPMember := False;
   FASP.ASPMemberNumber := '';
 
+  // Clear TPA
+  FTPA.FEnabled := False;
+  FTPA.TPA_FORM := False;
+  FTPA.TPA_Member := False;
+  FTPA.TPA_Member_ID := '';
+  FTPA.Trial_License_Type := '';
+
   // Clear AppStore
   FAppStore.FEnabled := False;
   FAppStore.AppStore_AppID := '';
@@ -3632,6 +4252,83 @@ begin
   FAppStore.AppStore_Other_Applications := '';
   FAppStore.AppStore_Advantages_And_Unique_Features := '';
   FAppStore.AppStore_Awards_And_Ratings := '';
+
+  // Clear ASBMPlanner fields
+  FIssues := '';
+  FASBMPlannerID1stRound := '';
+  FASBMPlannerID2ndRound := '';
+  FDownload_Link_Points_To_Non_Binary_File := False;
+
+  // Clear Allmyapps
+  FAllmyapps.FEnabled := False;
+  FAllmyapps.Allmyapps_Terms_And_Conditions := False;
+
+  // Clear PADmap
+  FPADmap.FEnabled := False;
+  FPADmap.PADmap_FORM := False;
+  FPADmap.PADmap_URL := '';
+  FPADmap.PADmap_VERSION := '';
+  FPADmap.PADmap_SCOPE := '';
+  FPADmap.PADmap_DESCRIPTION := '';
+  FPADmap.PADmap_Location := '';
+
+  // Clear OnlineShops
+  FOnlineShops.FEnabled := False;
+  FOnlineShops.OnlineShops_FORM := False;
+  FOnlineShops.OnlineShops_VERSION := '';
+  FOnlineShops.OnlineShops_PalmGear := False;
+  FOnlineShops.OnlineShops_PocketLand := False;
+  FOnlineShops.OnlineShops_PDAssi := False;
+  FOnlineShops.OnlineShops_PDATopSoft := False;
+  FOnlineShops.OnlineShops_PocketGear := False;
+  FOnlineShops.OnlineShops_Softonic := False;
+  FOnlineShops.OnlineShops_Winowin := False;
+  FOnlineShops.OnlineShops_SoftSearch := False;
+  FOnlineShops.OnlineShops_Handango_Agreement := False;
+  FOnlineShops.OnlineShops_Handango := False;
+
+  // Clear DeuPAD
+  FDeuPAD.FEnabled := False;
+  FDeuPAD.DeuPAD_Extension_Version := '';
+  FDeuPAD.DeuPAD_Extension_Info := '';
+  FDeuPAD.SAVE_Member := False;
+  FDeuPAD.SAVE_Member_Number := '';
+  FDeuPAD.Program_Cost_EUR := '';
+
+  // Clear Dynamic PAD General
+  FDynamic_PAD.General.FEnabled := False;
+  FDynamic_PAD.General.DP_Pad_Mask := '';
+  FDynamic_PAD.General.DP_Script_Base_URL := '';
+  FDynamic_PAD.General.DP_Pad_Enabled := False;
+  FDynamic_PAD.General.DP_Distributive_Enabled := False;
+  FDynamic_PAD.General.DP_AtFormFill_Enabled := False;
+  FDynamic_PAD.General.DP_ControlPanel_Hosted := '';
+
+  // Clear PADRING
+  FPADRING.FEnabled := False;
+  FPADRING.PADRING_FORM := False;
+  FPADRING.PADRING := '';
+  FPADRING.PADRINGStrings.Clear;
+
+  // Clear Simtel
+  FSimtel.FEnabled := False;
+  FSimtel.Simtel_FORM := False;
+  FSimtel.Simtel_FORM_VER := '';
+  FSimtel.Simtel_Platform := '';
+  FSimtel.Simtel_Category := '';
+
+  // Clear Article_Contents
+  FArticle_Contents.FEnabled := False;
+  FArticle_Contents.Title := '';
+  FArticle_Contents.Summary := '';
+  FArticle_Contents.Body := '';
+  FArticle_Contents.Resources := '';
+  FArticle_Contents.BodyStrings.Clear;
+
+  // Clear MSN
+  FMSN.FEnabled := False;
+  FMSN.MSN_FORM := False;
+  FMSN.MSN_IS_32bit := False;
 
   // Clear XML formatting options
   FXmlConfig.XMLEncoding := peUTF8;
