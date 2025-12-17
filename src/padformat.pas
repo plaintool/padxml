@@ -306,11 +306,14 @@ type
     FActive: boolean;
     FOnlineShops_FORM: boolean;
     FOnlineShops_VERSION: string;
+    FOnlineShops_URL: string;
+    FOnlineShops_DESCRIPTION: string;
     FOnlineShops_PalmGear: boolean;
     FOnlineShops_PocketLand: boolean;
     FOnlineShops_PDAssi: boolean;
     FOnlineShops_PDATopSoft: boolean;
     FOnlineShops_PocketGear: boolean;
+    FOnlineShops_Softahead: boolean;
     FOnlineShops_Softonic: boolean;
     FOnlineShops_Winowin: boolean;
     FOnlineShops_SoftSearch: boolean;
@@ -320,11 +323,14 @@ type
     property Active: boolean read FActive write FActive default False;
     property OnlineShops_FORM: boolean read FOnlineShops_FORM write FOnlineShops_FORM;
     property OnlineShops_VERSION: string read FOnlineShops_VERSION write FOnlineShops_VERSION;
+    property OnlineShops_URL: string read FOnlineShops_URL write FOnlineShops_URL;
+    property OnlineShops_DESCRIPTION: string read FOnlineShops_DESCRIPTION write FOnlineShops_DESCRIPTION;
     property OnlineShops_PalmGear: boolean read FOnlineShops_PalmGear write FOnlineShops_PalmGear;
     property OnlineShops_PocketLand: boolean read FOnlineShops_PocketLand write FOnlineShops_PocketLand;
     property OnlineShops_PDAssi: boolean read FOnlineShops_PDAssi write FOnlineShops_PDAssi;
     property OnlineShops_PDATopSoft: boolean read FOnlineShops_PDATopSoft write FOnlineShops_PDATopSoft;
     property OnlineShops_PocketGear: boolean read FOnlineShops_PocketGear write FOnlineShops_PocketGear;
+    property OnlineShops_Softahead: boolean read FOnlineShops_Softahead write FOnlineShops_Softahead;
     property OnlineShops_Softonic: boolean read FOnlineShops_Softonic write FOnlineShops_Softonic;
     property OnlineShops_Winowin: boolean read FOnlineShops_Winowin write FOnlineShops_Winowin;
     property OnlineShops_SoftSearch: boolean read FOnlineShops_SoftSearch write FOnlineShops_SoftSearch;
@@ -2172,7 +2178,8 @@ var
   procedure LoadAffiliateCompany(Affiliate: TPadAffiliateCompany;
   const OrderPageTag, VendorIDTag, ProductIDTag, CommissionRateTag: string);
   begin
-    Affiliate.FActive := Assigned(Node.FindNode(DOMString(OrderPageTag)));
+    Affiliate.FActive := Assigned(Node.FindNode(DOMString(OrderPageTag))) or Assigned(Node.FindNode(DOMString(VendorIDTag))) or
+      Assigned(Node.FindNode(DOMString(ProductIDTag))) or Assigned(Node.FindNode(DOMString(CommissionRateTag)));
     if Assigned(Node) then
     begin
       Affiliate.OrderPage := GetNodeValue(Node, OrderPageTag);
@@ -2353,11 +2360,14 @@ begin
       begin
         FOnlineShops.OnlineShops_FORM := UpperCase(GetNodeValue(Node, 'OnlineShops_FORM')) <> 'N';
         FOnlineShops.OnlineShops_VERSION := GetNodeValue(Node, 'OnlineShops_VERSION');
+        FOnlineShops.OnlineShops_URL := GetNodeValue(Node, 'OnlineShops_URL');
+        FOnlineShops.OnlineShops_DESCRIPTION := GetNodeValue(Node, 'OnlineShops_DESCRIPTION');
         FOnlineShops.OnlineShops_PalmGear := UpperCase(GetNodeValue(Node, 'OnlineShops_PalmGear')) = 'ON';
         FOnlineShops.OnlineShops_PocketLand := UpperCase(GetNodeValue(Node, 'OnlineShops_PocketLand')) = 'ON';
         FOnlineShops.OnlineShops_PDAssi := UpperCase(GetNodeValue(Node, 'OnlineShops_PDAssi')) = 'ON';
         FOnlineShops.OnlineShops_PDATopSoft := UpperCase(GetNodeValue(Node, 'OnlineShops_PDATopSoft')) = 'ON';
         FOnlineShops.OnlineShops_PocketGear := UpperCase(GetNodeValue(Node, 'OnlineShops_PocketGear')) = 'ON';
+        FOnlineShops.OnlineShops_Softahead := UpperCase(GetNodeValue(Node, 'OnlineShops_Softahead')) = 'ON';
         FOnlineShops.OnlineShops_Softonic := UpperCase(GetNodeValue(Node, 'OnlineShops_Softonic')) = 'ON';
         FOnlineShops.OnlineShops_Winowin := UpperCase(GetNodeValue(Node, 'OnlineShops_Winowin')) = 'ON';
         FOnlineShops.OnlineShops_SoftSearch := UpperCase(GetNodeValue(Node, 'OnlineShops_SoftSearch')) = 'ON';
@@ -2646,9 +2656,13 @@ begin
         else
           FAffiliates.Affiliates_VERSION := '1.4';
 
+        if not Assigned(Node.FindNode('Affiliates_VERSION')) and (Assigned(Node.FindNode('Affiliates_FORM_VER'))) then
+          FAffiliates.Affiliates_VERSION := '';
+
         // But if version is specified in XML, use it
         if GetNodeValue(Node, 'Affiliates_VERSION') <> '' then
           FAffiliates.Affiliates_VERSION := GetNodeValue(Node, 'Affiliates_VERSION');
+
         FAffiliates.Affiliates_FORM_VER := GetNodeValue(Node, 'Affiliates_FORM_VER');
         FAffiliates.Affiliates_URL := GetNodeValue(Node, 'Affiliates_URL');
         FAffiliates.Affiliates_Information_Page := GetNodeValue(Node, 'Affiliates_Information_Page');
@@ -2971,7 +2985,6 @@ begin
       FMasterPadVersionInfo.MasterPadInfo);
 
     // RoboSoft section
-    // Check if ANY RoboSoft field is filled
     if (FRoboSoft.FActive) then
     begin
       Node := AddChildNode(RootNode, 'RoboSoft');
@@ -3036,20 +3049,17 @@ begin
     SetNodeText(Doc, SubNode, 'Fax_Phone',
       FCompanyInfo.SupportInfo.FaxPhone);
 
-    if (MasterPadVersionInfo.Version >= 4) then
-    begin
-      // Social media pages
-      if FCompanyInfo.FGooglePlusPageExists then
-        SetNodeText(Doc, Node, 'GooglePlusPage', FCompanyInfo.GooglePlusPage);
-      if FCompanyInfo.FLinkedinPageExists then
-        SetNodeText(Doc, Node, 'LinkedinPage', FCompanyInfo.LinkedinPage);
-      if FCompanyInfo.FTwitterCompanyPageExists then
-        SetNodeText(Doc, Node, 'TwitterCompanyPage', FCompanyInfo.TwitterCompanyPage);
-      if FCompanyInfo.FFacebookCompanyPageExists then
-        SetNodeText(Doc, Node, 'FacebookCompanyPage', FCompanyInfo.FacebookCompanyPage);
-      if FCompanyInfo.FCompanyStorePageExists then
-        SetNodeText(Doc, Node, 'CompanyStorePage', FCompanyInfo.CompanyStorePage);
-    end;
+    // Social media pages
+    if FCompanyInfo.FGooglePlusPageExists then
+      SetNodeText(Doc, Node, 'GooglePlusPage', FCompanyInfo.GooglePlusPage);
+    if FCompanyInfo.FLinkedinPageExists then
+      SetNodeText(Doc, Node, 'LinkedinPage', FCompanyInfo.LinkedinPage);
+    if FCompanyInfo.FTwitterCompanyPageExists then
+      SetNodeText(Doc, Node, 'TwitterCompanyPage', FCompanyInfo.TwitterCompanyPage);
+    if FCompanyInfo.FFacebookCompanyPageExists then
+      SetNodeText(Doc, Node, 'FacebookCompanyPage', FCompanyInfo.FacebookCompanyPage);
+    if FCompanyInfo.FCompanyStorePageExists then
+      SetNodeText(Doc, Node, 'CompanyStorePage', FCompanyInfo.CompanyStorePage);
 
     // Save News Feed (updated with new fields)
     if FNewsFeed.FActive then
@@ -3114,12 +3124,18 @@ begin
     begin
       Node := AddChildNode(RootNode, 'OnlineShops');
       SetNodeText(Doc, Node, 'OnlineShops_FORM', BoolToStr(FOnlineShops.OnlineShops_FORM, 'Y', 'N'));
-      SetNodeText(Doc, Node, 'OnlineShops_VERSION', FOnlineShops.OnlineShops_VERSION);
+      if (FOnlineShops.OnlineShops_VERSION <> '') then
+        SetNodeText(Doc, Node, 'OnlineShops_VERSION', FOnlineShops.OnlineShops_VERSION);
+      if (FOnlineShops.OnlineShops_URL <> '') then
+        SetNodeText(Doc, Node, 'OnlineShops_URL', FOnlineShops.OnlineShops_URL);
+      if (FOnlineShops.OnlineShops_DESCRIPTION <> '') then
+        SetNodeText(Doc, Node, 'OnlineShops_DESCRIPTION', FOnlineShops.OnlineShops_DESCRIPTION);
       SetNodeText(Doc, Node, 'OnlineShops_PalmGear', IfThen(FOnlineShops.OnlineShops_PalmGear, 'on', 'off'));
       SetNodeText(Doc, Node, 'OnlineShops_PocketLand', IfThen(FOnlineShops.OnlineShops_PocketLand, 'on', 'off'));
       SetNodeText(Doc, Node, 'OnlineShops_PDAssi', IfThen(FOnlineShops.OnlineShops_PDAssi, 'on', 'off'));
       SetNodeText(Doc, Node, 'OnlineShops_PDATopSoft', IfThen(FOnlineShops.OnlineShops_PDATopSoft, 'on', 'off'));
       SetNodeText(Doc, Node, 'OnlineShops_PocketGear', IfThen(FOnlineShops.OnlineShops_PocketGear, 'on', 'off'));
+      SetNodeText(Doc, Node, 'OnlineShops_Softahead', IfThen(FOnlineShops.OnlineShops_Softahead, 'on', 'off'));
       SetNodeText(Doc, Node, 'OnlineShops_Softonic', IfThen(FOnlineShops.OnlineShops_Softonic, 'on', 'off'));
       SetNodeText(Doc, Node, 'OnlineShops_Winowin', IfThen(FOnlineShops.OnlineShops_Winowin, 'on', 'off'));
       SetNodeText(Doc, Node, 'OnlineShops_SoftSearch', IfThen(FOnlineShops.OnlineShops_SoftSearch, 'on', 'off'));
@@ -3412,15 +3428,12 @@ begin
     // Web Info
     Node := AddChildNode(RootNode, 'Web_Info');
     SubNode := AddChildNode(Node, 'Application_URLs');
-    if MasterPadVersionInfo.Version >= 4 then
-    begin
-      if FWebInfo.ApplicationURLs.FVideoLink1URLExists then
-        SetNodeText(Doc, SubNode, 'Video_Link_1_URL',
-          FWebInfo.ApplicationURLs.VideoLink1URL);
-      if FWebInfo.ApplicationURLs.FVideoLink2URLExists then
-        SetNodeText(Doc, SubNode, 'Video_Link_2_URL',
-          FWebInfo.ApplicationURLs.VideoLink2URL);
-    end;
+    if FWebInfo.ApplicationURLs.FVideoLink1URLExists then
+      SetNodeText(Doc, SubNode, 'Video_Link_1_URL',
+        FWebInfo.ApplicationURLs.VideoLink1URL);
+    if FWebInfo.ApplicationURLs.FVideoLink2URLExists then
+      SetNodeText(Doc, SubNode, 'Video_Link_2_URL',
+        FWebInfo.ApplicationURLs.VideoLink2URL);
     SetNodeText(Doc, SubNode, 'Application_Info_URL',
       FWebInfo.ApplicationURLs.ApplicationInfoURL);
     SetNodeText(Doc, SubNode, 'Application_Order_URL',
@@ -3448,7 +3461,6 @@ begin
     SetNodeText(Doc, Node, 'EULA', FPermissions.EULA);
 
     // Save Press Release
-    // Check if ANY Press Release field is filled
     if (FPressRelease.FActive) then
     begin
       Node := AddChildNode(RootNode, 'Press_Release');
@@ -3466,14 +3478,14 @@ begin
     end;
 
     // Save Affiliates
-    // Check if we should save full section
     if (FAffiliates.FActive) then
     begin
       Node := AddChildNode(RootNode, 'Affiliates');
       SetNodeText(Doc, Node, 'Affiliates_FORM', BoolToStr(FAffiliates.Affiliates_FORM, 'Y', 'N'));
       if FAffiliates.Affiliates_FORM_VER <> '' then
         SetNodeText(Doc, Node, 'Affiliates_FORM_VER', FAffiliates.Affiliates_FORM_VER);
-      SetNodeText(Doc, Node, 'Affiliates_VERSION', FAffiliates.Affiliates_VERSION);
+      if FAffiliates.Affiliates_VERSION <> '' then
+        SetNodeText(Doc, Node, 'Affiliates_VERSION', FAffiliates.Affiliates_VERSION);
       SetNodeText(Doc, Node, 'Affiliates_URL', FAffiliates.Affiliates_URL);
       SetNodeText(Doc, Node, 'Affiliates_Information_Page', FAffiliates.Affiliates_Information_Page);
 
@@ -4337,11 +4349,14 @@ begin
   FOnlineShops.FActive := False;
   FOnlineShops.OnlineShops_FORM := False;
   FOnlineShops.OnlineShops_VERSION := '';
+  FOnlineShops.OnlineShops_URL := '';
+  FOnlineShops.OnlineShops_DESCRIPTION := '';
   FOnlineShops.OnlineShops_PalmGear := False;
   FOnlineShops.OnlineShops_PocketLand := False;
   FOnlineShops.OnlineShops_PDAssi := False;
   FOnlineShops.OnlineShops_PDATopSoft := False;
   FOnlineShops.OnlineShops_PocketGear := False;
+  FOnlineShops.OnlineShops_Softahead := False;
   FOnlineShops.OnlineShops_Softonic := False;
   FOnlineShops.OnlineShops_Winowin := False;
   FOnlineShops.OnlineShops_SoftSearch := False;
