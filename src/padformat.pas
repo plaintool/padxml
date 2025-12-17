@@ -2464,7 +2464,7 @@ begin
       FProgramDescriptions.Language5.SyncStringsToStrings;
       FProgramDescriptions.Language6.SyncStringsToStrings;
       FProgramDescriptions.Language7.SyncStringsToStrings;
-      FProgramDescriptions.Language9.SyncStringsToStrings;
+      FProgramDescriptions.Language8.SyncStringsToStrings;
       FProgramDescriptions.Language9.SyncStringsToStrings;
       FNewsFeed.SyncStringsToStrings;
       FPermissions.SyncStringsToStrings;
@@ -2493,7 +2493,7 @@ begin
     FProgramDescriptions.Language5.SyncStringToStrings;
     FProgramDescriptions.Language6.SyncStringToStrings;
     FProgramDescriptions.Language7.SyncStringToStrings;
-    FProgramDescriptions.Language9.SyncStringToStrings;
+    FProgramDescriptions.Language8.SyncStringToStrings;
     FProgramDescriptions.Language9.SyncStringToStrings;
     FNewsFeed.SyncStringToStrings;
     FPermissions.SyncStringToStrings;
@@ -2867,7 +2867,7 @@ begin
     end;
     if FProgramDescriptions.Language8Name <> '' then
     begin
-      SubNode := AddChildNode(Node, FProgramDescriptions.Language6Name);
+      SubNode := AddChildNode(Node, FProgramDescriptions.Language8Name);
       SetNodeText(Doc, SubNode, 'Keywords',
         FProgramDescriptions.Language8.Keywords);
       SetNodeText(Doc, SubNode, 'Char_Desc_45',

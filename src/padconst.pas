@@ -856,8 +856,8 @@ const
   PadLangAsianStrings: array[TPadLangAsian] of string = (
     'Japanese',
     'Chinese',
-    'Chinese Simplified',
-    'Chinese Traditional',
+    'ChineseSimplified',
+    'ChineseTraditional',
     'Korean',
     'Arabic',
     'Hebrew',
