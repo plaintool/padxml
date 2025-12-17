@@ -73,6 +73,104 @@ object formPadXml: TformPadXml
         OnClick = menuFileExitClick
       end
     end
+    object menuView: TMenuItem
+      Caption = 'View'
+      object menuAffiliates: TMenuItem
+        AutoCheck = True
+        Caption = 'Affiliates'
+        OnClick = menuSectionClick
+      end
+      object menuAllmyapps: TMenuItem
+        AutoCheck = True
+        Caption = 'Allmyapps'
+        OnClick = menuSectionClick
+      end
+      object menuAppStore: TMenuItem
+        AutoCheck = True
+        Caption = 'AppStore'
+        OnClick = menuSectionClick
+      end
+      object menuArticleContents: TMenuItem
+        AutoCheck = True
+        Caption = 'ArticleContents'
+        OnClick = menuSectionClick
+      end
+      object menuASBMPlanner: TMenuItem
+        AutoCheck = True
+        Caption = 'ASBMPlanner'
+        OnClick = menuSectionClick
+      end
+      object menuDeuPAD: TMenuItem
+        AutoCheck = True
+        Caption = 'DeuPAD'
+        OnClick = menuSectionClick
+      end
+      object menuDynamicPAD: TMenuItem
+        AutoCheck = True
+        Caption = 'DynamicPAD'
+        OnClick = menuSectionClick
+      end
+      object menuMSN: TMenuItem
+        AutoCheck = True
+        Caption = 'MSN'
+        OnClick = menuSectionClick
+      end
+      object menuNewsFeed: TMenuItem
+        AutoCheck = True
+        Caption = 'NewsFeed'
+        OnClick = menuSectionClick
+      end
+      object menuOnlineShops: TMenuItem
+        AutoCheck = True
+        Caption = 'OnlineShops'
+        OnClick = menuSectionClick
+      end
+      object menuPADCertificationPromotion: TMenuItem
+        AutoCheck = True
+        Caption = 'PADCertificationPromotion'
+        OnClick = menuSectionClick
+      end
+      object menuPADmap: TMenuItem
+        AutoCheck = True
+        Caption = 'PADmap'
+        OnClick = menuSectionClick
+      end
+      object menuPADRING: TMenuItem
+        AutoCheck = True
+        Caption = 'PADRING'
+        OnClick = menuSectionClick
+      end
+      object menuPressRelease: TMenuItem
+        AutoCheck = True
+        Caption = 'PressRelease'
+        OnClick = menuSectionClick
+      end
+      object menuRoboSoft: TMenuItem
+        AutoCheck = True
+        Caption = 'RoboSoft'
+        OnClick = menuSectionClick
+      end
+      object menuSimtel: TMenuItem
+        AutoCheck = True
+        Caption = 'Simtel'
+        OnClick = menuSectionClick
+      end
+      object menuSite: TMenuItem
+        AutoCheck = True
+        Caption = 'Site'
+        OnClick = menuSectionClick
+      end
+      object menuTPA: TMenuItem
+        AutoCheck = True
+        Caption = 'TPA'
+        OnClick = menuSectionClick
+      end
+      object menuMisc: TMenuItem
+        AutoCheck = True
+        Caption = 'Misc'
+        OnClick = menuSectionClick
+      end
+    end
     object menuHelp: TMenuItem
       Caption = 'Help'
       object menuBuyMeACoffee: TMenuItem

@@ -44,6 +44,26 @@ type
     menuBuyMeACoffee: TMenuItem;
     menuCheckForUpdates: TMenuItem;
     menuAbout: TMenuItem;
+    menuDeuPAD: TMenuItem;
+    menuDynamicPAD: TMenuItem;
+    menuAffiliates: TMenuItem;
+    menuArticleContents: TMenuItem;
+    menuAllmyapps: TMenuItem;
+    menuASBMPlanner: TMenuItem;
+    menuAppStore: TMenuItem;
+    menuMisc: TMenuItem;
+    menuTPA: TMenuItem;
+    menuMSN: TMenuItem;
+    menuSimtel: TMenuItem;
+    menuPADRING: TMenuItem;
+    menuPressRelease: TMenuItem;
+    menuPADCertificationPromotion: TMenuItem;
+    menuOnlineShops: TMenuItem;
+    menuPADmap: TMenuItem;
+    menuSite: TMenuItem;
+    menuRoboSoft: TMenuItem;
+    menuNewsFeed: TMenuItem;
+    menuView: TMenuItem;
     propertyPad: TTIPropertyGrid;
     dialogSave: TSaveDialog;
     menuFileSeparator1: TMenuItem;
@@ -55,6 +75,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure menuAboutClick(Sender: TObject);
+    procedure menuSectionClick(Sender: TObject);
     procedure menuBuyMeACoffeeClick(Sender: TObject);
     procedure menuCheckForUpdatesClick(Sender: TObject);
     procedure menuFileExitClick(Sender: TObject);
@@ -636,26 +657,6 @@ begin
     Application.Title := Application.Title + '*';
 end;
 
-procedure TformPadXml.propertyPadEditorFilter(Sender: TObject; aEditor: TPropertyEditor; var aShow: boolean);
-begin
-  // hide Name
-  if SameText(aEditor.GetName, 'Name') then
-    aShow := False;
-
-  // hide Tag
-  if SameText(aEditor.GetName, 'Tag') then
-    aShow := False;
-end;
-
-procedure TformPadXml.propertyPadModified(Sender: TObject);
-begin
-  if not FChanged then
-  begin
-    FChanged := True;
-    UpdateCaption;
-  end;
-end;
-
 function TformPadXml.EndsWithLineBreak(const Buffer: TBytes): boolean;
 begin
   Result := False;
@@ -689,6 +690,109 @@ begin
   finally
     FS.Free;
   end;
+end;
+
+procedure TformPadXml.menuSectionClick(Sender: TObject);
+begin
+  propertyPad.TIObject := nil;
+  propertyPad.TIObject := PadFormat;
+end;
+
+procedure TformPadXml.propertyPadModified(Sender: TObject);
+begin
+  if not FChanged then
+  begin
+    FChanged := True;
+    UpdateCaption;
+  end;
+end;
+
+procedure TformPadXml.propertyPadEditorFilter(Sender: TObject; aEditor: TPropertyEditor; var aShow: boolean);
+begin
+  // hide Name
+  if SameText(aEditor.GetName, 'Name') then
+    aShow := False;
+
+  // hide Tag
+  if SameText(aEditor.GetName, 'Tag') then
+    aShow := False;
+
+  // Affiliates
+  if SameText(aEditor.GetName, 'Affiliates') then
+    aShow := menuAffiliates.Checked;
+
+  // Allmyapps
+  if SameText(aEditor.GetName, 'Allmyapps') then
+    aShow := menuAllmyapps.Checked;
+
+  // AppStore
+  if SameText(aEditor.GetName, 'AppStore') then
+    aShow := menuAppStore.Checked;
+
+  // ArticleContents
+  if SameText(aEditor.GetName, 'Article_Contents') then
+    aShow := menuArticleContents.Checked;
+
+  // ASBMPlanner
+  if SameText(aEditor.GetName, 'ASBMPlanner') then
+    aShow := menuASBMPlanner.Checked;
+
+  // DeuPAD
+  if SameText(aEditor.GetName, 'DeuPAD') then
+    aShow := menuDeuPAD.Checked;
+
+  // DynamicPAD
+  if SameText(aEditor.GetName, 'Dynamic_PAD') then
+    aShow := menuDynamicPAD.Checked;
+
+  // MSN
+  if SameText(aEditor.GetName, 'MSN') then
+    aShow := menuMSN.Checked;
+
+  // NewsFeed
+  if SameText(aEditor.GetName, 'NewsFeed') then
+    aShow := menuNewsFeed.Checked;
+
+  // OnlineShops
+  if SameText(aEditor.GetName, 'OnlineShops') then
+    aShow := menuOnlineShops.Checked;
+
+  // PADCertificationPromotion
+  if SameText(aEditor.GetName, 'PAD_Certification_Promotion') then
+    aShow := menuPADCertificationPromotion.Checked;
+
+  // PADmap
+  if SameText(aEditor.GetName, 'PADmap') then
+    aShow := menuPADmap.Checked;
+
+  // PADRING
+  if SameText(aEditor.GetName, 'PADRING') then
+    aShow := menuPADRING.Checked;
+
+  // PressRelease
+  if SameText(aEditor.GetName, 'PressRelease') then
+    aShow := menuPressRelease.Checked;
+
+  // RoboSoft
+  if SameText(aEditor.GetName, 'RoboSoft') then
+    aShow := menuRoboSoft.Checked;
+
+  // Simtel
+  if SameText(aEditor.GetName, 'Simtel') then
+    aShow := menuSimtel.Checked;
+
+  // Site
+  if SameText(aEditor.GetName, 'Site') then
+    aShow := menuSite.Checked;
+
+  // TPA
+  if SameText(aEditor.GetName, 'TPA') then
+    aShow := menuTPA.Checked;
+
+  // Misc
+  if SameText(aEditor.GetName, 'ASBMPlannerID1stRound') or SameText(aEditor.GetName, 'ASBMPlannerID2ndRound') or
+    SameText(aEditor.GetName, 'Issues') or SameText(aEditor.GetName, 'Download_Link_Points_To_Non_Binary_File') then
+    aShow := menuMisc.Checked;
 end;
 
 end.
