@@ -449,7 +449,8 @@ type
     plTatar,
     plTurkmen,
     plUzbek,
-    plWelsh
+    plWelsh,
+    plOther
     );
 
   // Additional world languages (32 items)
@@ -931,7 +932,8 @@ const
     'Tatar',
     'Turkmen',
     'Uzbek',
-    'Welsh'
+    'Welsh',
+    'Other'
     );
 
   PadLangWorldStrings: array[TPadLangWorld] of string = (
