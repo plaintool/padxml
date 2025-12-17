@@ -50,7 +50,7 @@ type
     menuArticleContents: TMenuItem;
     menuAllmyapps: TMenuItem;
     menuAppStore: TMenuItem;
-    menuMisc: TMenuItem;
+    menuIssues: TMenuItem;
     menuTPA: TMenuItem;
     menuMSN: TMenuItem;
     menuSimtel: TMenuItem;
@@ -421,6 +421,7 @@ begin
   menuSimtel.Checked := PadFormat.Simtel.Active;
   menuSite.Checked := PadFormat.Site.Active;
   menuTPA.Checked := PadFormat.TPA.Active;
+  menuIssues.Checked := (PadFormat.Issues <> '') or (PadFormat.ASBMPlannerID1stRound <> '') or (PadFormat.ASBMPlannerID2ndRound <> '');
 
   menuSectionClick(Self);
 end;
@@ -812,7 +813,7 @@ begin
   // Misc
   if SameText(aEditor.GetName, 'ASBMPlannerID1stRound') or SameText(aEditor.GetName, 'ASBMPlannerID2ndRound') or
     SameText(aEditor.GetName, 'Issues') or SameText(aEditor.GetName, 'Download_Link_Points_To_Non_Binary_File') then
-    aShow := menuMisc.Checked;
+    aShow := menuIssues.Checked;
 end;
 
 end.

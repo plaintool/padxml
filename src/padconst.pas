@@ -255,8 +255,7 @@ type
     pccWebDevelopment_XMLCSSTools
     );
 
-  // Operating Systems - split into logical groups based on original list
-  // Unix/Linux/Mac family (12 items)
+  // Unix/Linux/Mac family
   TPadOSUnixLinux = (
     posAndroid,
     posBlackBerry,
@@ -279,10 +278,17 @@ type
     posPalm,
     posPocketPC,
     posSymbian,
-    posUnix
+    posUnix,
+    posMacPPC,
+    posMacOS9,
+    posMacOSX101,
+    posMacOSX102,
+    posMacOSX103,
+    posMacOSX104,
+    posMacOSX105
     );
 
-  // Windows family (14 items)
+  // Windows family
   TPadOSWindows = (
     posWin2000,
     posWin7x32,
@@ -298,10 +304,13 @@ type
     posWinVista,
     posWinVistax64,
     posWinXP,
-    posWindows2003
+    posWindows2003,
+    posWindowsCE,
+    posWindowsMobile2003,
+    posWindowsMobile2005
     );
 
-  // Mobile and Embedded (12 items)
+  // Mobile and Embedded
   TPadOSOther = (
     posOther,
     posNotApplicable
@@ -757,7 +766,14 @@ const
     'Palm',
     'Pocket PC',
     'Symbian',
-    'Unix'
+    'Unix',
+    'Mac PPC',
+    'Mac OS 9',
+    'Mac OS X 10.1',
+    'Mac OS X 10.2',
+    'Mac OS X 10.3',
+    'Mac OS X 10.4',
+    'Mac OS X 10.5'
     );
 
   // String arrays for OS groups - based on original list from ProgramOs.txt
@@ -776,7 +792,10 @@ const
     'WinVista',
     'WinVista x64',
     'WinXP',
-    'Windows2003'
+    'Windows2003',
+    'Windows CE',
+    'Windows Mobile 2003',
+    'Windows Mobile 2005'
     );
 
   PadOSOtherStrings: array[TPadOSOther] of string = (
