@@ -24,7 +24,7 @@ uses
   PropEdits,
   ObjectInspector,
   RTTIGrids,
-  LCLType,
+  LCLType, StdCtrls, ExtCtrls, Buttons,
   padformat;
 
 type
@@ -32,6 +32,7 @@ type
   { TformPadXml }
 
   TformPadXml = class(TForm)
+    filter: TEdit;
     MainMenu: TMainMenu;
     menuFile: TMenuItem;
     menuFileOpen: TMenuItem;
@@ -63,10 +64,13 @@ type
     menuRoboSoft: TMenuItem;
     menuNewsFeed: TMenuItem;
     menuView: TMenuItem;
+    PanelFilter: TPanel;
     propertyPad: TTIPropertyGrid;
     dialogSave: TSaveDialog;
     menuFileSeparator1: TMenuItem;
+    ButtonFilterClear: TSpeedButton;
     StatusBar: TStatusBar;
+    procedure filterChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
@@ -87,12 +91,17 @@ type
     function EndsWithLineBreak(const Buffer: TBytes): boolean;
     function EndsWithLineBreak(const FileName: string): boolean;
     function LoadFileAsBytes(const FileName: string): TBytes;
+    procedure ButtonFilterClearClick(Sender: TObject);
   private
     PadFormat: TPadFormat;
     FFileName: string;
     FChanged: boolean;
     FInitialized: boolean;
     FCommandLineFile: string;
+    FFound: boolean;
+    FFilterText: string;
+    procedure EnumChildEditor(AEditor: TPropertyEditor);
+    function EditorHasVisibleChild(AEditor: TPropertyEditor; const AFilter: string): boolean;
     function SaveFile(AFileName: string): boolean;
     function LoadFromFile(AFileName: string): boolean;
     procedure SetView;
@@ -732,6 +741,51 @@ begin
   end;
 end;
 
+procedure TformPadXml.ButtonFilterClearClick(Sender: TObject);
+begin
+  filter.Text := string.Empty;
+  filterChange(Self);
+end;
+
+procedure TformPadXml.filterChange(Sender: TObject);
+begin
+  propertyPad.TIObject := nil;
+  propertyPad.TIObject := PadFormat;
+end;
+
+function TformPadXml.EditorHasVisibleChild(AEditor: TPropertyEditor; const AFilter: string): boolean;
+begin
+  Result := False;
+
+  if not (paSubProperties in AEditor.GetAttributes) then
+    Exit;
+
+  FFound := False;
+  FFilterText := AFilter;
+
+  AEditor.GetProperties(@EnumChildEditor);
+
+  Result := FFound;
+end;
+
+procedure TformPadXml.EnumChildEditor(AEditor: TPropertyEditor);
+begin
+  if FFound then
+    Exit;
+
+  // match by value
+  if (Pos(FFilterText, LowerCase(AEditor.GetValue)) > 0) or (Pos(FFilterText, LowerCase(AEditor.GetName)) > 0) then
+  begin
+    FFound := True;
+    Exit;
+  end;
+
+  // go deeper
+  if paSubProperties in AEditor.GetAttributes then
+    if EditorHasVisibleChild(AEditor, FFilterText) then
+      FFound := True;
+end;
+
 procedure TformPadXml.propertyPadEditorFilter(Sender: TObject; aEditor: TPropertyEditor; var aShow: boolean);
 begin
   // hide Name
@@ -814,6 +868,14 @@ begin
   if SameText(aEditor.GetName, 'ASBMPlannerID1stRound') or SameText(aEditor.GetName, 'ASBMPlannerID2ndRound') or
     SameText(aEditor.GetName, 'Issues') or SameText(aEditor.GetName, 'Download_Link_Points_To_Non_Binary_File') then
     aShow := menuIssues.Checked;
+
+  // Filter with hierarchy support
+  if (LowerCase(filter.Text) <> '') and (aShow) then
+  begin
+    aShow :=
+      (Pos(LowerCase(filter.Text), LowerCase(aEditor.GetValue)) > 0) or (Pos(LowerCase(filter.Text),
+      LowerCase(aEditor.GetName)) > 0) or EditorHasVisibleChild(aEditor, LowerCase(filter.Text));
+  end;
 end;
 
 end.

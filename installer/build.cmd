@@ -66,6 +66,10 @@ IF %ERRORLEVEL% EQU 0 (
 )
 
 :: --- Portable ---
-tar -czf padxml-%VERSION%.tar.gz -C .. padxml.exe padxml32.exe -C "%CD%\debsetup\DATA\usr\bin" padxml
+powershell -Command ^
+"Compress-Archive ^
+ -Force ^
+ -Path ..\padxml.exe,..\padxml32.exe, .\form_settings.json ^
+ -DestinationPath padxml-%VERSION%-x86-x64-portable.zip"
 
 echo Build and signing completed successfully!

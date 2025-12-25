@@ -29,11 +29,32 @@ implementation
 uses systemtool;
 
 function GetSettingsDirectory(fileName: string = ''): string;
+  {$IFDEF Windows}
+var
+  baseDir: string;
+  exeDir: string;
+  {$ENDIF}
 begin
   {$IFDEF Windows}
-  Result := IncludeTrailingPathDelimiter(GetEnvironmentVariable('LOCALAPPDATA')) + 'padxml\'+fileName;
+  // Get directory where exe is located
+  exeDir := ExtractFilePath(ParamStr(0));
+
+  // Portable mode: settings file exists near exe
+  if FileExists(exeDir + 'form_settings.json') then
+  begin
+    Result := IncludeTrailingPathDelimiter(exeDir) + fileName;
+    Exit;
+  end;
+
+  // Default mode: use LOCALAPPDATA or APPDATA
+  baseDir := GetEnvironmentVariable('LOCALAPPDATA');
+  if baseDir = '' then
+    baseDir := GetEnvironmentVariable('APPDATA');
+
+  Result := IncludeTrailingPathDelimiter(baseDir) + 'notetask\' + fileName;
   {$ELSE}
-  Result := IncludeTrailingPathDelimiter(GetUserDir) + '.config/padxml/' + filename;
+  // Unix-like systems: use ~/.config/notetask
+  Result := IncludeTrailingPathDelimiter(GetUserDir) + '.config/notetask/' + fileName;
   {$ENDIF}
 end;
 
@@ -101,26 +122,26 @@ begin
       JSONObj := JSONData as TJSONObject;
 
       // Check and load form's position and size
-        if JSONObj.FindPath('Left') <> nil then
-          Form.Left := JSONObj.FindPath('Left').AsInteger;
+      if JSONObj.FindPath('Left') <> nil then
+        Form.Left := JSONObj.FindPath('Left').AsInteger;
 
-        if JSONObj.FindPath('Top') <> nil then
-          Form.Top := JSONObj.FindPath('Top').AsInteger;
+      if JSONObj.FindPath('Top') <> nil then
+        Form.Top := JSONObj.FindPath('Top').AsInteger;
 
-        if JSONObj.FindPath('Width') <> nil then
-          Form.Width := JSONObj.FindPath('Width').AsInteger;
+      if JSONObj.FindPath('Width') <> nil then
+        Form.Width := JSONObj.FindPath('Width').AsInteger;
 
-        if JSONObj.FindPath('Height') <> nil then
-          Form.Height := JSONObj.FindPath('Height').AsInteger;
+      if JSONObj.FindPath('Height') <> nil then
+        Form.Height := JSONObj.FindPath('Height').AsInteger;
 
-        if JSONObj.FindPath('WindowState') <> nil then
-          Form.WindowState := TWindowState(JSONObj.FindPath('WindowState').AsInteger);
+      if JSONObj.FindPath('WindowState') <> nil then
+        Form.WindowState := TWindowState(JSONObj.FindPath('WindowState').AsInteger);
 
-        if JSONObj.FindPath('SplitterX') <> nil then
-        begin
-          Form.propertyPad.SplitterX := JSONObj.FindPath('SplitterX').AsInteger;
-          Form.propertyPad.PreferredSplitterX := Form.propertyPad.SplitterX;
-        end;
+      if JSONObj.FindPath('SplitterX') <> nil then
+      begin
+        Form.propertyPad.SplitterX := JSONObj.FindPath('SplitterX').AsInteger;
+        Form.propertyPad.PreferredSplitterX := Form.propertyPad.SplitterX;
+      end;
 
       Result := True;
     finally

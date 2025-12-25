@@ -6,6 +6,7 @@ object formPadXml: TformPadXml
   Caption = 'formPadXml'
   ClientHeight = 457
   ClientWidth = 713
+  Color = clWindow
   KeyPreview = True
   Menu = MainMenu
   LCLVersion = '4.4.0.0'
@@ -17,8 +18,8 @@ object formPadXml: TformPadXml
   OnShow = FormShow
   object propertyPad: TTIPropertyGrid
     Left = 0
-    Height = 434
-    Top = 0
+    Height = 414
+    Top = 20
     Width = 713
     Align = alClient
     BackgroundColor = clWindow
@@ -39,6 +40,52 @@ object formPadXml: TformPadXml
     Top = 434
     Width = 713
     Panels = <>
+  end
+  object PanelFilter: TPanel
+    Left = 0
+    Height = 20
+    Top = 0
+    Width = 713
+    Align = alTop
+    AutoSize = True
+    BevelOuter = bvNone
+    ClientHeight = 20
+    ClientWidth = 713
+    TabOrder = 2
+    object filter: TEdit
+      Left = 5
+      Height = 20
+      Top = 0
+      Width = 690
+      Align = alClient
+      BorderSpacing.Left = 5
+      BorderStyle = bsNone
+      Constraints.MinHeight = 20
+      TabOrder = 0
+      TextHint = 'Type to filter...'
+      OnChange = filterChange
+    end
+    object ButtonFilterClear: TSpeedButton
+      Left = 695
+      Height = 20
+      Top = 0
+      Width = 18
+      Align = alRight
+      Flat = True
+      Glyph.Data = {
+        32010000424D3201000000000000360000002800000009000000090000000100
+        180000000000FC00000064000000640000000000000000000000FFFFFFC9C9C9
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC9C9C9FFFFFF00F1F1F15C5C5CADADADFF
+        FFFFFFFFFFFFFFFFADADAD5C5C5CF1F1F100FFFFFFF1F1F15C5C5CADADADFFFF
+        FFADADAD5C5C5CF1F1F1FFFFFF00FFFFFFFFFFFFF1F1F15C5C5CADADAD5C5C5C
+        F1F1F1FFFFFFFFFFFF00FFFFFFFFFFFFFFFFFFF1F1F15C5C5CF1F1F1FFFFFFFF
+        FFFFFFFFFF00FFFFFFFFFFFFF1F1F15C5C5CADADAD5C5C5CF1F1F1FFFFFFFFFF
+        FF00FFFFFFF1F1F15C5C5CADADADFFFFFFADADAD5C5C5CF1F1F1FFFFFF00F1F1
+        F15C5C5CADADADFFFFFFFFFFFFFFFFFFADADAD5C5C5CF1F1F100FFFFFFC9C9C9
+        FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC9C9C9FFFFFF00
+      }
+      OnClick = ButtonFilterClearClick
+    end
   end
   object MainMenu: TMainMenu
     Left = 72
