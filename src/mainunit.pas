@@ -866,15 +866,16 @@ begin
 
   // Misc
   if SameText(aEditor.GetName, 'ASBMPlannerID1stRound') or SameText(aEditor.GetName, 'ASBMPlannerID2ndRound') or
-    SameText(aEditor.GetName, 'Issues') or SameText(aEditor.GetName, 'Download_Link_Points_To_Non_Binary_File') then
+    SameText(aEditor.GetName, 'Issues') or SameText(aEditor.GetName, 'tSuccess') or SameText(aEditor.GetName, 'tProcessed') or
+    SameText(aEditor.GetName, 'Download_Link_Points_To_Non_Binary_File') then
     aShow := menuIssues.Checked;
 
   // Filter with hierarchy support
   if (LowerCase(filter.Text) <> '') and (aShow) then
   begin
     aShow :=
-      (Pos(LowerCase(filter.Text), LowerCase(aEditor.GetValue)) > 0) or (Pos(LowerCase(filter.Text),
-      LowerCase(aEditor.GetName)) > 0) or EditorHasVisibleChild(aEditor, LowerCase(filter.Text));
+      (Pos(LowerCase(filter.Text), LowerCase(aEditor.GetValue)) > 0) or
+      (Pos(LowerCase(filter.Text), LowerCase(aEditor.GetName)) > 0) or EditorHasVisibleChild(aEditor, LowerCase(filter.Text));
   end;
 end;
 

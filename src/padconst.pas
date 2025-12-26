@@ -307,7 +307,12 @@ type
     posWindows2003,
     posWindowsCE,
     posWindowsMobile2003,
-    posWindowsMobile2005
+    posWindowsMobile2005,
+    posWin8,
+    posWin81,
+    posWin10,
+    posWin11,
+    posWin12
     );
 
   // Mobile and Embedded
@@ -796,8 +801,12 @@ const
     'Windows2003',
     'Windows CE',
     'Windows Mobile 2003',
-    'Windows Mobile 2005'
-    );
+    'Windows Mobile 2005',
+    'Win8',
+    'Win8.1',
+    'Win10',
+    'Win11',
+    'Win12');
 
   PadOSOtherStrings: array[TPadOSOther] of string = (
     'Other',

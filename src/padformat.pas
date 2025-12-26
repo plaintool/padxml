@@ -1107,6 +1107,8 @@ type
     FAppStore: TPadAppStore;
     FASBMPlannerID1stRound: string;
     FIssues: string;
+    FtSuccess: string;
+    FtProcessed: string;
     FASBMPlannerID2ndRound: string;
     FDownload_Link_Points_To_Non_Binary_File: boolean;
     FAllmyapps: TPadAllmyapps;
@@ -1162,6 +1164,8 @@ type
     property AppStore: TPadAppStore read FAppStore write FAppStore;
     property ASBMPlannerID1stRound: string read FASBMPlannerID1stRound write FASBMPlannerID1stRound;
     property Issues: string read FIssues write FIssues;
+    property tSuccess: string read FtSuccess write FtSuccess;
+    property tProcessed: string read FtProcessed write FtProcessed;
     property ASBMPlannerID2ndRound: string read FASBMPlannerID2ndRound write FASBMPlannerID2ndRound;
     property Download_Link_Points_To_Non_Binary_File: boolean read FDownload_Link_Points_To_Non_Binary_File
       write FDownload_Link_Points_To_Non_Binary_File;
@@ -2301,13 +2305,13 @@ begin
         FNewsFeed.NewsFeed_FORM := UpperCase(GetNodeValue(Node, 'NewsFeed_FORM')) <> 'N';
         FNewsFeed.NewsFeed_VERSION := GetNodeValue(Node, 'NewsFeed_VERSION');
         FNewsFeed.NewsFeed_URL := GetNodeValue(Node, 'NewsFeed_URL');
+        FNewsFeed.NewsFeed_DESCRIPTION := GetNodeValue(Node, 'NewsFeed_DESCRIPTION');
         FNewsFeed.NewsFeed_TypeAsString := GetNodeValue(Node, 'NewsFeed_Type');
         FNewsFeed.NewsFeed_Language := GetNodeValue(Node, 'NewsFeed_Language');
         FNewsFeed.NewsFeed_Purpose := GetNodeValue(Node, 'NewsFeed_Purpose');
         FNewsFeed.NewsFeed_Author_Email := GetNodeValue(Node, 'NewsFeed_Author_Email');
         FNewsFeed.NewsFeed_Author_First_Name := GetNodeValue(Node, 'NewsFeed_Author_First_Name');
         FNewsFeed.NewsFeed_Author_Last_Name := GetNodeValue(Node, 'NewsFeed_Author_Last_Name');
-        FNewsFeed.NewsFeed_DESCRIPTION := GetNodeValue(Node, 'NewsFeed_DESCRIPTION');
         FNewsFeed.NewsFeed_Feed_URL := GetNodeValue(Node, 'NewsFeed_Feed_URL');
         FNewsFeed.NewsFeed_Site_Name := GetNodeValue(Node, 'NewsFeed_Site_Name');
         FNewsFeed.NewsFeed_Site_URL := GetNodeValue(Node, 'NewsFeed_Site_URL');
@@ -2895,6 +2899,8 @@ begin
 
       // Load ASBMPlanner fields (root level)
       FIssues := GetNodeValue(RootNode, 'Issues');
+      FtSuccess := GetNodeValue(RootNode, 'tSuccess');
+      FtProcessed := GetNodeValue(RootNode, 'tProcessed');
       FASBMPlannerID1stRound := GetNodeValue(RootNode, 'ASBMPlannerID1stRound');
       FASBMPlannerID2ndRound := GetNodeValue(RootNode, 'ASBMPlannerID2ndRound');
 
@@ -2992,13 +2998,13 @@ begin
       SetNodeText(Doc, Node, 'Company_Description', FRoboSoft.Company_Description);
       SetNodeText(Doc, Node, 'Product_UIN', FRoboSoft.Product_UIN);
       SetNodeText(Doc, Node, 'Search_String', FRoboSoft.Search_String);
+      SetNodeText(Doc, Node, 'Search_String_Unique', FRoboSoft.Search_String_Unique);
+      SetNodeText(Doc, Node, 'Publish_on_CD', BoolToStr(FRoboSoft.Publish_on_CD, 'TRUE', 'FALSE'));
+      SetNodeText(Doc, Node, 'RSProductType', FRoboSoft.RSProductType);
       SetNodeText(Doc, Node, 'Press_Release_Search_String', FRoboSoft.Press_Release_Search_String);
       SetNodeText(Doc, Node, 'NewsFeed_Search_String', FRoboSoft.NewsFeed_Search_String);
       SetNodeText(Doc, Node, 'Search_Engine_Search_String', FRoboSoft.Search_Engine_Search_String);
       SetNodeText(Doc, Node, 'Web_Directories_Search_String', FRoboSoft.Web_Directories_Search_String);
-      SetNodeText(Doc, Node, 'Search_String_Unique', FRoboSoft.Search_String_Unique);
-      SetNodeText(Doc, Node, 'Publish_on_CD', BoolToStr(FRoboSoft.Publish_on_CD, 'TRUE', 'FALSE'));
-      SetNodeText(Doc, Node, 'RSProductType', FRoboSoft.RSProductType);
       SetNodeText(Doc, Node, 'Comments_For_Reviewer', FRoboSoft.Comments_For_Reviewer);
       SetNodeText(Doc, Node, 'Backlink', FRoboSoft.Backlink);
     end;
@@ -3068,18 +3074,19 @@ begin
       SetNodeText(Doc, Node, 'NewsFeed_FORM', BoolToStr(FNewsFeed.NewsFeed_FORM, 'Y', 'N'));
       SetNodeText(Doc, Node, 'NewsFeed_VERSION', FNewsFeed.NewsFeed_VERSION);
       SetNodeText(Doc, Node, 'NewsFeed_URL', FNewsFeed.NewsFeed_URL);
+      SetNodeText(Doc, Node, 'NewsFeed_DESCRIPTION', FNewsFeed.NewsFeed_DESCRIPTION);
       SetNodeText(Doc, Node, 'NewsFeed_Type', FNewsFeed.NewsFeed_TypeAsString);
       SetNodeText(Doc, Node, 'NewsFeed_Language', FNewsFeed.NewsFeed_Language);
       SetNodeText(Doc, Node, 'NewsFeed_Purpose', FNewsFeed.NewsFeed_Purpose);
       SetNodeText(Doc, Node, 'NewsFeed_Author_Email', FNewsFeed.NewsFeed_Author_Email);
       SetNodeText(Doc, Node, 'NewsFeed_Author_First_Name', FNewsFeed.NewsFeed_Author_First_Name);
       SetNodeText(Doc, Node, 'NewsFeed_Author_Last_Name', FNewsFeed.NewsFeed_Author_Last_Name);
-      SetNodeText(Doc, Node, 'NewsFeed_DESCRIPTION', FNewsFeed.NewsFeed_DESCRIPTION);
       SetNodeText(Doc, Node, 'NewsFeed_Feed_URL', FNewsFeed.NewsFeed_Feed_URL);
       SetNodeText(Doc, Node, 'NewsFeed_Site_Name', FNewsFeed.NewsFeed_Site_Name);
       SetNodeText(Doc, Node, 'NewsFeed_Site_URL', FNewsFeed.NewsFeed_Site_URL);
       SetNodeText(Doc, Node, 'NewsFeed_Title', FNewsFeed.NewsFeed_Title);
-      SetNodeText(Doc, Node, 'NewsFeed_Keywords', FNewsFeed.NewsFeed_Keywords);
+      if (FNewsFeed.NewsFeed_Keywords <> '') then
+        SetNodeText(Doc, Node, 'NewsFeed_Keywords', FNewsFeed.NewsFeed_Keywords);
       SetNodeText(Doc, Node, 'NewsFeed_Description_70', FNewsFeed.NewsFeed_Description_70);
       SetNodeText(Doc, Node, 'NewsFeed_Description_250', FNewsFeed.NewsFeed_Description_250);
     end;
@@ -3771,6 +3778,10 @@ begin
     // Save ASBMPlanner fields (root level)
     if FIssues <> '' then
       SetNodeText(Doc, RootNode, 'Issues', FIssues);
+    if FtSuccess <> '' then
+      SetNodeText(Doc, RootNode, 'tSuccess', FtSuccess);
+    if FtProcessed <> '' then
+      SetNodeText(Doc, RootNode, 'tProcessed', FtProcessed);
     if FASBMPlannerID1stRound <> '' then
       SetNodeText(Doc, RootNode, 'ASBMPlannerID1stRound', FASBMPlannerID1stRound);
     if FASBMPlannerID2ndRound <> '' then
@@ -4328,6 +4339,8 @@ begin
 
   // Clear ASBMPlanner fields
   FIssues := '';
+  FtSuccess := '';
+  FtProcessed := '';
   FASBMPlannerID1stRound := '';
   FASBMPlannerID2ndRound := '';
   FDownload_Link_Points_To_Non_Binary_File := False;

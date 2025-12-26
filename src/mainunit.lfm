@@ -51,6 +51,7 @@ object formPadXml: TformPadXml
     BevelOuter = bvNone
     ClientHeight = 20
     ClientWidth = 713
+    ParentBackground = False
     TabOrder = 2
     object filter: TEdit
       Left = 5
