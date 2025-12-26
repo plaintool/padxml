@@ -1089,6 +1089,7 @@ type
   TPadFormat = class(TComponent)
   private
     FXmlConfig: TPadXmlCofig;
+    FXmlTagOrder: TStringList;
     FMasterPadVersionInfo: TPadMasterVersionInfo;
     FRoboSoft: TPadRoboSoft;
     FCompanyInfo: TPadCompanyInfo;
@@ -1132,6 +1133,38 @@ type
     function ConvertEmptyTags(const XMLString: string; EmptyTagType: TPadEmptyTagType): string;
     function SetXMLDeclaration(XMLString: string; XMLVersion: string; Encoding: TPadEncoding): string;
     function RemoveXMLDeclaration(const XMLString: string): string;
+
+    // Methods for saving individual sections
+    procedure SaveSection_MasterPadVersionInfo(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_RoboSoft(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_CompanyInfo(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_NewsFeed(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_Site(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_PADmap(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_DownloadLinkPointsToNonBinaryFile(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_OnlineShops(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_DeuPAD(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_PADCertificationPromotion(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_DynamicPAD(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_ProgramInfo(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_ProgramDescriptions(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_WebInfo(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_Permissions(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_PressRelease(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_Affiliates(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_ASP(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_TPA(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_AppStore(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_Issues(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_tSuccess(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_tProcessed(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_ASBMPlannerID1stRound(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_ASBMPlannerID2ndRound(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_Allmyapps(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_PADRING(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_Simtel(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_ArticleContents(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_MSN(Doc: TXMLDocument; RootNode: TDOMNode);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -1141,6 +1174,9 @@ type
 
     // Method to save properties to XML
     function SaveToXML: string;
+
+    // Helper method for saving sections in order
+    procedure SaveSectionsInOrder(Doc: TXMLDocument; RootNode: TDOMNode);
 
     // Method to clear all properties
     procedure Clear;
@@ -2105,6 +2141,7 @@ constructor TPadFormat.Create(AOwner: TComponent);
 begin
   inherited Create(AOwner);
   FXmlConfig := TPadXmlCofig.Create;
+  FXmlTagOrder := TStringList.Create;
   FMasterPadVersionInfo := TPadMasterVersionInfo.Create;
   FRoboSoft := TPadRoboSoft.Create;
   FCompanyInfo := TPadCompanyInfo.Create;
@@ -2134,6 +2171,7 @@ end;
 destructor TPadFormat.Destroy;
 begin
   FXmlConfig.Free;
+  FXmlTagOrder.Free;
   FMasterPadVersionInfo.Free;
   FRoboSoft.Free;
   FCompanyInfo.Free;
@@ -2928,6 +2966,15 @@ begin
         FAppStore.AppStore_Awards_And_Ratings := GetNodeValue(Node, 'AppStore_Awards_And_Ratings');
       end;
 
+      FXmlTagOrder.Clear;
+      Node := RootNode.FirstChild;
+      while Assigned(Node) do
+      begin
+        if Node.NodeType = ELEMENT_NODE then
+          FXmlTagOrder.Add(UTF8Encode(Node.NodeName));
+        Node := Node.NextSibling;
+      end;
+
       FProgramDescriptions.Language1.SyncStringsToStrings;
       FProgramDescriptions.Language2.SyncStringsToStrings;
       FProgramDescriptions.Language3.SyncStringsToStrings;
@@ -2953,7 +3000,7 @@ end;
 function TPadFormat.SaveToXML: string;
 var
   Doc: TXMLDocument;
-  RootNode, Node, SubNode: TDOMNode;
+  RootNode: TDOMNode;
   Stream: TStringStream;
   XMLContent: string;
 begin
@@ -2978,840 +3025,8 @@ begin
     RootNode := Doc.CreateElement('XML_DIZ_INFO');
     Doc.AppendChild(RootNode);
 
-    // Master Pad Version Info
-    Node := AddChildNode(RootNode, 'MASTER_PAD_VERSION_INFO');
-    SetNodeText(Doc, Node, 'MASTER_PAD_VERSION',
-      FMasterPadVersionInfo.MasterPadVersion);
-    SetNodeText(Doc, Node, 'MASTER_PAD_EDITOR',
-      FMasterPadVersionInfo.MasterPadEditor);
-    if Length(FMasterPadVersionInfo.MasterPadEditorUrl) > 0 then
-      SetNodeText(Doc, Node, 'MASTER_PAD_EDITOR_URL',
-        FMasterPadVersionInfo.MasterPadEditorUrl);
-    SetNodeText(Doc, Node, 'MASTER_PAD_INFO',
-      FMasterPadVersionInfo.MasterPadInfo);
-
-    // RoboSoft section
-    if (FRoboSoft.FActive) then
-    begin
-      Node := AddChildNode(RootNode, 'RoboSoft');
-      SetNodeText(Doc, Node, 'Company_UIN', FRoboSoft.Company_UIN);
-      SetNodeText(Doc, Node, 'Company_Description', FRoboSoft.Company_Description);
-      SetNodeText(Doc, Node, 'Product_UIN', FRoboSoft.Product_UIN);
-      SetNodeText(Doc, Node, 'Search_String', FRoboSoft.Search_String);
-      SetNodeText(Doc, Node, 'Search_String_Unique', FRoboSoft.Search_String_Unique);
-      SetNodeText(Doc, Node, 'Publish_on_CD', BoolToStr(FRoboSoft.Publish_on_CD, 'TRUE', 'FALSE'));
-      SetNodeText(Doc, Node, 'RSProductType', FRoboSoft.RSProductType);
-      SetNodeText(Doc, Node, 'Press_Release_Search_String', FRoboSoft.Press_Release_Search_String);
-      SetNodeText(Doc, Node, 'NewsFeed_Search_String', FRoboSoft.NewsFeed_Search_String);
-      SetNodeText(Doc, Node, 'Search_Engine_Search_String', FRoboSoft.Search_Engine_Search_String);
-      SetNodeText(Doc, Node, 'Web_Directories_Search_String', FRoboSoft.Web_Directories_Search_String);
-      SetNodeText(Doc, Node, 'Comments_For_Reviewer', FRoboSoft.Comments_For_Reviewer);
-      SetNodeText(Doc, Node, 'Backlink', FRoboSoft.Backlink);
-    end;
-
-    // Company Info
-    Node := AddChildNode(RootNode, 'Company_Info');
-    SetNodeText(Doc, Node, 'Company_Name', FCompanyInfo.CompanyName);
-    SetNodeText(Doc, Node, 'Address_1', FCompanyInfo.Address1);
-    SetNodeText(Doc, Node, 'Address_2', FCompanyInfo.Address2);
-    SetNodeText(Doc, Node, 'City_Town', FCompanyInfo.CityTown);
-    SetNodeText(Doc, Node, 'State_Province', FCompanyInfo.StateProvince);
-    SetNodeText(Doc, Node, 'Zip_Postal_Code', FCompanyInfo.ZipPostalCode);
-    SetNodeText(Doc, Node, 'Country', FCompanyInfo.Country);
-    SetNodeText(Doc, Node, 'Company_WebSite_URL', FCompanyInfo.CompanyWebsiteURL);
-
-    // Contact Info
-    SubNode := AddChildNode(Node, 'Contact_Info');
-    SetNodeText(Doc, SubNode, 'Author_First_Name',
-      FCompanyInfo.ContactInfo.AuthorFirstName);
-    SetNodeText(Doc, SubNode, 'Author_Last_Name',
-      FCompanyInfo.ContactInfo.AuthorLastName);
-    SetNodeText(Doc, SubNode, 'Author_Email',
-      FCompanyInfo.ContactInfo.AuthorEmail);
-    SetNodeText(Doc, SubNode, 'Contact_First_Name',
-      FCompanyInfo.ContactInfo.ContactFirstName);
-    SetNodeText(Doc, SubNode, 'Contact_Last_Name',
-      FCompanyInfo.ContactInfo.ContactLastName);
-    SetNodeText(Doc, SubNode, 'Contact_Email',
-      FCompanyInfo.ContactInfo.ContactEmail);
-    if FCompanyInfo.ContactInfo.FContactPhoneExists then
-      SetNodeText(Doc, SubNode, 'Contact_Phone',
-        FCompanyInfo.ContactInfo.ContactPhone);
-
-    // Support Info
-    SubNode := AddChildNode(Node, 'Support_Info');
-    SetNodeText(Doc, SubNode, 'Sales_Email',
-      FCompanyInfo.SupportInfo.SalesEmail);
-    SetNodeText(Doc, SubNode, 'Support_Email',
-      FCompanyInfo.SupportInfo.SupportEmail);
-    SetNodeText(Doc, SubNode, 'General_Email',
-      FCompanyInfo.SupportInfo.GeneralEmail);
-    SetNodeText(Doc, SubNode, 'Sales_Phone',
-      FCompanyInfo.SupportInfo.SalesPhone);
-    SetNodeText(Doc, SubNode, 'Support_Phone',
-      FCompanyInfo.SupportInfo.SupportPhone);
-    SetNodeText(Doc, SubNode, 'General_Phone',
-      FCompanyInfo.SupportInfo.GeneralPhone);
-    SetNodeText(Doc, SubNode, 'Fax_Phone',
-      FCompanyInfo.SupportInfo.FaxPhone);
-
-    // Social media pages
-    if FCompanyInfo.FGooglePlusPageExists then
-      SetNodeText(Doc, Node, 'GooglePlusPage', FCompanyInfo.GooglePlusPage);
-    if FCompanyInfo.FLinkedinPageExists then
-      SetNodeText(Doc, Node, 'LinkedinPage', FCompanyInfo.LinkedinPage);
-    if FCompanyInfo.FTwitterCompanyPageExists then
-      SetNodeText(Doc, Node, 'TwitterCompanyPage', FCompanyInfo.TwitterCompanyPage);
-    if FCompanyInfo.FFacebookCompanyPageExists then
-      SetNodeText(Doc, Node, 'FacebookCompanyPage', FCompanyInfo.FacebookCompanyPage);
-    if FCompanyInfo.FCompanyStorePageExists then
-      SetNodeText(Doc, Node, 'CompanyStorePage', FCompanyInfo.CompanyStorePage);
-
-    // Save News Feed (updated with new fields)
-    if FNewsFeed.FActive then
-    begin
-      Node := AddChildNode(RootNode, 'NewsFeed');
-      SetNodeText(Doc, Node, 'NewsFeed_FORM', BoolToStr(FNewsFeed.NewsFeed_FORM, 'Y', 'N'));
-      SetNodeText(Doc, Node, 'NewsFeed_VERSION', FNewsFeed.NewsFeed_VERSION);
-      SetNodeText(Doc, Node, 'NewsFeed_URL', FNewsFeed.NewsFeed_URL);
-      SetNodeText(Doc, Node, 'NewsFeed_DESCRIPTION', FNewsFeed.NewsFeed_DESCRIPTION);
-      SetNodeText(Doc, Node, 'NewsFeed_Type', FNewsFeed.NewsFeed_TypeAsString);
-      SetNodeText(Doc, Node, 'NewsFeed_Language', FNewsFeed.NewsFeed_Language);
-      SetNodeText(Doc, Node, 'NewsFeed_Purpose', FNewsFeed.NewsFeed_Purpose);
-      SetNodeText(Doc, Node, 'NewsFeed_Author_Email', FNewsFeed.NewsFeed_Author_Email);
-      SetNodeText(Doc, Node, 'NewsFeed_Author_First_Name', FNewsFeed.NewsFeed_Author_First_Name);
-      SetNodeText(Doc, Node, 'NewsFeed_Author_Last_Name', FNewsFeed.NewsFeed_Author_Last_Name);
-      SetNodeText(Doc, Node, 'NewsFeed_Feed_URL', FNewsFeed.NewsFeed_Feed_URL);
-      SetNodeText(Doc, Node, 'NewsFeed_Site_Name', FNewsFeed.NewsFeed_Site_Name);
-      SetNodeText(Doc, Node, 'NewsFeed_Site_URL', FNewsFeed.NewsFeed_Site_URL);
-      SetNodeText(Doc, Node, 'NewsFeed_Title', FNewsFeed.NewsFeed_Title);
-      if (FNewsFeed.NewsFeed_Keywords <> '') then
-        SetNodeText(Doc, Node, 'NewsFeed_Keywords', FNewsFeed.NewsFeed_Keywords);
-      SetNodeText(Doc, Node, 'NewsFeed_Description_70', FNewsFeed.NewsFeed_Description_70);
-      SetNodeText(Doc, Node, 'NewsFeed_Description_250', FNewsFeed.NewsFeed_Description_250);
-    end;
-
-    // Save Site section
-    if FSite.FActive then
-    begin
-      Node := AddChildNode(RootNode, 'Site');
-      SetNodeText(Doc, Node, 'Site_FORM', BoolToStr(FSite.Site_FORM, 'Y', 'N'));
-      SetNodeText(Doc, Node, 'Site_VERSION', FSite.Site_VERSION);
-      SetNodeText(Doc, Node, 'Site_URL', FSite.Site_URL);
-      SetNodeText(Doc, Node, 'Site_DESCRIPTION', FSite.Site_DESCRIPTION);
-      SetNodeText(Doc, Node, 'Site_Site_Title', FSite.Site_Site_Title);
-      SetNodeText(Doc, Node, 'Site_Site_URL', FSite.Site_Site_URL);
-      SetNodeText(Doc, Node, 'Site_Keywords', FSite.Site_Keywords);
-      SetNodeText(Doc, Node, 'Site_Description_100', FSite.Site_Description_100);
-      SetNodeText(Doc, Node, 'Site_Description_250', FSite.Site_Description_250);
-      SetNodeText(Doc, Node, 'Site_Description_450', FSite.Site_Description_450);
-      SetNodeText(Doc, Node, 'Site_Contact_First_Name', FSite.Site_Contact_First_Name);
-      SetNodeText(Doc, Node, 'Site_Contact_Last_Name', FSite.Site_Contact_Last_Name);
-      SetNodeText(Doc, Node, 'Site_Contact_Email', FSite.Site_Contact_Email);
-    end;
-
-    // Save PADmap
-    if FPADmap.FActive then
-    begin
-      Node := AddChildNode(RootNode, 'PADmap');
-      SetNodeText(Doc, Node, 'PADmap_FORM', BoolToStr(FPADmap.PADmap_FORM, 'Y', 'N'));
-      SetNodeText(Doc, Node, 'PADmap_URL', FPADmap.PADmap_URL);
-      SetNodeText(Doc, Node, 'PADmap_VERSION', FPADmap.PADmap_VERSION);
-      SetNodeText(Doc, Node, 'PADmap_SCOPE', FPADmap.PADmap_SCOPE);
-      SetNodeText(Doc, Node, 'PADmap_DESCRIPTION', FPADmap.PADmap_DESCRIPTION);
-      SetNodeText(Doc, Node, 'PADmap_Location', FPADmap.PADmap_Location);
-    end;
-
-    // Save Download_Link_Points_To_Non_Binary_File (root level)
-    if FDownload_Link_Points_To_Non_Binary_File then
-      SetNodeText(Doc, RootNode, 'Download_Link_Points_To_Non_Binary_File', 'TRUE');
-
-    // Save OnlineShops
-    if FOnlineShops.FActive then
-    begin
-      Node := AddChildNode(RootNode, 'OnlineShops');
-      SetNodeText(Doc, Node, 'OnlineShops_FORM', BoolToStr(FOnlineShops.OnlineShops_FORM, 'Y', 'N'));
-      if (FOnlineShops.OnlineShops_VERSION <> '') then
-        SetNodeText(Doc, Node, 'OnlineShops_VERSION', FOnlineShops.OnlineShops_VERSION);
-      if (FOnlineShops.OnlineShops_URL <> '') then
-        SetNodeText(Doc, Node, 'OnlineShops_URL', FOnlineShops.OnlineShops_URL);
-      if (FOnlineShops.OnlineShops_DESCRIPTION <> '') then
-        SetNodeText(Doc, Node, 'OnlineShops_DESCRIPTION', FOnlineShops.OnlineShops_DESCRIPTION);
-      SetNodeText(Doc, Node, 'OnlineShops_PalmGear', IfThen(FOnlineShops.OnlineShops_PalmGear, 'on', 'off'));
-      SetNodeText(Doc, Node, 'OnlineShops_PocketLand', IfThen(FOnlineShops.OnlineShops_PocketLand, 'on', 'off'));
-      SetNodeText(Doc, Node, 'OnlineShops_PDAssi', IfThen(FOnlineShops.OnlineShops_PDAssi, 'on', 'off'));
-      SetNodeText(Doc, Node, 'OnlineShops_PDATopSoft', IfThen(FOnlineShops.OnlineShops_PDATopSoft, 'on', 'off'));
-      SetNodeText(Doc, Node, 'OnlineShops_PocketGear', IfThen(FOnlineShops.OnlineShops_PocketGear, 'on', 'off'));
-      SetNodeText(Doc, Node, 'OnlineShops_Softahead', IfThen(FOnlineShops.OnlineShops_Softahead, 'on', 'off'));
-      SetNodeText(Doc, Node, 'OnlineShops_Softonic', IfThen(FOnlineShops.OnlineShops_Softonic, 'on', 'off'));
-      SetNodeText(Doc, Node, 'OnlineShops_Winowin', IfThen(FOnlineShops.OnlineShops_Winowin, 'on', 'off'));
-      SetNodeText(Doc, Node, 'OnlineShops_SoftSearch', IfThen(FOnlineShops.OnlineShops_SoftSearch, 'on', 'off'));
-      SetNodeText(Doc, Node, 'OnlineShops_Handango_Agreement', IfThen(FOnlineShops.OnlineShops_Handango_Agreement, 'on', 'off'));
-      SetNodeText(Doc, Node, 'OnlineShops_Handango', IfThen(FOnlineShops.OnlineShops_Handango, 'on', 'off'));
-    end;
-
-    // Save DeuPAD
-    if FDeuPAD.FActive then
-    begin
-      Node := AddChildNode(RootNode, 'DeuPAD');
-      SetNodeText(Doc, Node, 'DeuPAD_Extension_Version', FDeuPAD.DeuPAD_Extension_Version);
-      SetNodeText(Doc, Node, 'DeuPAD_Extension_Info', FDeuPAD.DeuPAD_Extension_Info);
-      SetNodeText(Doc, Node, 'SAVE_Member', BoolToStr(FDeuPAD.SAVE_Member, 'Y', 'N'));
-      SetNodeText(Doc, Node, 'SAVE_Member_Number', FDeuPAD.SAVE_Member_Number);
-      SetNodeText(Doc, Node, 'Program_Cost_EUR', FDeuPAD.Program_Cost_EUR);
-    end;
-
-    // Save PAD Certification Promotion
-    if (FPAD_Certification_Promotion.FActive) then
-    begin
-      Node := AddChildNode(RootNode, 'PAD_Certification_Promotion');
-      SetNodeText(Doc, Node, 'Apply_For_Certification', BoolToStr(FPAD_Certification_Promotion.Apply_For_Certification, 'Y', 'N'));
-    end;
-
-    // Save Dynamic PAD
-    if (FDynamic_PAD.FActive) then
-    begin
-      Node := AddChildNode(RootNode, 'Dynamic_PAD');
-      SetNodeText(Doc, Node, 'Dynamic_Distributive', BoolToStr(FDynamic_PAD.Dynamic_Distributive, 'Y', 'N'));
-
-      // Check if General section should be saved
-      if (FDynamic_PAD.General.FActive) then
-      begin
-        SubNode := AddChildNode(Node, 'General');
-        SetNodeText(Doc, SubNode, 'DP_Pad_Mask', FDynamic_PAD.General.DP_Pad_Mask);
-        SetNodeText(Doc, SubNode, 'DP_Script_Base_URL', FDynamic_PAD.General.DP_Script_Base_URL);
-        SetNodeText(Doc, SubNode, 'DP_Pad_Enabled', BoolToStr(FDynamic_PAD.General.DP_Pad_Enabled, 'TRUE', 'FALSE'));
-        SetNodeText(Doc, SubNode, 'DP_Distributive_Enabled', BoolToStr(FDynamic_PAD.General.DP_Distributive_Enabled, 'TRUE', 'FALSE'));
-        SetNodeText(Doc, SubNode, 'DP_AtFormFill_Enabled', BoolToStr(FDynamic_PAD.General.DP_AtFormFill_Enabled, 'TRUE', 'FALSE'));
-        SetNodeText(Doc, SubNode, 'DP_ControlPanel_Hosted', FDynamic_PAD.General.DP_ControlPanel_Hosted);
-      end;
-    end;
-
-    // Program Info
-    Node := AddChildNode(RootNode, 'Program_Info');
-    SetNodeText(Doc, Node, 'Program_Name', FProgramInfo.ProgramName);
-    SetNodeText(Doc, Node, 'Program_Version', FProgramInfo.ProgramVersion);
-    SetNodeText(Doc, Node, 'Program_Release_Month',
-      IfThen(FProgramInfo.ProgramReleaseMonth = 0, '', Format('%.2d', [FProgramInfo.ProgramReleaseMonth])));
-    SetNodeText(Doc, Node, 'Program_Release_Day',
-      IfThen(FProgramInfo.ProgramReleaseDay = 0, '', Format('%.2d', [FProgramInfo.ProgramReleaseDay])));
-    SetNodeText(Doc, Node, 'Program_Release_Year',
-      IntToStr(FProgramInfo.ProgramReleaseYear));
-    SetNodeText(Doc, Node, 'Program_Cost_Dollars', FProgramInfo.ProgramCostDollars);
-    SetNodeText(Doc, Node, 'Program_Cost_Other_Code',
-      FProgramInfo.ProgramCostOtherCode);
-    SetNodeText(Doc, Node, 'Program_Cost_Other',
-      FProgramInfo.ProgramCostOther);
-    SetNodeText(Doc, Node, 'Program_Type',
-      FProgramInfo.ProgramTypeAsString);
-    SetNodeText(Doc, Node, 'Program_Release_Status',
-      FProgramInfo.ProgramReleaseStatusAsString);
-    SetNodeText(Doc, Node, 'Program_Install_Support',
-      FProgramInfo.ProgramInstallSupportAsString);
-    SetNodeText(Doc, Node, 'Program_OS_Support',
-      FProgramInfo.ProgramOSSupportAsString);
-    SetNodeText(Doc, Node, 'Program_Language',
-      FProgramInfo.ProgramLanguageAsString);
-    SetNodeText(Doc, Node, 'Program_Change_Info',
-      FProgramInfo.ProgramChangeInfo);
-    SetNodeText(Doc, Node, 'Program_Specific_Category',
-      FProgramInfo.ProgramSpecificCategory);
-    SetNodeText(Doc, Node, 'Program_Category_Class',
-      FProgramInfo.ProgramCategoryClassAsString);
-    if FProgramInfo.FProgramCategoriesExists then
-      SetNodeText(Doc, Node, 'Program_Categories',
-        FProgramInfo.ProgramCategories);
-    SetNodeText(Doc, Node, 'Program_System_Requirements',
-      FProgramInfo.ProgramSystemRequirements);
-    if FProgramInfo.FProgramTargetPlatformExists then
-      SetNodeText(Doc, Node, 'Program_Target_Platform',
-        FProgramInfo.FProgramTargetPlatform);
-    if FProgramInfo.FLimitationsExists then
-      SetNodeText(Doc, Node, 'Limitations',
-        FProgramInfo.FLimitations);
-    if FProgramInfo.FAwardsExists then
-      SetNodeText(Doc, Node, 'Awards',
-        FProgramInfo.FAwards);
-    if FProgramInfo.FFacebookProductPageExists then
-      SetNodeText(Doc, Node, 'FacebookProductPage',
-        FProgramInfo.FFacebookProductPage);
-    if FProgramInfo.FGooglePlusProductPageExists then
-      SetNodeText(Doc, Node, 'GooglePlusProductPage',
-        FProgramInfo.FGooglePlusProductPage);
-
-    if FProgramInfo.FIncludesJavaVmExists then
-      SetNodeText(Doc, Node, 'Includes_JAVA_VM',
-        BoolToStr(FProgramInfo.IncludesJavaVm, 'Y', 'N'));
-    if FProgramInfo.FIncludesVbRuntimeExists then
-      SetNodeText(Doc, Node, 'Includes_VB_Runtime',
-        BoolToStr(FProgramInfo.FIncludesVbRuntime, 'Y', 'N'));
-    if FProgramInfo.FIncludesDirectXExists then
-      SetNodeText(Doc, Node, 'Includes_DirectX',
-        BoolToStr(FProgramInfo.FIncludesDirectX, 'Y', 'N'));
-
-    // File Info
-    SubNode := AddChildNode(Node, 'File_Info');
-
-    if FProgramInfo.FileInfo.FFileNameVersionedExists then
-      SetNodeText(Doc, SubNode, 'Filename_Versioned', FProgramInfo.FileInfo.FFileNameVersioned);
-    if FProgramInfo.FileInfo.FFileNamePreviousExists then
-      SetNodeText(Doc, SubNode, 'Filename_Previous', FProgramInfo.FileInfo.FFileNamePrevious);
-    if FProgramInfo.FileInfo.FFileNameGenericExists then
-      SetNodeText(Doc, SubNode, 'Filename_Generic', FProgramInfo.FileInfo.FFileNameGeneric);
-    if FProgramInfo.FileInfo.FFileNameLongExists then
-      SetNodeText(Doc, SubNode, 'Filename_Long', FProgramInfo.FileInfo.FFileNameLong);
-    if FProgramInfo.FileInfo.FAutomaticallyDetectFileSizeExists then
-      SetNodeText(Doc, SubNode, 'Automatically_Detect_File_Size',
-        BoolToStr(FProgramInfo.FileInfo.FAutomaticallyDetectFileSize, 'Y', 'N'));
-
-    SetNodeText(Doc, SubNode, 'File_Size_Bytes', FProgramInfo.FileInfo.FileSizeBytes);
-    SetNodeText(Doc, SubNode, 'File_Size_K', FProgramInfo.FileInfo.FileSizeK);
-    SetNodeText(Doc, SubNode, 'File_Size_MB', FProgramInfo.FileInfo.FileSizeMB);
-
-    // Expire Info
-    SubNode := AddChildNode(Node, 'Expire_Info');
-    SetNodeText(Doc, SubNode, 'Has_Expire_Info',
-      BoolToStr(FProgramInfo.ExpireInfo.HasExpireInfo, 'Y', 'N'));
-    SetNodeText(Doc, SubNode, 'Expire_Count',
-      IfThen(FProgramInfo.ExpireInfo.ExpireCount = 0, '', IntToStr(FProgramInfo.ExpireInfo.ExpireCount)));
-    SetNodeText(Doc, SubNode, 'Expire_Based_On',
-      FProgramInfo.ExpireInfo.ExpireBasedOnAsString);
-    SetNodeText(Doc, SubNode, 'Expire_Other_Info',
-      FProgramInfo.ExpireInfo.ExpireOtherInfo);
-    SetNodeText(Doc, SubNode, 'Expire_Month',
-      IfThen(FProgramInfo.ExpireInfo.ExpireMonth = 0, '', Format('%.2d', [FProgramInfo.ExpireInfo.ExpireMonth])));
-    SetNodeText(Doc, SubNode, 'Expire_Day',
-      IfThen(FProgramInfo.ExpireInfo.ExpireDay = 0, '', Format('%.2d', [FProgramInfo.ExpireInfo.ExpireDay])));
-    SetNodeText(Doc, SubNode, 'Expire_Year',
-      IfThen(FProgramInfo.ExpireInfo.ExpireYear = 0, '', IntToStr(FProgramInfo.ExpireInfo.ExpireYear)));
-
-    // Program Descriptions
-    Node := AddChildNode(RootNode, 'Program_Descriptions');
-    if FProgramDescriptions.Language1Name <> '' then
-    begin
-      SubNode := AddChildNode(Node, FProgramDescriptions.Language1Name);
-      SetNodeText(Doc, SubNode, 'Keywords',
-        FProgramDescriptions.Language1.Keywords);
-      SetNodeText(Doc, SubNode, 'Char_Desc_45',
-        FProgramDescriptions.Language1.CharDesc45);
-      SetNodeText(Doc, SubNode, 'Char_Desc_80',
-        FProgramDescriptions.Language1.CharDesc80);
-      SetNodeText(Doc, SubNode, 'Char_Desc_250',
-        FProgramDescriptions.Language1.CharDesc250);
-      SetNodeText(Doc, SubNode, 'Char_Desc_450',
-        FProgramDescriptions.Language1.CharDesc450);
-      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
-        FProgramDescriptions.Language1.CharDesc2000);
-    end;
-    if FProgramDescriptions.Language2Name <> '' then
-    begin
-      SubNode := AddChildNode(Node, FProgramDescriptions.Language2Name);
-      SetNodeText(Doc, SubNode, 'Keywords',
-        FProgramDescriptions.Language2.Keywords);
-      SetNodeText(Doc, SubNode, 'Char_Desc_45',
-        FProgramDescriptions.Language2.CharDesc45);
-      SetNodeText(Doc, SubNode, 'Char_Desc_80',
-        FProgramDescriptions.Language2.CharDesc80);
-      SetNodeText(Doc, SubNode, 'Char_Desc_250',
-        FProgramDescriptions.Language2.CharDesc250);
-      SetNodeText(Doc, SubNode, 'Char_Desc_450',
-        FProgramDescriptions.Language2.CharDesc450);
-      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
-        FProgramDescriptions.Language2.CharDesc2000);
-    end;
-    if FProgramDescriptions.Language3Name <> '' then
-    begin
-      SubNode := AddChildNode(Node, FProgramDescriptions.Language3Name);
-      SetNodeText(Doc, SubNode, 'Keywords',
-        FProgramDescriptions.Language3.Keywords);
-      SetNodeText(Doc, SubNode, 'Char_Desc_45',
-        FProgramDescriptions.Language3.CharDesc45);
-      SetNodeText(Doc, SubNode, 'Char_Desc_80',
-        FProgramDescriptions.Language3.CharDesc80);
-      SetNodeText(Doc, SubNode, 'Char_Desc_250',
-        FProgramDescriptions.Language3.CharDesc250);
-      SetNodeText(Doc, SubNode, 'Char_Desc_450',
-        FProgramDescriptions.Language3.CharDesc450);
-      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
-        FProgramDescriptions.Language3.CharDesc2000);
-    end;
-    if FProgramDescriptions.Language4Name <> '' then
-    begin
-      SubNode := AddChildNode(Node, FProgramDescriptions.Language4Name);
-      SetNodeText(Doc, SubNode, 'Keywords',
-        FProgramDescriptions.Language4.Keywords);
-      SetNodeText(Doc, SubNode, 'Char_Desc_45',
-        FProgramDescriptions.Language4.CharDesc45);
-      SetNodeText(Doc, SubNode, 'Char_Desc_80',
-        FProgramDescriptions.Language4.CharDesc80);
-      SetNodeText(Doc, SubNode, 'Char_Desc_250',
-        FProgramDescriptions.Language4.CharDesc250);
-      SetNodeText(Doc, SubNode, 'Char_Desc_450',
-        FProgramDescriptions.Language4.CharDesc450);
-      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
-        FProgramDescriptions.Language4.CharDesc2000);
-    end;
-    if FProgramDescriptions.Language5Name <> '' then
-    begin
-      SubNode := AddChildNode(Node, FProgramDescriptions.Language5Name);
-      SetNodeText(Doc, SubNode, 'Keywords',
-        FProgramDescriptions.Language5.Keywords);
-      SetNodeText(Doc, SubNode, 'Char_Desc_45',
-        FProgramDescriptions.Language5.CharDesc45);
-      SetNodeText(Doc, SubNode, 'Char_Desc_80',
-        FProgramDescriptions.Language5.CharDesc80);
-      SetNodeText(Doc, SubNode, 'Char_Desc_250',
-        FProgramDescriptions.Language5.CharDesc250);
-      SetNodeText(Doc, SubNode, 'Char_Desc_450',
-        FProgramDescriptions.Language5.CharDesc450);
-      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
-        FProgramDescriptions.Language5.CharDesc2000);
-    end;
-    if FProgramDescriptions.Language6Name <> '' then
-    begin
-      SubNode := AddChildNode(Node, FProgramDescriptions.Language6Name);
-      SetNodeText(Doc, SubNode, 'Keywords',
-        FProgramDescriptions.Language6.Keywords);
-      SetNodeText(Doc, SubNode, 'Char_Desc_45',
-        FProgramDescriptions.Language6.CharDesc45);
-      SetNodeText(Doc, SubNode, 'Char_Desc_80',
-        FProgramDescriptions.Language6.CharDesc80);
-      SetNodeText(Doc, SubNode, 'Char_Desc_250',
-        FProgramDescriptions.Language6.CharDesc250);
-      SetNodeText(Doc, SubNode, 'Char_Desc_450',
-        FProgramDescriptions.Language6.CharDesc450);
-      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
-        FProgramDescriptions.Language6.CharDesc2000);
-    end;
-    if FProgramDescriptions.Language7Name <> '' then
-    begin
-      SubNode := AddChildNode(Node, FProgramDescriptions.Language7Name);
-      SetNodeText(Doc, SubNode, 'Keywords',
-        FProgramDescriptions.Language7.Keywords);
-      SetNodeText(Doc, SubNode, 'Char_Desc_45',
-        FProgramDescriptions.Language7.CharDesc45);
-      SetNodeText(Doc, SubNode, 'Char_Desc_80',
-        FProgramDescriptions.Language7.CharDesc80);
-      SetNodeText(Doc, SubNode, 'Char_Desc_250',
-        FProgramDescriptions.Language7.CharDesc250);
-      SetNodeText(Doc, SubNode, 'Char_Desc_450',
-        FProgramDescriptions.Language7.CharDesc450);
-      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
-        FProgramDescriptions.Language7.CharDesc2000);
-    end;
-    if FProgramDescriptions.Language8Name <> '' then
-    begin
-      SubNode := AddChildNode(Node, FProgramDescriptions.Language8Name);
-      SetNodeText(Doc, SubNode, 'Keywords',
-        FProgramDescriptions.Language8.Keywords);
-      SetNodeText(Doc, SubNode, 'Char_Desc_45',
-        FProgramDescriptions.Language8.CharDesc45);
-      SetNodeText(Doc, SubNode, 'Char_Desc_80',
-        FProgramDescriptions.Language8.CharDesc80);
-      SetNodeText(Doc, SubNode, 'Char_Desc_250',
-        FProgramDescriptions.Language8.CharDesc250);
-      SetNodeText(Doc, SubNode, 'Char_Desc_450',
-        FProgramDescriptions.Language8.CharDesc450);
-      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
-        FProgramDescriptions.Language8.CharDesc2000);
-    end;
-    if FProgramDescriptions.Language9Name <> '' then
-    begin
-      SubNode := AddChildNode(Node, FProgramDescriptions.Language9Name);
-      SetNodeText(Doc, SubNode, 'Keywords',
-        FProgramDescriptions.Language9.Keywords);
-      SetNodeText(Doc, SubNode, 'Char_Desc_45',
-        FProgramDescriptions.Language9.CharDesc45);
-      SetNodeText(Doc, SubNode, 'Char_Desc_80',
-        FProgramDescriptions.Language9.CharDesc80);
-      SetNodeText(Doc, SubNode, 'Char_Desc_250',
-        FProgramDescriptions.Language9.CharDesc250);
-      SetNodeText(Doc, SubNode, 'Char_Desc_450',
-        FProgramDescriptions.Language9.CharDesc450);
-      SetNodeText(Doc, SubNode, 'Char_Desc_2000',
-        FProgramDescriptions.Language9.CharDesc2000);
-    end;
-
-    // Web Info
-    Node := AddChildNode(RootNode, 'Web_Info');
-    SubNode := AddChildNode(Node, 'Application_URLs');
-    if FWebInfo.ApplicationURLs.FVideoLink1URLExists then
-      SetNodeText(Doc, SubNode, 'Video_Link_1_URL',
-        FWebInfo.ApplicationURLs.VideoLink1URL);
-    if FWebInfo.ApplicationURLs.FVideoLink2URLExists then
-      SetNodeText(Doc, SubNode, 'Video_Link_2_URL',
-        FWebInfo.ApplicationURLs.VideoLink2URL);
-    SetNodeText(Doc, SubNode, 'Application_Info_URL',
-      FWebInfo.ApplicationURLs.ApplicationInfoURL);
-    SetNodeText(Doc, SubNode, 'Application_Order_URL',
-      FWebInfo.ApplicationURLs.ApplicationOrderURL);
-    SetNodeText(Doc, SubNode, 'Application_Screenshot_URL',
-      FWebInfo.ApplicationURLs.ApplicationScreenshotURL);
-    SetNodeText(Doc, SubNode, 'Application_Icon_URL',
-      FWebInfo.ApplicationURLs.ApplicationIconURL);
-    SetNodeText(Doc, SubNode, 'Application_XML_File_URL',
-      FWebInfo.ApplicationURLs.ApplicationXMLFileURL);
-
-    SubNode := AddChildNode(Node, 'Download_URLs');
-    SetNodeText(Doc, SubNode, 'Primary_Download_URL',
-      FWebInfo.DownloadURLs.PrimaryDownloadURL);
-    SetNodeText(Doc, SubNode, 'Secondary_Download_URL',
-      FWebInfo.DownloadURLs.SecondaryDownloadURL);
-    SetNodeText(Doc, SubNode, 'Additional_Download_URL_1',
-      FWebInfo.DownloadURLs.AdditionalDownloadURL1);
-    SetNodeText(Doc, SubNode, 'Additional_Download_URL_2',
-      FWebInfo.DownloadURLs.AdditionalDownloadURL2);
-
-    // Permissions
-    Node := AddChildNode(RootNode, 'Permissions');
-    SetNodeText(Doc, Node, 'Distribution_Permissions', FPermissions.DistributionPermissions);
-    SetNodeText(Doc, Node, 'EULA', FPermissions.EULA);
-
-    // Save Press Release
-    if (FPressRelease.FActive) then
-    begin
-      Node := AddChildNode(RootNode, 'Press_Release');
-      SetNodeText(Doc, Node, 'Press_Release', FPressRelease.PressRelease);
-      if FPressRelease.Headline <> '' then
-        SetNodeText(Doc, Node, 'Headline', FPressRelease.Headline);
-      if FPressRelease.Summary <> '' then
-        SetNodeText(Doc, Node, 'Summary', FPressRelease.Summary);
-      if FPressRelease.Keywords <> '' then
-        SetNodeText(Doc, Node, 'Keywords', FPressRelease.Keywords);
-      if FPressRelease.Related_URL <> '' then
-        SetNodeText(Doc, Node, 'Related_URL', FPressRelease.Related_URL);
-      if FPressRelease.PressReleasePlain <> '' then
-        SetNodeText(Doc, Node, 'Press_Release_Plain', FPressRelease.PressReleasePlain);
-    end;
-
-    // Save Affiliates
-    if (FAffiliates.FActive) then
-    begin
-      Node := AddChildNode(RootNode, 'Affiliates');
-      SetNodeText(Doc, Node, 'Affiliates_FORM', BoolToStr(FAffiliates.Affiliates_FORM, 'Y', 'N'));
-      if FAffiliates.Affiliates_FORM_VER <> '' then
-        SetNodeText(Doc, Node, 'Affiliates_FORM_VER', FAffiliates.Affiliates_FORM_VER);
-      if FAffiliates.Affiliates_VERSION <> '' then
-        SetNodeText(Doc, Node, 'Affiliates_VERSION', FAffiliates.Affiliates_VERSION);
-      SetNodeText(Doc, Node, 'Affiliates_URL', FAffiliates.Affiliates_URL);
-      SetNodeText(Doc, Node, 'Affiliates_Information_Page', FAffiliates.Affiliates_Information_Page);
-
-      // Save individual affiliate companies only if full section is needed
-      if FAffiliates.Avangate.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_Avangate_Order_Page', FAffiliates.Avangate.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Avangate_Vendor_ID', FAffiliates.Avangate.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Avangate_Product_ID', FAffiliates.Avangate.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Avangate_Maximum_Commission_Rate', FAffiliates.Avangate.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.BMTMicro.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Order_Page', FAffiliates.BMTMicro.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Vendor_ID', FAffiliates.BMTMicro.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Product_ID', FAffiliates.BMTMicro.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Maximum_Commission_Rate', FAffiliates.BMTMicro.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.Cleverbridge.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Order_Page', FAffiliates.Cleverbridge.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Vendor_ID', FAffiliates.Cleverbridge.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Product_ID', FAffiliates.Cleverbridge.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Maximum_Commission_Rate', FAffiliates.Cleverbridge.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.ClixGalore.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_clixGalore_Order_Page', FAffiliates.ClixGalore.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_clixGalore_Vendor_ID', FAffiliates.ClixGalore.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_clixGalore_Product_ID', FAffiliates.ClixGalore.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_clixGalore_Maximum_Commission_Rate', FAffiliates.ClixGalore.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.CommissionJunction.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Order_Page', FAffiliates.CommissionJunction.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Vendor_ID', FAffiliates.CommissionJunction.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Product_ID', FAffiliates.CommissionJunction.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Maximum_Commission_Rate',
-          FAffiliates.CommissionJunction.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.DigiBuy.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Order_Page', FAffiliates.DigiBuy.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Vendor_ID', FAffiliates.DigiBuy.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Product_ID', FAffiliates.DigiBuy.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Maximum_Commission_Rate', FAffiliates.DigiBuy.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.DigitalCandle.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Order_Page', FAffiliates.DigitalCandle.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Vendor_ID', FAffiliates.DigitalCandle.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Product_ID', FAffiliates.DigitalCandle.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Maximum_Commission_Rate', FAffiliates.DigitalCandle.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.Emetrix.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_Emetrix_Order_Page', FAffiliates.Emetrix.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Emetrix_Vendor_ID', FAffiliates.Emetrix.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Emetrix_Product_ID', FAffiliates.Emetrix.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Emetrix_Maximum_Commission_Rate', FAffiliates.Emetrix.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.eSellerate.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_eSellerate_Order_Page', FAffiliates.eSellerate.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_eSellerate_Vendor_ID', FAffiliates.eSellerate.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_eSellerate_Product_ID', FAffiliates.eSellerate.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_eSellerate_Maximum_Commission_Rate', FAffiliates.eSellerate.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.iPortis.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_iPortis_Order_Page', FAffiliates.iPortis.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_iPortis_Vendor_ID', FAffiliates.iPortis.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_iPortis_Product_ID', FAffiliates.iPortis.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_iPortis_Maximum_Commission_Rate', FAffiliates.iPortis.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.Kagi.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_Kagi_Order_Page', FAffiliates.Kagi.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Kagi_Vendor_ID', FAffiliates.Kagi.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Kagi_Product_ID', FAffiliates.Kagi.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Kagi_Maximum_Commission_Rate', FAffiliates.Kagi.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.LinkShare.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_LinkShare_Order_Page', FAffiliates.LinkShare.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_LinkShare_Vendor_ID', FAffiliates.LinkShare.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_LinkShare_Product_ID', FAffiliates.LinkShare.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_LinkShare_Maximum_Commission_Rate', FAffiliates.LinkShare.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.NorthStarSol.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Order_Page', FAffiliates.NorthStarSol.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Vendor_ID', FAffiliates.NorthStarSol.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Product_ID', FAffiliates.NorthStarSol.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Maximum_Commission_Rate', FAffiliates.NorthStarSol.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.OneNetworkDirect.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Order_Page', FAffiliates.OneNetworkDirect.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Vendor_ID', FAffiliates.OneNetworkDirect.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Product_ID', FAffiliates.OneNetworkDirect.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Maximum_Commission_Rate',
-          FAffiliates.OneNetworkDirect.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.Order1.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_Order1_Order_Page', FAffiliates.Order1.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Order1_Vendor_ID', FAffiliates.Order1.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Order1_Product_ID', FAffiliates.Order1.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Order1_Maximum_Commission_Rate', FAffiliates.Order1.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.Osolis.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_Osolis_Order_Page', FAffiliates.Osolis.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Osolis_Vendor_ID', FAffiliates.Osolis.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Osolis_Product_ID', FAffiliates.Osolis.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Osolis_Maximum_Commission_Rate', FAffiliates.Osolis.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.PayPro.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_PayPro_Order_Page', FAffiliates.PayPro.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_PayPro_Vendor_ID', FAffiliates.PayPro.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_PayPro_Product_ID', FAffiliates.PayPro.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_PayPro_Maximum_Commission_Rate', FAffiliates.PayPro.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.Plimus.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_Plimus_Order_Page', FAffiliates.Plimus.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Plimus_Vendor_ID', FAffiliates.Plimus.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Plimus_Product_ID', FAffiliates.Plimus.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Plimus_Maximum_Commission_Rate', FAffiliates.Plimus.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.Regnet.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_Regnet_Order_Page', FAffiliates.Regnet.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Regnet_Vendor_ID', FAffiliates.Regnet.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Regnet_Product_ID', FAffiliates.Regnet.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Regnet_Maximum_Commission_Rate', FAffiliates.Regnet.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.Regnow.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_Regnow_Order_Page', FAffiliates.Regnow.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Regnow_Vendor_ID', FAffiliates.Regnow.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Regnow_Product_ID', FAffiliates.Regnow.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Regnow_Maximum_Commission_Rate', FAffiliates.Regnow.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.Regsoft.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_Regsoft_Order_Page', FAffiliates.Regsoft.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Regsoft_Vendor_ID', FAffiliates.Regsoft.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Regsoft_Product_ID', FAffiliates.Regsoft.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Regsoft_Maximum_Commission_Rate', FAffiliates.Regsoft.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.ShareIt.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_ShareIt_Order_Page', FAffiliates.ShareIt.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_ShareIt_Vendor_ID', FAffiliates.ShareIt.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_ShareIt_Product_ID', FAffiliates.ShareIt.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_ShareIt_Maximum_Commission_Rate', FAffiliates.ShareIt.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.Shareasale.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_Shareasale_Order_Page', FAffiliates.Shareasale.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Shareasale_Vendor_ID', FAffiliates.Shareasale.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Shareasale_Product_ID', FAffiliates.Shareasale.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Shareasale_Maximum_Commission_Rate', FAffiliates.Shareasale.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.SWReg.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_SWReg_Order_Page', FAffiliates.SWReg.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_SWReg_Vendor_ID', FAffiliates.SWReg.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_SWReg_Product_ID', FAffiliates.SWReg.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_SWReg_Maximum_Commission_Rate', FAffiliates.SWReg.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.VShare.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_V-Share_Order_Page', FAffiliates.VShare.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_V-Share_Vendor_ID', FAffiliates.VShare.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_V-Share_Product_ID', FAffiliates.VShare.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_V-Share_Maximum_Commission_Rate', FAffiliates.VShare.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.VFree.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_VFree_Order_Page', FAffiliates.VFree.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_VFree_Vendor_ID', FAffiliates.VFree.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_VFree_Product_ID', FAffiliates.VFree.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_VFree_Maximum_Commission_Rate', FAffiliates.VFree.MaximumCommissionRate);
-      end;
-
-      if FAffiliates.Yaskifo.FActive then
-      begin
-        SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Order_Page', FAffiliates.Yaskifo.OrderPage);
-        SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Vendor_ID', FAffiliates.Yaskifo.VendorID);
-        SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Product_ID', FAffiliates.Yaskifo.ProductID);
-        SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Maximum_Commission_Rate', FAffiliates.Yaskifo.MaximumCommissionRate);
-      end;
-    end;
-
-    // Save PADRING
-    if FPADRING.FActive then
-    begin
-      Node := AddChildNode(RootNode, 'PADRING');
-      SetNodeText(Doc, Node, 'PADRING_FORM', BoolToStr(FPADRING.PADRING_FORM, 'Y', 'N'));
-      SetNodeText(Doc, Node, 'PADRING', FPADRING.PADRING);
-    end;
-
-    // Save Simtel
-    if FSimtel.FActive then
-    begin
-      Node := AddChildNode(RootNode, 'Simtel');
-      SetNodeText(Doc, Node, 'Simtel_FORM', BoolToStr(FSimtel.Simtel_FORM, 'Y', 'N'));
-      SetNodeText(Doc, Node, 'SIMTEL_FORM_VER', FSimtel.Simtel_FORM_VER);
-      SetNodeText(Doc, Node, 'Simtel_Platform', FSimtel.Simtel_Platform);
-      SetNodeText(Doc, Node, 'Simtel_Category', FSimtel.Simtel_Category);
-    end;
-
-    // Save Article_Contents
-    if FArticle_Contents.FActive then
-    begin
-      Node := AddChildNode(RootNode, 'Article_Contents');
-      SetNodeText(Doc, Node, 'Title', FArticle_Contents.Title);
-      SetNodeText(Doc, Node, 'Summary', FArticle_Contents.Summary);
-      SetNodeText(Doc, Node, 'Body', FArticle_Contents.Body);
-      SetNodeText(Doc, Node, 'Resources', FArticle_Contents.Resources);
-    end;
-
-    // Save MSN
-    if FMSN.FActive then
-    begin
-      Node := AddChildNode(RootNode, 'MSN');
-      SetNodeText(Doc, Node, 'MSN_FORM', BoolToStr(FMSN.MSN_FORM, 'Y', 'N'));
-      SetNodeText(Doc, Node, 'MSN_IS_32bit', BoolToStr(FMSN.MSN_IS_32bit, 'Y', 'N'));
-    end;
-
-    // ASP
-    if FASP.ASPForm then
-    begin
-      Node := AddChildNode(RootNode, 'ASP');
-      SetNodeText(Doc, Node, 'ASP_FORM', BoolToStr(FASP.ASPForm, 'Y', 'N'));
-      SetNodeText(Doc, Node, 'ASP_Member', BoolToStr(FASP.ASPMember, 'Y', 'N'));
-      SetNodeText(Doc, Node, 'ASP_Member_Number', FASP.ASPMemberNumber);
-    end;
-
-    // Save TPA
-    if FTPA.FActive then
-    begin
-      Node := AddChildNode(RootNode, 'TPA');
-      SetNodeText(Doc, Node, 'TPA_FORM', BoolToStr(FTPA.TPA_FORM, 'Y', 'N'));
-      SetNodeText(Doc, Node, 'TPA_Member', BoolToStr(FTPA.TPA_Member, 'Y', 'N'));
-
-      // TPA_Member_ID should always be saved, even if empty
-      SetNodeText(Doc, Node, 'TPA_Member_ID', FTPA.TPA_Member_ID);
-
-      if FTPA.Trial_License_Type <> '' then
-        SetNodeText(Doc, Node, 'Trial_License_Type', FTPA.Trial_License_Type);
-    end;
-
-    // Save ASBMPlanner fields (root level)
-    if FIssues <> '' then
-      SetNodeText(Doc, RootNode, 'Issues', FIssues);
-    if FtSuccess <> '' then
-      SetNodeText(Doc, RootNode, 'tSuccess', FtSuccess);
-    if FtProcessed <> '' then
-      SetNodeText(Doc, RootNode, 'tProcessed', FtProcessed);
-    if FASBMPlannerID1stRound <> '' then
-      SetNodeText(Doc, RootNode, 'ASBMPlannerID1stRound', FASBMPlannerID1stRound);
-    if FASBMPlannerID2ndRound <> '' then
-      SetNodeText(Doc, RootNode, 'ASBMPlannerID2ndRound', FASBMPlannerID2ndRound);
-
-    // Save Allmyapps
-    if FAllmyapps.FActive then
-    begin
-      Node := AddChildNode(RootNode, 'Allmyapps');
-      SetNodeText(Doc, Node, 'Allmyapps_Terms_And_Conditions',
-        BoolToStr(FAllmyapps.Allmyapps_Terms_And_Conditions, 'Y', 'N'));
-    end;
-
-    // Save AppStore section
-    // Check if ANY AppStore field is filled
-    if (FAppStore.FActive) then
-    begin
-      Node := AddChildNode(RootNode, 'AppStore');
-      SetNodeText(Doc, Node, 'AppStore_AppID', FAppStore.AppStore_AppID);
-      SetNodeText(Doc, Node, 'AppStore_Category', FAppStore.AppStore_Category);
-      SetNodeText(Doc, Node, 'AppStore_Info_URL', FAppStore.AppStore_Info_URL);
-      SetNodeText(Doc, Node, 'AppStore_Download_URL', FAppStore.AppStore_Download_URL);
-      SetNodeText(Doc, Node, 'AppStore_Promo_Code_1', FAppStore.AppStore_Promo_Code_1);
-      SetNodeText(Doc, Node, 'AppStore_Promo_Code_2', FAppStore.AppStore_Promo_Code_2);
-      SetNodeText(Doc, Node, 'AppStore_Promo_Code_3', FAppStore.AppStore_Promo_Code_3);
-      SetNodeText(Doc, Node, 'AppStore_Supported_Devices', FAppStore.AppStore_Supported_Devices);
-      SetNodeText(Doc, Node, 'AppStore_Other_Applications', FAppStore.AppStore_Other_Applications);
-      SetNodeText(Doc, Node, 'AppStore_Advantages_And_Unique_Features', FAppStore.AppStore_Advantages_And_Unique_Features);
-      SetNodeText(Doc, Node, 'AppStore_Awards_And_Ratings', FAppStore.AppStore_Awards_And_Ratings);
-    end;
+    // Save all sections in the correct order
+    SaveSectionsInOrder(Doc, RootNode);
 
     // Save to string
     Stream := TStringStream.Create('');
@@ -3843,8 +3058,120 @@ begin
   end;
 end;
 
+procedure TPadFormat.SaveSectionsInOrder(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  i: integer;
+  TagName: string;
+begin
+  // If we have saved tag order from loaded XML, use it
+  if FXmlTagOrder.Count > 0 then
+  begin
+    for i := 0 to FXmlTagOrder.Count - 1 do
+    begin
+      TagName := FXmlTagOrder[i];
+
+      if TagName = 'MASTER_PAD_VERSION_INFO' then
+        SaveSection_MasterPadVersionInfo(Doc, RootNode)
+      else if TagName = 'RoboSoft' then
+        SaveSection_RoboSoft(Doc, RootNode)
+      else if TagName = 'Company_Info' then
+        SaveSection_CompanyInfo(Doc, RootNode)
+      else if TagName = 'NewsFeed' then
+        SaveSection_NewsFeed(Doc, RootNode)
+      else if TagName = 'Site' then
+        SaveSection_Site(Doc, RootNode)
+      else if TagName = 'PADmap' then
+        SaveSection_PADmap(Doc, RootNode)
+      else if TagName = 'Download_Link_Points_To_Non_Binary_File' then
+        SaveSection_DownloadLinkPointsToNonBinaryFile(Doc, RootNode)
+      else if TagName = 'OnlineShops' then
+        SaveSection_OnlineShops(Doc, RootNode)
+      else if TagName = 'DeuPAD' then
+        SaveSection_DeuPAD(Doc, RootNode)
+      else if TagName = 'PAD_Certification_Promotion' then
+        SaveSection_PADCertificationPromotion(Doc, RootNode)
+      else if TagName = 'Dynamic_PAD' then
+        SaveSection_DynamicPAD(Doc, RootNode)
+      else if TagName = 'Program_Info' then
+        SaveSection_ProgramInfo(Doc, RootNode)
+      else if TagName = 'Program_Descriptions' then
+        SaveSection_ProgramDescriptions(Doc, RootNode)
+      else if TagName = 'Web_Info' then
+        SaveSection_WebInfo(Doc, RootNode)
+      else if TagName = 'Permissions' then
+        SaveSection_Permissions(Doc, RootNode)
+      else if TagName = 'Press_Release' then
+        SaveSection_PressRelease(Doc, RootNode)
+      else if TagName = 'Affiliates' then
+        SaveSection_Affiliates(Doc, RootNode)
+      else if TagName = 'PADRING' then
+        SaveSection_PADRING(Doc, RootNode)
+      else if TagName = 'Simtel' then
+        SaveSection_Simtel(Doc, RootNode)
+      else if TagName = 'Article_Contents' then
+        SaveSection_ArticleContents(Doc, RootNode)
+      else if TagName = 'MSN' then
+        SaveSection_MSN(Doc, RootNode)
+      else if TagName = 'ASP' then
+        SaveSection_ASP(Doc, RootNode)
+      else if TagName = 'TPA' then
+        SaveSection_TPA(Doc, RootNode)
+      else if TagName = 'Issues' then
+        SaveSection_Issues(Doc, RootNode)
+      else if TagName = 'tSuccess' then
+        SaveSection_tSuccess(Doc, RootNode)
+      else if TagName = 'tProcessed' then
+        SaveSection_tProcessed(Doc, RootNode)
+      else if TagName = 'ASBMPlannerID1stRound' then
+        SaveSection_ASBMPlannerID1stRound(Doc, RootNode)
+      else if TagName = 'ASBMPlannerID2ndRound' then
+        SaveSection_ASBMPlannerID2ndRound(Doc, RootNode)
+      else if TagName = 'Allmyapps' then
+        SaveSection_Allmyapps(Doc, RootNode)
+      else if TagName = 'AppStore' then
+        SaveSection_AppStore(Doc, RootNode);
+    end;
+  end
+  else
+  begin
+    // Default order (as originally in SaveToXML)
+    SaveSection_MasterPadVersionInfo(Doc, RootNode);
+    SaveSection_RoboSoft(Doc, RootNode);
+    SaveSection_CompanyInfo(Doc, RootNode);
+    SaveSection_NewsFeed(Doc, RootNode);
+    SaveSection_Site(Doc, RootNode);
+    SaveSection_PADmap(Doc, RootNode);
+    SaveSection_DownloadLinkPointsToNonBinaryFile(Doc, RootNode);
+    SaveSection_OnlineShops(Doc, RootNode);
+    SaveSection_DeuPAD(Doc, RootNode);
+    SaveSection_PADCertificationPromotion(Doc, RootNode);
+    SaveSection_DynamicPAD(Doc, RootNode);
+    SaveSection_ProgramInfo(Doc, RootNode);
+    SaveSection_ProgramDescriptions(Doc, RootNode);
+    SaveSection_WebInfo(Doc, RootNode);
+    SaveSection_Permissions(Doc, RootNode);
+    SaveSection_PressRelease(Doc, RootNode);
+    SaveSection_Affiliates(Doc, RootNode);
+    SaveSection_ASP(Doc, RootNode);
+    SaveSection_TPA(Doc, RootNode);
+    SaveSection_AppStore(Doc, RootNode);
+    SaveSection_Issues(Doc, RootNode);
+    SaveSection_tSuccess(Doc, RootNode);
+    SaveSection_tProcessed(Doc, RootNode);
+    SaveSection_ASBMPlannerID1stRound(Doc, RootNode);
+    SaveSection_ASBMPlannerID2ndRound(Doc, RootNode);
+    SaveSection_Allmyapps(Doc, RootNode);
+    SaveSection_PADRING(Doc, RootNode);
+    SaveSection_Simtel(Doc, RootNode);
+    SaveSection_ArticleContents(Doc, RootNode);
+    SaveSection_MSN(Doc, RootNode);
+  end;
+end;
+
 procedure TPadFormat.Clear;
 begin
+  FXmlTagOrder.Clear;
+
   // Clear all properties to default values
   FMasterPadVersionInfo.MasterPadVersion := '4.0';
   FMasterPadVersionInfo.MasterPadEditor := '';
@@ -4611,9 +3938,9 @@ begin
             Inc(j);
           Result := j - 1;
 
-          // Don't accept 0 or 1 spaces as valid indentation
+          // Don't accept 0 spaces as valid indentation
           // (could be just alignment, not indentation)
-          if (Result >= 2) and (Result <= 9) then
+          if (Result >= 1) and (Result <= 9) then
             Break
           else
             Result := 2; // Reset to default
@@ -5095,6 +4422,851 @@ begin
     Result := Lines.Text;
   finally
     Lines.Free;
+  end;
+end;
+
+procedure TPadFormat.SaveSection_MasterPadVersionInfo(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  Node := AddChildNode(RootNode, 'MASTER_PAD_VERSION_INFO');
+  SetNodeText(Doc, Node, 'MASTER_PAD_VERSION', FMasterPadVersionInfo.MasterPadVersion);
+  SetNodeText(Doc, Node, 'MASTER_PAD_EDITOR', FMasterPadVersionInfo.MasterPadEditor);
+  if Length(FMasterPadVersionInfo.MasterPadEditorUrl) > 0 then
+    SetNodeText(Doc, Node, 'MASTER_PAD_EDITOR_URL', FMasterPadVersionInfo.MasterPadEditorUrl);
+  SetNodeText(Doc, Node, 'MASTER_PAD_INFO', FMasterPadVersionInfo.MasterPadInfo);
+end;
+
+procedure TPadFormat.SaveSection_RoboSoft(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if (FRoboSoft.FActive) then
+  begin
+    Node := AddChildNode(RootNode, 'RoboSoft');
+    SetNodeText(Doc, Node, 'Company_UIN', FRoboSoft.Company_UIN);
+    SetNodeText(Doc, Node, 'Company_Description', FRoboSoft.Company_Description);
+    SetNodeText(Doc, Node, 'Product_UIN', FRoboSoft.Product_UIN);
+    SetNodeText(Doc, Node, 'Search_String', FRoboSoft.Search_String);
+    SetNodeText(Doc, Node, 'Press_Release_Search_String', FRoboSoft.Press_Release_Search_String);
+    SetNodeText(Doc, Node, 'NewsFeed_Search_String', FRoboSoft.NewsFeed_Search_String);
+    SetNodeText(Doc, Node, 'Search_Engine_Search_String', FRoboSoft.Search_Engine_Search_String);
+    SetNodeText(Doc, Node, 'Web_Directories_Search_String', FRoboSoft.Web_Directories_Search_String);
+    SetNodeText(Doc, Node, 'Search_String_Unique', FRoboSoft.Search_String_Unique);
+    SetNodeText(Doc, Node, 'Publish_on_CD', BoolToStr(FRoboSoft.Publish_on_CD, 'TRUE', 'FALSE'));
+    SetNodeText(Doc, Node, 'RSProductType', FRoboSoft.RSProductType);
+    SetNodeText(Doc, Node, 'Comments_For_Reviewer', FRoboSoft.Comments_For_Reviewer);
+    SetNodeText(Doc, Node, 'Backlink', FRoboSoft.Backlink);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_CompanyInfo(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node, SubNode: TDOMNode;
+begin
+  Node := AddChildNode(RootNode, 'Company_Info');
+  SetNodeText(Doc, Node, 'Company_Name', FCompanyInfo.CompanyName);
+  SetNodeText(Doc, Node, 'Address_1', FCompanyInfo.Address1);
+  SetNodeText(Doc, Node, 'Address_2', FCompanyInfo.Address2);
+  SetNodeText(Doc, Node, 'City_Town', FCompanyInfo.CityTown);
+  SetNodeText(Doc, Node, 'State_Province', FCompanyInfo.StateProvince);
+  SetNodeText(Doc, Node, 'Zip_Postal_Code', FCompanyInfo.ZipPostalCode);
+  SetNodeText(Doc, Node, 'Country', FCompanyInfo.Country);
+  SetNodeText(Doc, Node, 'Company_WebSite_URL', FCompanyInfo.CompanyWebsiteURL);
+
+  // Contact Info
+  SubNode := AddChildNode(Node, 'Contact_Info');
+  SetNodeText(Doc, SubNode, 'Author_First_Name', FCompanyInfo.ContactInfo.AuthorFirstName);
+  SetNodeText(Doc, SubNode, 'Author_Last_Name', FCompanyInfo.ContactInfo.AuthorLastName);
+  SetNodeText(Doc, SubNode, 'Author_Email', FCompanyInfo.ContactInfo.AuthorEmail);
+  SetNodeText(Doc, SubNode, 'Contact_First_Name', FCompanyInfo.ContactInfo.ContactFirstName);
+  SetNodeText(Doc, SubNode, 'Contact_Last_Name', FCompanyInfo.ContactInfo.ContactLastName);
+  SetNodeText(Doc, SubNode, 'Contact_Email', FCompanyInfo.ContactInfo.ContactEmail);
+  if FCompanyInfo.ContactInfo.FContactPhoneExists then
+    SetNodeText(Doc, SubNode, 'Contact_Phone', FCompanyInfo.ContactInfo.ContactPhone);
+
+  // Support Info
+  SubNode := AddChildNode(Node, 'Support_Info');
+  SetNodeText(Doc, SubNode, 'Sales_Email', FCompanyInfo.SupportInfo.SalesEmail);
+  SetNodeText(Doc, SubNode, 'Support_Email', FCompanyInfo.SupportInfo.SupportEmail);
+  SetNodeText(Doc, SubNode, 'General_Email', FCompanyInfo.SupportInfo.GeneralEmail);
+  SetNodeText(Doc, SubNode, 'Sales_Phone', FCompanyInfo.SupportInfo.SalesPhone);
+  SetNodeText(Doc, SubNode, 'Support_Phone', FCompanyInfo.SupportInfo.SupportPhone);
+  SetNodeText(Doc, SubNode, 'General_Phone', FCompanyInfo.SupportInfo.GeneralPhone);
+  SetNodeText(Doc, SubNode, 'Fax_Phone', FCompanyInfo.SupportInfo.FaxPhone);
+
+  // Social media pages
+  if FCompanyInfo.FGooglePlusPageExists then
+    SetNodeText(Doc, Node, 'GooglePlusPage', FCompanyInfo.GooglePlusPage);
+  if FCompanyInfo.FLinkedinPageExists then
+    SetNodeText(Doc, Node, 'LinkedinPage', FCompanyInfo.LinkedinPage);
+  if FCompanyInfo.FTwitterCompanyPageExists then
+    SetNodeText(Doc, Node, 'TwitterCompanyPage', FCompanyInfo.TwitterCompanyPage);
+  if FCompanyInfo.FFacebookCompanyPageExists then
+    SetNodeText(Doc, Node, 'FacebookCompanyPage', FCompanyInfo.FacebookCompanyPage);
+  if FCompanyInfo.FCompanyStorePageExists then
+    SetNodeText(Doc, Node, 'CompanyStorePage', FCompanyInfo.CompanyStorePage);
+end;
+
+procedure TPadFormat.SaveSection_NewsFeed(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FNewsFeed.FActive then
+  begin
+    Node := AddChildNode(RootNode, 'NewsFeed');
+    SetNodeText(Doc, Node, 'NewsFeed_FORM', BoolToStr(FNewsFeed.NewsFeed_FORM, 'Y', 'N'));
+    SetNodeText(Doc, Node, 'NewsFeed_VERSION', FNewsFeed.NewsFeed_VERSION);
+    SetNodeText(Doc, Node, 'NewsFeed_URL', FNewsFeed.NewsFeed_URL);
+    SetNodeText(Doc, Node, 'NewsFeed_Type', FNewsFeed.NewsFeed_TypeAsString);
+    SetNodeText(Doc, Node, 'NewsFeed_Language', FNewsFeed.NewsFeed_Language);
+    SetNodeText(Doc, Node, 'NewsFeed_Purpose', FNewsFeed.NewsFeed_Purpose);
+    SetNodeText(Doc, Node, 'NewsFeed_Author_Email', FNewsFeed.NewsFeed_Author_Email);
+    SetNodeText(Doc, Node, 'NewsFeed_Author_First_Name', FNewsFeed.NewsFeed_Author_First_Name);
+    SetNodeText(Doc, Node, 'NewsFeed_Author_Last_Name', FNewsFeed.NewsFeed_Author_Last_Name);
+    SetNodeText(Doc, Node, 'NewsFeed_DESCRIPTION', FNewsFeed.NewsFeed_DESCRIPTION);
+    SetNodeText(Doc, Node, 'NewsFeed_Feed_URL', FNewsFeed.NewsFeed_Feed_URL);
+    SetNodeText(Doc, Node, 'NewsFeed_Site_Name', FNewsFeed.NewsFeed_Site_Name);
+    SetNodeText(Doc, Node, 'NewsFeed_Site_URL', FNewsFeed.NewsFeed_Site_URL);
+    SetNodeText(Doc, Node, 'NewsFeed_Title', FNewsFeed.NewsFeed_Title);
+    if (FNewsFeed.NewsFeed_Keywords <> '') then
+      SetNodeText(Doc, Node, 'NewsFeed_Keywords', FNewsFeed.NewsFeed_Keywords);
+    SetNodeText(Doc, Node, 'NewsFeed_Description_70', FNewsFeed.NewsFeed_Description_70);
+    SetNodeText(Doc, Node, 'NewsFeed_Description_250', FNewsFeed.NewsFeed_Description_250);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_Site(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FSite.FActive then
+  begin
+    Node := AddChildNode(RootNode, 'Site');
+    SetNodeText(Doc, Node, 'Site_FORM', BoolToStr(FSite.Site_FORM, 'Y', 'N'));
+    SetNodeText(Doc, Node, 'Site_VERSION', FSite.Site_VERSION);
+    SetNodeText(Doc, Node, 'Site_URL', FSite.Site_URL);
+    SetNodeText(Doc, Node, 'Site_DESCRIPTION', FSite.Site_DESCRIPTION);
+    SetNodeText(Doc, Node, 'Site_Site_Title', FSite.Site_Site_Title);
+    SetNodeText(Doc, Node, 'Site_Site_URL', FSite.Site_Site_URL);
+    SetNodeText(Doc, Node, 'Site_Keywords', FSite.Site_Keywords);
+    SetNodeText(Doc, Node, 'Site_Description_100', FSite.Site_Description_100);
+    SetNodeText(Doc, Node, 'Site_Description_250', FSite.Site_Description_250);
+    SetNodeText(Doc, Node, 'Site_Description_450', FSite.Site_Description_450);
+    SetNodeText(Doc, Node, 'Site_Contact_First_Name', FSite.Site_Contact_First_Name);
+    SetNodeText(Doc, Node, 'Site_Contact_Last_Name', FSite.Site_Contact_Last_Name);
+    SetNodeText(Doc, Node, 'Site_Contact_Email', FSite.Site_Contact_Email);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_PADmap(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FPADmap.FActive then
+  begin
+    Node := AddChildNode(RootNode, 'PADmap');
+    SetNodeText(Doc, Node, 'PADmap_FORM', BoolToStr(FPADmap.PADmap_FORM, 'Y', 'N'));
+    SetNodeText(Doc, Node, 'PADmap_URL', FPADmap.PADmap_URL);
+    SetNodeText(Doc, Node, 'PADmap_VERSION', FPADmap.PADmap_VERSION);
+    SetNodeText(Doc, Node, 'PADmap_SCOPE', FPADmap.PADmap_SCOPE);
+    SetNodeText(Doc, Node, 'PADmap_DESCRIPTION', FPADmap.PADmap_DESCRIPTION);
+    SetNodeText(Doc, Node, 'PADmap_Location', FPADmap.PADmap_Location);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_DownloadLinkPointsToNonBinaryFile(Doc: TXMLDocument; RootNode: TDOMNode);
+begin
+  if FDownload_Link_Points_To_Non_Binary_File then
+    SetNodeText(Doc, RootNode, 'Download_Link_Points_To_Non_Binary_File', 'TRUE');
+end;
+
+procedure TPadFormat.SaveSection_OnlineShops(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FOnlineShops.FActive then
+  begin
+    Node := AddChildNode(RootNode, 'OnlineShops');
+    SetNodeText(Doc, Node, 'OnlineShops_FORM', BoolToStr(FOnlineShops.OnlineShops_FORM, 'Y', 'N'));
+    if (FOnlineShops.OnlineShops_VERSION <> '') then
+      SetNodeText(Doc, Node, 'OnlineShops_VERSION', FOnlineShops.OnlineShops_VERSION);
+    if (FOnlineShops.OnlineShops_URL <> '') then
+      SetNodeText(Doc, Node, 'OnlineShops_URL', FOnlineShops.OnlineShops_URL);
+    if (FOnlineShops.OnlineShops_DESCRIPTION <> '') then
+      SetNodeText(Doc, Node, 'OnlineShops_DESCRIPTION', FOnlineShops.OnlineShops_DESCRIPTION);
+    SetNodeText(Doc, Node, 'OnlineShops_PalmGear', IfThen(FOnlineShops.OnlineShops_PalmGear, 'on', 'off'));
+    SetNodeText(Doc, Node, 'OnlineShops_PocketLand', IfThen(FOnlineShops.OnlineShops_PocketLand, 'on', 'off'));
+    SetNodeText(Doc, Node, 'OnlineShops_PDAssi', IfThen(FOnlineShops.OnlineShops_PDAssi, 'on', 'off'));
+    SetNodeText(Doc, Node, 'OnlineShops_PDATopSoft', IfThen(FOnlineShops.OnlineShops_PDATopSoft, 'on', 'off'));
+    SetNodeText(Doc, Node, 'OnlineShops_PocketGear', IfThen(FOnlineShops.OnlineShops_PocketGear, 'on', 'off'));
+    SetNodeText(Doc, Node, 'OnlineShops_Softahead', IfThen(FOnlineShops.OnlineShops_Softahead, 'on', 'off'));
+    SetNodeText(Doc, Node, 'OnlineShops_Softonic', IfThen(FOnlineShops.OnlineShops_Softonic, 'on', 'off'));
+    SetNodeText(Doc, Node, 'OnlineShops_Winowin', IfThen(FOnlineShops.OnlineShops_Winowin, 'on', 'off'));
+    SetNodeText(Doc, Node, 'OnlineShops_SoftSearch', IfThen(FOnlineShops.OnlineShops_SoftSearch, 'on', 'off'));
+    SetNodeText(Doc, Node, 'OnlineShops_Handango_Agreement', IfThen(FOnlineShops.OnlineShops_Handango_Agreement, 'on', 'off'));
+    SetNodeText(Doc, Node, 'OnlineShops_Handango', IfThen(FOnlineShops.OnlineShops_Handango, 'on', 'off'));
+  end;
+end;
+
+procedure TPadFormat.SaveSection_DeuPAD(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FDeuPAD.FActive then
+  begin
+    Node := AddChildNode(RootNode, 'DeuPAD');
+    SetNodeText(Doc, Node, 'DeuPAD_Extension_Version', FDeuPAD.DeuPAD_Extension_Version);
+    SetNodeText(Doc, Node, 'DeuPAD_Extension_Info', FDeuPAD.DeuPAD_Extension_Info);
+    SetNodeText(Doc, Node, 'SAVE_Member', BoolToStr(FDeuPAD.SAVE_Member, 'Y', 'N'));
+    SetNodeText(Doc, Node, 'SAVE_Member_Number', FDeuPAD.SAVE_Member_Number);
+    SetNodeText(Doc, Node, 'Program_Cost_EUR', FDeuPAD.Program_Cost_EUR);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_PADCertificationPromotion(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if (FPAD_Certification_Promotion.FActive) then
+  begin
+    Node := AddChildNode(RootNode, 'PAD_Certification_Promotion');
+    SetNodeText(Doc, Node, 'Apply_For_Certification', BoolToStr(FPAD_Certification_Promotion.Apply_For_Certification, 'Y', 'N'));
+  end;
+end;
+
+procedure TPadFormat.SaveSection_DynamicPAD(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node, SubNode: TDOMNode;
+begin
+  if (FDynamic_PAD.FActive) then
+  begin
+    Node := AddChildNode(RootNode, 'Dynamic_PAD');
+    SetNodeText(Doc, Node, 'Dynamic_Distributive', BoolToStr(FDynamic_PAD.Dynamic_Distributive, 'Y', 'N'));
+
+    // Check if General section should be saved
+    if (FDynamic_PAD.General.FActive) then
+    begin
+      SubNode := AddChildNode(Node, 'General');
+      SetNodeText(Doc, SubNode, 'DP_Pad_Mask', FDynamic_PAD.General.DP_Pad_Mask);
+      SetNodeText(Doc, SubNode, 'DP_Script_Base_URL', FDynamic_PAD.General.DP_Script_Base_URL);
+      SetNodeText(Doc, SubNode, 'DP_Pad_Enabled', BoolToStr(FDynamic_PAD.General.DP_Pad_Enabled, 'TRUE', 'FALSE'));
+      SetNodeText(Doc, SubNode, 'DP_Distributive_Enabled', BoolToStr(FDynamic_PAD.General.DP_Distributive_Enabled, 'TRUE', 'FALSE'));
+      SetNodeText(Doc, SubNode, 'DP_AtFormFill_Enabled', BoolToStr(FDynamic_PAD.General.DP_AtFormFill_Enabled, 'TRUE', 'FALSE'));
+      SetNodeText(Doc, SubNode, 'DP_ControlPanel_Hosted', FDynamic_PAD.General.DP_ControlPanel_Hosted);
+    end;
+  end;
+end;
+
+procedure TPadFormat.SaveSection_ProgramInfo(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node, SubNode: TDOMNode;
+begin
+  Node := AddChildNode(RootNode, 'Program_Info');
+  SetNodeText(Doc, Node, 'Program_Name', FProgramInfo.ProgramName);
+  SetNodeText(Doc, Node, 'Program_Version', FProgramInfo.ProgramVersion);
+  SetNodeText(Doc, Node, 'Program_Release_Month',
+    IfThen(FProgramInfo.ProgramReleaseMonth = 0, '', Format('%.2d', [FProgramInfo.ProgramReleaseMonth])));
+  SetNodeText(Doc, Node, 'Program_Release_Day',
+    IfThen(FProgramInfo.ProgramReleaseDay = 0, '', Format('%.2d', [FProgramInfo.ProgramReleaseDay])));
+  SetNodeText(Doc, Node, 'Program_Release_Year',
+    IntToStr(FProgramInfo.ProgramReleaseYear));
+  SetNodeText(Doc, Node, 'Program_Cost_Dollars', FProgramInfo.ProgramCostDollars);
+  SetNodeText(Doc, Node, 'Program_Cost_Other_Code', FProgramInfo.ProgramCostOtherCode);
+  SetNodeText(Doc, Node, 'Program_Cost_Other', FProgramInfo.ProgramCostOther);
+  SetNodeText(Doc, Node, 'Program_Type', FProgramInfo.ProgramTypeAsString);
+  SetNodeText(Doc, Node, 'Program_Release_Status', FProgramInfo.ProgramReleaseStatusAsString);
+  SetNodeText(Doc, Node, 'Program_Install_Support', FProgramInfo.ProgramInstallSupportAsString);
+  SetNodeText(Doc, Node, 'Program_OS_Support', FProgramInfo.ProgramOSSupportAsString);
+  SetNodeText(Doc, Node, 'Program_Language', FProgramInfo.ProgramLanguageAsString);
+  SetNodeText(Doc, Node, 'Program_Change_Info', FProgramInfo.ProgramChangeInfo);
+  SetNodeText(Doc, Node, 'Program_Specific_Category', FProgramInfo.ProgramSpecificCategory);
+  SetNodeText(Doc, Node, 'Program_Category_Class', FProgramInfo.ProgramCategoryClassAsString);
+  if FProgramInfo.FProgramCategoriesExists then
+    SetNodeText(Doc, Node, 'Program_Categories', FProgramInfo.ProgramCategories);
+  SetNodeText(Doc, Node, 'Program_System_Requirements', FProgramInfo.ProgramSystemRequirements);
+  if FProgramInfo.FProgramTargetPlatformExists then
+    SetNodeText(Doc, Node, 'Program_Target_Platform', FProgramInfo.FProgramTargetPlatform);
+  if FProgramInfo.FLimitationsExists then
+    SetNodeText(Doc, Node, 'Limitations', FProgramInfo.FLimitations);
+  if FProgramInfo.FAwardsExists then
+    SetNodeText(Doc, Node, 'Awards', FProgramInfo.FAwards);
+  if FProgramInfo.FFacebookProductPageExists then
+    SetNodeText(Doc, Node, 'FacebookProductPage', FProgramInfo.FFacebookProductPage);
+  if FProgramInfo.FGooglePlusProductPageExists then
+    SetNodeText(Doc, Node, 'GooglePlusProductPage', FProgramInfo.FGooglePlusProductPage);
+
+  if FProgramInfo.FIncludesJavaVmExists then
+    SetNodeText(Doc, Node, 'Includes_JAVA_VM', BoolToStr(FProgramInfo.IncludesJavaVm, 'Y', 'N'));
+  if FProgramInfo.FIncludesVbRuntimeExists then
+    SetNodeText(Doc, Node, 'Includes_VB_Runtime', BoolToStr(FProgramInfo.FIncludesVbRuntime, 'Y', 'N'));
+  if FProgramInfo.FIncludesDirectXExists then
+    SetNodeText(Doc, Node, 'Includes_DirectX', BoolToStr(FProgramInfo.FIncludesDirectX, 'Y', 'N'));
+
+  // File Info
+  SubNode := AddChildNode(Node, 'File_Info');
+  if FProgramInfo.FileInfo.FFileNameVersionedExists then
+    SetNodeText(Doc, SubNode, 'Filename_Versioned', FProgramInfo.FileInfo.FFileNameVersioned);
+  if FProgramInfo.FileInfo.FFileNamePreviousExists then
+    SetNodeText(Doc, SubNode, 'Filename_Previous', FProgramInfo.FileInfo.FFileNamePrevious);
+  if FProgramInfo.FileInfo.FFileNameGenericExists then
+    SetNodeText(Doc, SubNode, 'Filename_Generic', FProgramInfo.FileInfo.FFileNameGeneric);
+  if FProgramInfo.FileInfo.FFileNameLongExists then
+    SetNodeText(Doc, SubNode, 'Filename_Long', FProgramInfo.FileInfo.FFileNameLong);
+  if FProgramInfo.FileInfo.FAutomaticallyDetectFileSizeExists then
+    SetNodeText(Doc, SubNode, 'Automatically_Detect_File_Size',
+      BoolToStr(FProgramInfo.FileInfo.FAutomaticallyDetectFileSize, 'Y', 'N'));
+
+  SetNodeText(Doc, SubNode, 'File_Size_Bytes', FProgramInfo.FileInfo.FileSizeBytes);
+  SetNodeText(Doc, SubNode, 'File_Size_K', FProgramInfo.FileInfo.FileSizeK);
+  SetNodeText(Doc, SubNode, 'File_Size_MB', FProgramInfo.FileInfo.FileSizeMB);
+
+  // Expire Info
+  SubNode := AddChildNode(Node, 'Expire_Info');
+  SetNodeText(Doc, SubNode, 'Has_Expire_Info',
+    BoolToStr(FProgramInfo.ExpireInfo.HasExpireInfo, 'Y', 'N'));
+  SetNodeText(Doc, SubNode, 'Expire_Count',
+    IfThen(FProgramInfo.ExpireInfo.ExpireCount = 0, '', IntToStr(FProgramInfo.ExpireInfo.ExpireCount)));
+  SetNodeText(Doc, SubNode, 'Expire_Based_On',
+    FProgramInfo.ExpireInfo.ExpireBasedOnAsString);
+  SetNodeText(Doc, SubNode, 'Expire_Other_Info',
+    FProgramInfo.ExpireInfo.ExpireOtherInfo);
+  SetNodeText(Doc, SubNode, 'Expire_Month',
+    IfThen(FProgramInfo.ExpireInfo.ExpireMonth = 0, '', Format('%.2d', [FProgramInfo.ExpireInfo.ExpireMonth])));
+  SetNodeText(Doc, SubNode, 'Expire_Day',
+    IfThen(FProgramInfo.ExpireInfo.ExpireDay = 0, '', Format('%.2d', [FProgramInfo.ExpireInfo.ExpireDay])));
+  SetNodeText(Doc, SubNode, 'Expire_Year',
+    IfThen(FProgramInfo.ExpireInfo.ExpireYear = 0, '', IntToStr(FProgramInfo.ExpireInfo.ExpireYear)));
+end;
+
+procedure TPadFormat.SaveSection_ProgramDescriptions(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node, SubNode: TDOMNode;
+begin
+  Node := AddChildNode(RootNode, 'Program_Descriptions');
+  if FProgramDescriptions.Language1Name <> '' then
+  begin
+    SubNode := AddChildNode(Node, FProgramDescriptions.Language1Name);
+    SetNodeText(Doc, SubNode, 'Keywords', FProgramDescriptions.Language1.Keywords);
+    SetNodeText(Doc, SubNode, 'Char_Desc_45', FProgramDescriptions.Language1.CharDesc45);
+    SetNodeText(Doc, SubNode, 'Char_Desc_80', FProgramDescriptions.Language1.CharDesc80);
+    SetNodeText(Doc, SubNode, 'Char_Desc_250', FProgramDescriptions.Language1.CharDesc250);
+    SetNodeText(Doc, SubNode, 'Char_Desc_450', FProgramDescriptions.Language1.CharDesc450);
+    SetNodeText(Doc, SubNode, 'Char_Desc_2000', FProgramDescriptions.Language1.CharDesc2000);
+  end;
+  if FProgramDescriptions.Language2Name <> '' then
+  begin
+    SubNode := AddChildNode(Node, FProgramDescriptions.Language2Name);
+    SetNodeText(Doc, SubNode, 'Keywords', FProgramDescriptions.Language2.Keywords);
+    SetNodeText(Doc, SubNode, 'Char_Desc_45', FProgramDescriptions.Language2.CharDesc45);
+    SetNodeText(Doc, SubNode, 'Char_Desc_80', FProgramDescriptions.Language2.CharDesc80);
+    SetNodeText(Doc, SubNode, 'Char_Desc_250', FProgramDescriptions.Language2.CharDesc250);
+    SetNodeText(Doc, SubNode, 'Char_Desc_450', FProgramDescriptions.Language2.CharDesc450);
+    SetNodeText(Doc, SubNode, 'Char_Desc_2000', FProgramDescriptions.Language2.CharDesc2000);
+  end;
+  if FProgramDescriptions.Language3Name <> '' then
+  begin
+    SubNode := AddChildNode(Node, FProgramDescriptions.Language3Name);
+    SetNodeText(Doc, SubNode, 'Keywords', FProgramDescriptions.Language3.Keywords);
+    SetNodeText(Doc, SubNode, 'Char_Desc_45', FProgramDescriptions.Language3.CharDesc45);
+    SetNodeText(Doc, SubNode, 'Char_Desc_80', FProgramDescriptions.Language3.CharDesc80);
+    SetNodeText(Doc, SubNode, 'Char_Desc_250', FProgramDescriptions.Language3.CharDesc250);
+    SetNodeText(Doc, SubNode, 'Char_Desc_450', FProgramDescriptions.Language3.CharDesc450);
+    SetNodeText(Doc, SubNode, 'Char_Desc_2000', FProgramDescriptions.Language3.CharDesc2000);
+  end;
+  if FProgramDescriptions.Language4Name <> '' then
+  begin
+    SubNode := AddChildNode(Node, FProgramDescriptions.Language4Name);
+    SetNodeText(Doc, SubNode, 'Keywords', FProgramDescriptions.Language4.Keywords);
+    SetNodeText(Doc, SubNode, 'Char_Desc_45', FProgramDescriptions.Language4.CharDesc45);
+    SetNodeText(Doc, SubNode, 'Char_Desc_80', FProgramDescriptions.Language4.CharDesc80);
+    SetNodeText(Doc, SubNode, 'Char_Desc_250', FProgramDescriptions.Language4.CharDesc250);
+    SetNodeText(Doc, SubNode, 'Char_Desc_450', FProgramDescriptions.Language4.CharDesc450);
+    SetNodeText(Doc, SubNode, 'Char_Desc_2000', FProgramDescriptions.Language4.CharDesc2000);
+  end;
+  if FProgramDescriptions.Language5Name <> '' then
+  begin
+    SubNode := AddChildNode(Node, FProgramDescriptions.Language5Name);
+    SetNodeText(Doc, SubNode, 'Keywords', FProgramDescriptions.Language5.Keywords);
+    SetNodeText(Doc, SubNode, 'Char_Desc_45', FProgramDescriptions.Language5.CharDesc45);
+    SetNodeText(Doc, SubNode, 'Char_Desc_80', FProgramDescriptions.Language5.CharDesc80);
+    SetNodeText(Doc, SubNode, 'Char_Desc_250', FProgramDescriptions.Language5.CharDesc250);
+    SetNodeText(Doc, SubNode, 'Char_Desc_450', FProgramDescriptions.Language5.CharDesc450);
+    SetNodeText(Doc, SubNode, 'Char_Desc_2000', FProgramDescriptions.Language5.CharDesc2000);
+  end;
+  if FProgramDescriptions.Language6Name <> '' then
+  begin
+    SubNode := AddChildNode(Node, FProgramDescriptions.Language6Name);
+    SetNodeText(Doc, SubNode, 'Keywords', FProgramDescriptions.Language6.Keywords);
+    SetNodeText(Doc, SubNode, 'Char_Desc_45', FProgramDescriptions.Language6.CharDesc45);
+    SetNodeText(Doc, SubNode, 'Char_Desc_80', FProgramDescriptions.Language6.CharDesc80);
+    SetNodeText(Doc, SubNode, 'Char_Desc_250', FProgramDescriptions.Language6.CharDesc250);
+    SetNodeText(Doc, SubNode, 'Char_Desc_450', FProgramDescriptions.Language6.CharDesc450);
+    SetNodeText(Doc, SubNode, 'Char_Desc_2000', FProgramDescriptions.Language6.CharDesc2000);
+  end;
+  if FProgramDescriptions.Language7Name <> '' then
+  begin
+    SubNode := AddChildNode(Node, FProgramDescriptions.Language7Name);
+    SetNodeText(Doc, SubNode, 'Keywords', FProgramDescriptions.Language7.Keywords);
+    SetNodeText(Doc, SubNode, 'Char_Desc_45', FProgramDescriptions.Language7.CharDesc45);
+    SetNodeText(Doc, SubNode, 'Char_Desc_80', FProgramDescriptions.Language7.CharDesc80);
+    SetNodeText(Doc, SubNode, 'Char_Desc_250', FProgramDescriptions.Language7.CharDesc250);
+    SetNodeText(Doc, SubNode, 'Char_Desc_450', FProgramDescriptions.Language7.CharDesc450);
+    SetNodeText(Doc, SubNode, 'Char_Desc_2000', FProgramDescriptions.Language7.CharDesc2000);
+  end;
+  if FProgramDescriptions.Language8Name <> '' then
+  begin
+    SubNode := AddChildNode(Node, FProgramDescriptions.Language8Name);
+    SetNodeText(Doc, SubNode, 'Keywords', FProgramDescriptions.Language8.Keywords);
+    SetNodeText(Doc, SubNode, 'Char_Desc_45', FProgramDescriptions.Language8.CharDesc45);
+    SetNodeText(Doc, SubNode, 'Char_Desc_80', FProgramDescriptions.Language8.CharDesc80);
+    SetNodeText(Doc, SubNode, 'Char_Desc_250', FProgramDescriptions.Language8.CharDesc250);
+    SetNodeText(Doc, SubNode, 'Char_Desc_450', FProgramDescriptions.Language8.CharDesc450);
+    SetNodeText(Doc, SubNode, 'Char_Desc_2000', FProgramDescriptions.Language8.CharDesc2000);
+  end;
+  if FProgramDescriptions.Language9Name <> '' then
+  begin
+    SubNode := AddChildNode(Node, FProgramDescriptions.Language9Name);
+    SetNodeText(Doc, SubNode, 'Keywords', FProgramDescriptions.Language9.Keywords);
+    SetNodeText(Doc, SubNode, 'Char_Desc_45', FProgramDescriptions.Language9.CharDesc45);
+    SetNodeText(Doc, SubNode, 'Char_Desc_80', FProgramDescriptions.Language9.CharDesc80);
+    SetNodeText(Doc, SubNode, 'Char_Desc_250', FProgramDescriptions.Language9.CharDesc250);
+    SetNodeText(Doc, SubNode, 'Char_Desc_450', FProgramDescriptions.Language9.CharDesc450);
+    SetNodeText(Doc, SubNode, 'Char_Desc_2000', FProgramDescriptions.Language9.CharDesc2000);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_WebInfo(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node, SubNode: TDOMNode;
+begin
+  Node := AddChildNode(RootNode, 'Web_Info');
+  SubNode := AddChildNode(Node, 'Application_URLs');
+  if FWebInfo.ApplicationURLs.FVideoLink1URLExists then
+    SetNodeText(Doc, SubNode, 'Video_Link_1_URL', FWebInfo.ApplicationURLs.VideoLink1URL);
+  if FWebInfo.ApplicationURLs.FVideoLink2URLExists then
+    SetNodeText(Doc, SubNode, 'Video_Link_2_URL', FWebInfo.ApplicationURLs.VideoLink2URL);
+  SetNodeText(Doc, SubNode, 'Application_Info_URL', FWebInfo.ApplicationURLs.ApplicationInfoURL);
+  SetNodeText(Doc, SubNode, 'Application_Order_URL', FWebInfo.ApplicationURLs.ApplicationOrderURL);
+  SetNodeText(Doc, SubNode, 'Application_Screenshot_URL', FWebInfo.ApplicationURLs.ApplicationScreenshotURL);
+  SetNodeText(Doc, SubNode, 'Application_Icon_URL', FWebInfo.ApplicationURLs.ApplicationIconURL);
+  SetNodeText(Doc, SubNode, 'Application_XML_File_URL', FWebInfo.ApplicationURLs.ApplicationXMLFileURL);
+
+  SubNode := AddChildNode(Node, 'Download_URLs');
+  SetNodeText(Doc, SubNode, 'Primary_Download_URL', FWebInfo.DownloadURLs.PrimaryDownloadURL);
+  SetNodeText(Doc, SubNode, 'Secondary_Download_URL', FWebInfo.DownloadURLs.SecondaryDownloadURL);
+  SetNodeText(Doc, SubNode, 'Additional_Download_URL_1', FWebInfo.DownloadURLs.AdditionalDownloadURL1);
+  SetNodeText(Doc, SubNode, 'Additional_Download_URL_2', FWebInfo.DownloadURLs.AdditionalDownloadURL2);
+end;
+
+procedure TPadFormat.SaveSection_Permissions(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  Node := AddChildNode(RootNode, 'Permissions');
+  SetNodeText(Doc, Node, 'Distribution_Permissions', FPermissions.DistributionPermissions);
+  SetNodeText(Doc, Node, 'EULA', FPermissions.EULA);
+end;
+
+procedure TPadFormat.SaveSection_PressRelease(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if (FPressRelease.FActive) then
+  begin
+    Node := AddChildNode(RootNode, 'Press_Release');
+    SetNodeText(Doc, Node, 'Press_Release', FPressRelease.PressRelease);
+    if FPressRelease.Headline <> '' then
+      SetNodeText(Doc, Node, 'Headline', FPressRelease.Headline);
+    if FPressRelease.Summary <> '' then
+      SetNodeText(Doc, Node, 'Summary', FPressRelease.Summary);
+    if FPressRelease.Keywords <> '' then
+      SetNodeText(Doc, Node, 'Keywords', FPressRelease.Keywords);
+    if FPressRelease.Related_URL <> '' then
+      SetNodeText(Doc, Node, 'Related_URL', FPressRelease.Related_URL);
+    if FPressRelease.PressReleasePlain <> '' then
+      SetNodeText(Doc, Node, 'Press_Release_Plain', FPressRelease.PressReleasePlain);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_Affiliates(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  // Save Affiliates
+  if (FAffiliates.FActive) then
+  begin
+    Node := AddChildNode(RootNode, 'Affiliates');
+    SetNodeText(Doc, Node, 'Affiliates_FORM', BoolToStr(FAffiliates.Affiliates_FORM, 'Y', 'N'));
+    if FAffiliates.Affiliates_FORM_VER <> '' then
+      SetNodeText(Doc, Node, 'Affiliates_FORM_VER', FAffiliates.Affiliates_FORM_VER);
+    if FAffiliates.Affiliates_VERSION <> '' then
+      SetNodeText(Doc, Node, 'Affiliates_VERSION', FAffiliates.Affiliates_VERSION);
+    SetNodeText(Doc, Node, 'Affiliates_URL', FAffiliates.Affiliates_URL);
+    SetNodeText(Doc, Node, 'Affiliates_Information_Page', FAffiliates.Affiliates_Information_Page);
+
+    // Save individual affiliate companies only if full section is needed
+    if FAffiliates.Avangate.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_Avangate_Order_Page', FAffiliates.Avangate.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Avangate_Vendor_ID', FAffiliates.Avangate.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Avangate_Product_ID', FAffiliates.Avangate.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Avangate_Maximum_Commission_Rate', FAffiliates.Avangate.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.BMTMicro.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Order_Page', FAffiliates.BMTMicro.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Vendor_ID', FAffiliates.BMTMicro.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Product_ID', FAffiliates.BMTMicro.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_BMTMicro_Maximum_Commission_Rate', FAffiliates.BMTMicro.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.Cleverbridge.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Order_Page', FAffiliates.Cleverbridge.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Vendor_ID', FAffiliates.Cleverbridge.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Product_ID', FAffiliates.Cleverbridge.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Cleverbridge_Maximum_Commission_Rate', FAffiliates.Cleverbridge.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.ClixGalore.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_clixGalore_Order_Page', FAffiliates.ClixGalore.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_clixGalore_Vendor_ID', FAffiliates.ClixGalore.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_clixGalore_Product_ID', FAffiliates.ClixGalore.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_clixGalore_Maximum_Commission_Rate', FAffiliates.ClixGalore.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.CommissionJunction.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Order_Page', FAffiliates.CommissionJunction.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Vendor_ID', FAffiliates.CommissionJunction.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Product_ID', FAffiliates.CommissionJunction.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_CommissionJunction_Maximum_Commission_Rate',
+        FAffiliates.CommissionJunction.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.DigiBuy.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Order_Page', FAffiliates.DigiBuy.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Vendor_ID', FAffiliates.DigiBuy.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Product_ID', FAffiliates.DigiBuy.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_DigiBuy_Maximum_Commission_Rate', FAffiliates.DigiBuy.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.DigitalCandle.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Order_Page', FAffiliates.DigitalCandle.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Vendor_ID', FAffiliates.DigitalCandle.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Product_ID', FAffiliates.DigitalCandle.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_DigitalCandle_Maximum_Commission_Rate', FAffiliates.DigitalCandle.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.Emetrix.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_Emetrix_Order_Page', FAffiliates.Emetrix.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Emetrix_Vendor_ID', FAffiliates.Emetrix.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Emetrix_Product_ID', FAffiliates.Emetrix.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Emetrix_Maximum_Commission_Rate', FAffiliates.Emetrix.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.eSellerate.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_eSellerate_Order_Page', FAffiliates.eSellerate.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_eSellerate_Vendor_ID', FAffiliates.eSellerate.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_eSellerate_Product_ID', FAffiliates.eSellerate.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_eSellerate_Maximum_Commission_Rate', FAffiliates.eSellerate.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.iPortis.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_iPortis_Order_Page', FAffiliates.iPortis.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_iPortis_Vendor_ID', FAffiliates.iPortis.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_iPortis_Product_ID', FAffiliates.iPortis.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_iPortis_Maximum_Commission_Rate', FAffiliates.iPortis.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.Kagi.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_Kagi_Order_Page', FAffiliates.Kagi.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Kagi_Vendor_ID', FAffiliates.Kagi.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Kagi_Product_ID', FAffiliates.Kagi.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Kagi_Maximum_Commission_Rate', FAffiliates.Kagi.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.LinkShare.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_LinkShare_Order_Page', FAffiliates.LinkShare.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_LinkShare_Vendor_ID', FAffiliates.LinkShare.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_LinkShare_Product_ID', FAffiliates.LinkShare.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_LinkShare_Maximum_Commission_Rate', FAffiliates.LinkShare.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.NorthStarSol.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Order_Page', FAffiliates.NorthStarSol.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Vendor_ID', FAffiliates.NorthStarSol.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Product_ID', FAffiliates.NorthStarSol.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_NorthStarSol_Maximum_Commission_Rate', FAffiliates.NorthStarSol.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.OneNetworkDirect.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Order_Page', FAffiliates.OneNetworkDirect.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Vendor_ID', FAffiliates.OneNetworkDirect.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Product_ID', FAffiliates.OneNetworkDirect.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_OneNetworkDirect_Maximum_Commission_Rate',
+        FAffiliates.OneNetworkDirect.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.Order1.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_Order1_Order_Page', FAffiliates.Order1.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Order1_Vendor_ID', FAffiliates.Order1.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Order1_Product_ID', FAffiliates.Order1.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Order1_Maximum_Commission_Rate', FAffiliates.Order1.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.Osolis.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_Osolis_Order_Page', FAffiliates.Osolis.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Osolis_Vendor_ID', FAffiliates.Osolis.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Osolis_Product_ID', FAffiliates.Osolis.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Osolis_Maximum_Commission_Rate', FAffiliates.Osolis.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.PayPro.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_PayPro_Order_Page', FAffiliates.PayPro.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_PayPro_Vendor_ID', FAffiliates.PayPro.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_PayPro_Product_ID', FAffiliates.PayPro.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_PayPro_Maximum_Commission_Rate', FAffiliates.PayPro.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.Plimus.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_Plimus_Order_Page', FAffiliates.Plimus.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Plimus_Vendor_ID', FAffiliates.Plimus.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Plimus_Product_ID', FAffiliates.Plimus.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Plimus_Maximum_Commission_Rate', FAffiliates.Plimus.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.Regnet.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_Regnet_Order_Page', FAffiliates.Regnet.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Regnet_Vendor_ID', FAffiliates.Regnet.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Regnet_Product_ID', FAffiliates.Regnet.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Regnet_Maximum_Commission_Rate', FAffiliates.Regnet.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.Regnow.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_Regnow_Order_Page', FAffiliates.Regnow.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Regnow_Vendor_ID', FAffiliates.Regnow.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Regnow_Product_ID', FAffiliates.Regnow.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Regnow_Maximum_Commission_Rate', FAffiliates.Regnow.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.Regsoft.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_Regsoft_Order_Page', FAffiliates.Regsoft.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Regsoft_Vendor_ID', FAffiliates.Regsoft.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Regsoft_Product_ID', FAffiliates.Regsoft.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Regsoft_Maximum_Commission_Rate', FAffiliates.Regsoft.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.ShareIt.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_ShareIt_Order_Page', FAffiliates.ShareIt.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_ShareIt_Vendor_ID', FAffiliates.ShareIt.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_ShareIt_Product_ID', FAffiliates.ShareIt.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_ShareIt_Maximum_Commission_Rate', FAffiliates.ShareIt.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.Shareasale.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_Shareasale_Order_Page', FAffiliates.Shareasale.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Shareasale_Vendor_ID', FAffiliates.Shareasale.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Shareasale_Product_ID', FAffiliates.Shareasale.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Shareasale_Maximum_Commission_Rate', FAffiliates.Shareasale.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.SWReg.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_SWReg_Order_Page', FAffiliates.SWReg.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_SWReg_Vendor_ID', FAffiliates.SWReg.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_SWReg_Product_ID', FAffiliates.SWReg.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_SWReg_Maximum_Commission_Rate', FAffiliates.SWReg.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.VShare.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_V-Share_Order_Page', FAffiliates.VShare.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_V-Share_Vendor_ID', FAffiliates.VShare.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_V-Share_Product_ID', FAffiliates.VShare.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_V-Share_Maximum_Commission_Rate', FAffiliates.VShare.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.VFree.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_VFree_Order_Page', FAffiliates.VFree.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_VFree_Vendor_ID', FAffiliates.VFree.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_VFree_Product_ID', FAffiliates.VFree.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_VFree_Maximum_Commission_Rate', FAffiliates.VFree.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.Yaskifo.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Order_Page', FAffiliates.Yaskifo.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Vendor_ID', FAffiliates.Yaskifo.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Product_ID', FAffiliates.Yaskifo.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_Yaskifo_Maximum_Commission_Rate', FAffiliates.Yaskifo.MaximumCommissionRate);
+    end;
+  end;
+end;
+
+procedure TPadFormat.SaveSection_ASP(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FASP.ASPForm then
+  begin
+    Node := AddChildNode(RootNode, 'ASP');
+    SetNodeText(Doc, Node, 'ASP_FORM', BoolToStr(FASP.ASPForm, 'Y', 'N'));
+    SetNodeText(Doc, Node, 'ASP_Member', BoolToStr(FASP.ASPMember, 'Y', 'N'));
+    SetNodeText(Doc, Node, 'ASP_Member_Number', FASP.ASPMemberNumber);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_TPA(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FTPA.FActive then
+  begin
+    Node := AddChildNode(RootNode, 'TPA');
+    SetNodeText(Doc, Node, 'TPA_FORM', BoolToStr(FTPA.TPA_FORM, 'Y', 'N'));
+    SetNodeText(Doc, Node, 'TPA_Member', BoolToStr(FTPA.TPA_Member, 'Y', 'N'));
+    // TPA_Member_ID should always be saved, even if empty
+    SetNodeText(Doc, Node, 'TPA_Member_ID', FTPA.TPA_Member_ID);
+    if FTPA.Trial_License_Type <> '' then
+      SetNodeText(Doc, Node, 'Trial_License_Type', FTPA.Trial_License_Type);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_AppStore(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if (FAppStore.FActive) then
+  begin
+    Node := AddChildNode(RootNode, 'AppStore');
+    SetNodeText(Doc, Node, 'AppStore_AppID', FAppStore.AppStore_AppID);
+    SetNodeText(Doc, Node, 'AppStore_Category', FAppStore.AppStore_Category);
+    SetNodeText(Doc, Node, 'AppStore_Info_URL', FAppStore.AppStore_Info_URL);
+    SetNodeText(Doc, Node, 'AppStore_Download_URL', FAppStore.AppStore_Download_URL);
+    SetNodeText(Doc, Node, 'AppStore_Promo_Code_1', FAppStore.AppStore_Promo_Code_1);
+    SetNodeText(Doc, Node, 'AppStore_Promo_Code_2', FAppStore.AppStore_Promo_Code_2);
+    SetNodeText(Doc, Node, 'AppStore_Promo_Code_3', FAppStore.AppStore_Promo_Code_3);
+    SetNodeText(Doc, Node, 'AppStore_Supported_Devices', FAppStore.AppStore_Supported_Devices);
+    SetNodeText(Doc, Node, 'AppStore_Other_Applications', FAppStore.AppStore_Other_Applications);
+    SetNodeText(Doc, Node, 'AppStore_Advantages_And_Unique_Features', FAppStore.AppStore_Advantages_And_Unique_Features);
+    SetNodeText(Doc, Node, 'AppStore_Awards_And_Ratings', FAppStore.AppStore_Awards_And_Ratings);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_Issues(Doc: TXMLDocument; RootNode: TDOMNode);
+begin
+  if FIssues <> '' then
+    SetNodeText(Doc, RootNode, 'Issues', FIssues);
+end;
+
+procedure TPadFormat.SaveSection_tSuccess(Doc: TXMLDocument; RootNode: TDOMNode);
+begin
+  if FtSuccess <> '' then
+    SetNodeText(Doc, RootNode, 'tSuccess', FtSuccess);
+end;
+
+procedure TPadFormat.SaveSection_tProcessed(Doc: TXMLDocument; RootNode: TDOMNode);
+begin
+  if FtProcessed <> '' then
+    SetNodeText(Doc, RootNode, 'tProcessed', FtProcessed);
+end;
+
+procedure TPadFormat.SaveSection_ASBMPlannerID1stRound(Doc: TXMLDocument; RootNode: TDOMNode);
+begin
+  if FASBMPlannerID1stRound <> '' then
+    SetNodeText(Doc, RootNode, 'ASBMPlannerID1stRound', FASBMPlannerID1stRound);
+end;
+
+procedure TPadFormat.SaveSection_ASBMPlannerID2ndRound(Doc: TXMLDocument; RootNode: TDOMNode);
+begin
+  if FASBMPlannerID2ndRound <> '' then
+    SetNodeText(Doc, RootNode, 'ASBMPlannerID2ndRound', FASBMPlannerID2ndRound);
+end;
+
+procedure TPadFormat.SaveSection_Allmyapps(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FAllmyapps.FActive then
+  begin
+    Node := AddChildNode(RootNode, 'Allmyapps');
+    SetNodeText(Doc, Node, 'Allmyapps_Terms_And_Conditions',
+      BoolToStr(FAllmyapps.Allmyapps_Terms_And_Conditions, 'Y', 'N'));
+  end;
+end;
+
+procedure TPadFormat.SaveSection_PADRING(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FPADRING.FActive then
+  begin
+    Node := AddChildNode(RootNode, 'PADRING');
+    SetNodeText(Doc, Node, 'PADRING_FORM', BoolToStr(FPADRING.PADRING_FORM, 'Y', 'N'));
+    SetNodeText(Doc, Node, 'PADRING', FPADRING.PADRING);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_Simtel(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FSimtel.FActive then
+  begin
+    Node := AddChildNode(RootNode, 'Simtel');
+    SetNodeText(Doc, Node, 'Simtel_FORM', BoolToStr(FSimtel.Simtel_FORM, 'Y', 'N'));
+    SetNodeText(Doc, Node, 'SIMTEL_FORM_VER', FSimtel.Simtel_FORM_VER);
+    SetNodeText(Doc, Node, 'Simtel_Platform', FSimtel.Simtel_Platform);
+    SetNodeText(Doc, Node, 'Simtel_Category', FSimtel.Simtel_Category);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_ArticleContents(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FArticle_Contents.FActive then
+  begin
+    Node := AddChildNode(RootNode, 'Article_Contents');
+    SetNodeText(Doc, Node, 'Title', FArticle_Contents.Title);
+    SetNodeText(Doc, Node, 'Summary', FArticle_Contents.Summary);
+    SetNodeText(Doc, Node, 'Body', FArticle_Contents.Body);
+    SetNodeText(Doc, Node, 'Resources', FArticle_Contents.Resources);
+  end;
+end;
+
+procedure TPadFormat.SaveSection_MSN(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FMSN.FActive then
+  begin
+    Node := AddChildNode(RootNode, 'MSN');
+    SetNodeText(Doc, Node, 'MSN_FORM', BoolToStr(FMSN.MSN_FORM, 'Y', 'N'));
+    SetNodeText(Doc, Node, 'MSN_IS_32bit', BoolToStr(FMSN.MSN_IS_32bit, 'Y', 'N'));
   end;
 end;
 
