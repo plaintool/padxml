@@ -4663,6 +4663,8 @@ var
   Node, SubNode: TDOMNode;
 begin
   Node := AddChildNode(RootNode, 'Program_Info');
+  if FProgramInfo.FProgramTargetPlatformExists then
+    SetNodeText(Doc, Node, 'Program_Target_Platform', FProgramInfo.FProgramTargetPlatform);
   SetNodeText(Doc, Node, 'Program_Name', FProgramInfo.ProgramName);
   SetNodeText(Doc, Node, 'Program_Version', FProgramInfo.ProgramVersion);
   SetNodeText(Doc, Node, 'Program_Release_Month',
@@ -4685,8 +4687,6 @@ begin
   if FProgramInfo.FProgramCategoriesExists then
     SetNodeText(Doc, Node, 'Program_Categories', FProgramInfo.ProgramCategories);
   SetNodeText(Doc, Node, 'Program_System_Requirements', FProgramInfo.ProgramSystemRequirements);
-  if FProgramInfo.FProgramTargetPlatformExists then
-    SetNodeText(Doc, Node, 'Program_Target_Platform', FProgramInfo.FProgramTargetPlatform);
   if FProgramInfo.FLimitationsExists then
     SetNodeText(Doc, Node, 'Limitations', FProgramInfo.FLimitations);
   if FProgramInfo.FAwardsExists then
