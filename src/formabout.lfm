@@ -9,6 +9,7 @@ object formAboutPadXml: TformAboutPadXml
   ClientHeight = 282
   ClientWidth = 466
   Color = clWhite
+  KeyPreview = True
   LCLVersion = '4.4.0.0'
   Scaled = False
   OnCreate = FormCreate
@@ -18,6 +19,7 @@ object formAboutPadXml: TformAboutPadXml
     Top = 245
     Width = 75
     Anchors = [akRight, akBottom]
+    Cancel = True
     Caption = 'OK'
     ModalResult = 1
     TabOrder = 0

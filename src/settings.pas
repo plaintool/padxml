@@ -51,10 +51,10 @@ begin
   if baseDir = '' then
     baseDir := GetEnvironmentVariable('APPDATA');
 
-  Result := IncludeTrailingPathDelimiter(baseDir) + 'notetask\' + fileName;
+  Result := IncludeTrailingPathDelimiter(baseDir) + 'padxml\' + fileName;
   {$ELSE}
-  // Unix-like systems: use ~/.config/notetask
-  Result := IncludeTrailingPathDelimiter(GetUserDir) + '.config/notetask/' + fileName;
+  // Unix-like systems: use ~/.config/padxml
+  Result := IncludeTrailingPathDelimiter(GetUserDir) + '.config/padxml/' + fileName;
   {$ENDIF}
 end;
 
