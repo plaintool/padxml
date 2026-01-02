@@ -460,6 +460,8 @@ type
   { TPadProgramInfo }
   TPadProgramInfo = class(TPersistent)
   private
+    FAppIDExists: boolean;
+    FAppID: string;
     FProgramName: string;
     FProgramVersion: string;
     FProgramReleaseMonth: byte;
@@ -518,6 +520,7 @@ type
     procedure SetAwards(const Value: string);
     procedure SetFacebookProductPage(const Value: string);
     procedure SetGooglePlusProductPage(const Value: string);
+    procedure SetAppID(const Value: string);
 
     function GetProgramTypeAsString: string;
     procedure SetProgramTypeAsString(const Value: string);
@@ -544,6 +547,7 @@ type
     property ProgramLanguageAsString: string read GetProgramLanguageAsString write SetProgramLanguageAsString;
     property ProgramCategoryClassAsString: string read GetProgramCategoryClassAsString write SetProgramCategoryClassAsString;
   published
+    property AppID: string read FAppID write SetAppID;
     property ProgramName: string read FProgramName write FProgramName;
     property ProgramVersion: string read FProgramVersion write FProgramVersion;
     property ProgramReleaseMonth: byte read FProgramReleaseMonth write FProgramReleaseMonth;
@@ -841,6 +845,7 @@ type
 
     // Individual affiliate companies
     FAvangate: TPadAffiliateCompany;
+    FBlueSnap: TPadAffiliateCompany;
     FBMTMicro: TPadAffiliateCompany;
     FCleverbridge: TPadAffiliateCompany; // New in version 1.4
     FClixGalore: TPadAffiliateCompany;
@@ -881,6 +886,7 @@ type
 
     // Affiliate companies
     property Avangate: TPadAffiliateCompany read FAvangate write FAvangate;
+    property BlueSnap: TPadAffiliateCompany read FBlueSnap write FBlueSnap;
     property BMTMicro: TPadAffiliateCompany read FBMTMicro write FBMTMicro;
     property Cleverbridge: TPadAffiliateCompany read FCleverbridge write FCleverbridge;
     property ClixGalore: TPadAffiliateCompany read FClixGalore write FClixGalore;
@@ -1621,6 +1627,17 @@ begin
   end;
 end;
 
+procedure TPadProgramInfo.SetAppID(const Value: string);
+begin
+  if FAppID <> Value then
+  begin
+    FAppID := Value;
+    // Set Exists flag to True when value is assigned
+    FAppIDExists := True;
+  end;
+end;
+
+
 { TPadCompanyInfo }
 
 constructor TPadCompanyInfo.Create;
@@ -1972,6 +1989,7 @@ begin
 
   // Create affiliate company objects
   FAvangate := TPadAffiliateCompany.Create;
+  FBlueSnap := TPadAffiliateCompany.Create;
   FBMTMicro := TPadAffiliateCompany.Create;
   FCleverbridge := TPadAffiliateCompany.Create;
   FClixGalore := TPadAffiliateCompany.Create;
@@ -2004,6 +2022,7 @@ destructor TPadAffiliates.Destroy;
 begin
   // Free all affiliate company objects
   FAvangate.Free;
+  FBlueSnap.Free;
   FBMTMicro.Free;
   FCleverbridge.Free;
   FClixGalore.Free;
@@ -2460,6 +2479,8 @@ begin
       Node := RootNode.FindNode('Program_Info');
       if Assigned(Node) then
       begin
+        FProgramInfo.FAppIDExists := Assigned(Node.FindNode('AppID'));
+        FProgramInfo.AppID := GetNodeValue(Node, 'AppID');
         FProgramInfo.ProgramName := GetNodeValue(Node, 'Program_Name');
         FProgramInfo.ProgramVersion := GetNodeValue(Node, 'Program_Version');
         FProgramInfo.ProgramReleaseMonth := StrToIntDef(GetNodeValue(Node, 'Program_Release_Month'), 0);
@@ -2715,6 +2736,12 @@ begin
           'Affiliates_Avangate_Vendor_ID',
           'Affiliates_Avangate_Product_ID',
           'Affiliates_Avangate_Maximum_Commission_Rate');
+
+        LoadAffiliateCompany(FAffiliates.BlueSnap,
+          'Affiliates_BlueSnap_Order_Page',
+          'Affiliates_BlueSnap_Vendor_ID',
+          'Affiliates_BlueSnap_Product_ID',
+          'Affiliates_BlueSnap_Maximum_Commission_Rate');
 
         LoadAffiliateCompany(FAffiliates.BMTMicro,
           'Affiliates_BMTMicro_Order_Page',
@@ -3281,6 +3308,7 @@ begin
   FDynamic_PAD.Dynamic_Distributive := False;
 
   // Clear Program Info
+  FProgramInfo.AppID := '';
   FProgramInfo.ProgramName := '';
   FProgramInfo.ProgramVersion := '';
   FProgramInfo.ProgramReleaseMonth := 0;
@@ -3493,6 +3521,12 @@ begin
   FAffiliates.Avangate.VendorID := '';
   FAffiliates.Avangate.ProductID := '';
   FAffiliates.Avangate.MaximumCommissionRate := '';
+
+  FAffiliates.BlueSnap.FActive := False;
+  FAffiliates.BlueSnap.OrderPage := '';
+  FAffiliates.BlueSnap.VendorID := '';
+  FAffiliates.BlueSnap.ProductID := '';
+  FAffiliates.BlueSnap.MaximumCommissionRate := '';
 
   FAffiliates.BMTMicro.FActive := False;
   FAffiliates.BMTMicro.OrderPage := '';
@@ -4665,6 +4699,8 @@ begin
   Node := AddChildNode(RootNode, 'Program_Info');
   if FProgramInfo.FProgramTargetPlatformExists then
     SetNodeText(Doc, Node, 'Program_Target_Platform', FProgramInfo.FProgramTargetPlatform);
+  if FProgramInfo.FAppIDExists then
+    SetNodeText(Doc, Node, 'AppID', FProgramInfo.FAppID);
   SetNodeText(Doc, Node, 'Program_Name', FProgramInfo.ProgramName);
   SetNodeText(Doc, Node, 'Program_Version', FProgramInfo.ProgramVersion);
   SetNodeText(Doc, Node, 'Program_Release_Month',
@@ -4912,6 +4948,14 @@ begin
       SetNodeText(Doc, Node, 'Affiliates_Avangate_Vendor_ID', FAffiliates.Avangate.VendorID);
       SetNodeText(Doc, Node, 'Affiliates_Avangate_Product_ID', FAffiliates.Avangate.ProductID);
       SetNodeText(Doc, Node, 'Affiliates_Avangate_Maximum_Commission_Rate', FAffiliates.Avangate.MaximumCommissionRate);
+    end;
+
+    if FAffiliates.BlueSnap.FActive then
+    begin
+      SetNodeText(Doc, Node, 'Affiliates_BlueSnap_Order_Page', FAffiliates.BlueSnap.OrderPage);
+      SetNodeText(Doc, Node, 'Affiliates_BlueSnap_Vendor_ID', FAffiliates.BlueSnap.VendorID);
+      SetNodeText(Doc, Node, 'Affiliates_BlueSnap_Product_ID', FAffiliates.BlueSnap.ProductID);
+      SetNodeText(Doc, Node, 'Affiliates_BlueSnap_Maximum_Commission_Rate', FAffiliates.BlueSnap.MaximumCommissionRate);
     end;
 
     if FAffiliates.BMTMicro.FActive then
