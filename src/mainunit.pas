@@ -318,6 +318,7 @@ var
   Output: TStringList;
 begin
   Result := False;
+  propertyPad.SaveChanges;
 
   // Validate filename
   if Trim(AFileName) = '' then
@@ -442,6 +443,7 @@ var
   mr: TModalResult;
 begin
   Result := True;
+  propertyPad.SaveChanges;
 
   if FChanged then
   begin
