@@ -51,7 +51,7 @@ begin
   if baseDir = '' then
     baseDir := GetEnvironmentVariable('APPDATA');
 
-  Result := IncludeTrailingPathDelimiter(baseDir) + 'padxml\' + fileName;
+  Result := IncludeTrailingPathDelimiter(baseDir) + 'PadXml\' + fileName;
   {$ELSE}
   // Unix-like systems: use ~/.config/padxml
   Result := IncludeTrailingPathDelimiter(GetUserDir) + '.config/padxml/' + fileName;
