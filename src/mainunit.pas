@@ -52,6 +52,7 @@ type
     menuAllmyapps: TMenuItem;
     menuAppStore: TMenuItem;
     menuIssues: TMenuItem;
+    menuKilletSoft: TMenuItem;
     menuTPA: TMenuItem;
     menuMSN: TMenuItem;
     menuSimtel: TMenuItem;
@@ -419,6 +420,7 @@ begin
   menuArticleContents.Checked := PadFormat.Article_Contents.Active;
   menuDeuPAD.Checked := PadFormat.DeuPAD.Active;
   menuDynamicPAD.Checked := PadFormat.Dynamic_PAD.Active;
+  menuKilletSoft.Checked := PadFormat.KilletSoft.Active;
   menuMSN.Checked := PadFormat.MSN.Active;
   menuNewsFeed.Checked := PadFormat.NewsFeed.Active;
   menuOnlineShops.Checked := PadFormat.OnlineShops.Active;
@@ -819,6 +821,10 @@ begin
   // DynamicPAD
   if SameText(aEditor.GetName, 'Dynamic_PAD') then
     aShow := menuDynamicPAD.Checked;
+
+  // KilletSoft
+  if SameText(aEditor.GetName, 'KilletSoft') then
+    aShow := menuKilletSoft.Checked;
 
   // MSN
   if SameText(aEditor.GetName, 'MSN') then

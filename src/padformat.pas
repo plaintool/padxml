@@ -1004,6 +1004,16 @@ type
     property MSN_IS_32bit: boolean read FMSN_IS_32bit write FMSN_IS_32bit;
   end;
 
+  { TPadKilletSoft }
+  TPadKilletSoft = class(TPersistent)
+  private
+    FActive: boolean;
+    FKilletSoft_html_pad: boolean;
+  published
+    property Active: boolean read FActive write FActive default False;
+    property KilletSoft_html_pad: boolean read FKilletSoft_html_pad write FKilletSoft_html_pad default False;
+  end;
+
   { TPadASP }
   TPadASP = class(TPersistent)
   private
@@ -1126,6 +1136,7 @@ type
     FSimtel: TPadSimtel;
     FArticle_Contents: TPadArticleContents;
     FMSN: TPadMSN;
+    FKilletSoft: TPadKilletSoft;
     function SetNodeText(Doc: TXMLDocument; ParentNode: TDOMNode; NodeName, NodeValue: string): TDOMNode;
     function AddChildNode(ParentNode: TDOMNode; NodeName: string): TDOMNode;
     procedure SetNodeTextValue(Node: TDOMNode; Value: string);
@@ -1171,6 +1182,7 @@ type
     procedure SaveSection_Simtel(Doc: TXMLDocument; RootNode: TDOMNode);
     procedure SaveSection_ArticleContents(Doc: TXMLDocument; RootNode: TDOMNode);
     procedure SaveSection_MSN(Doc: TXMLDocument; RootNode: TDOMNode);
+    procedure SaveSection_KilletSoft(Doc: TXMLDocument; RootNode: TDOMNode);
   public
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -1220,6 +1232,7 @@ type
     property Simtel: TPadSimtel read FSimtel write FSimtel;
     property Article_Contents: TPadArticleContents read FArticle_Contents write FArticle_Contents;
     property MSN: TPadMSN read FMSN write FMSN;
+    property KilletSoft: TPadKilletSoft read FKilletSoft write FKilletSoft;
   end;
 
 // Helper functions for conversions
@@ -2185,6 +2198,7 @@ begin
   FSimtel := TPadSimtel.Create;
   FArticle_Contents := TPadArticleContents.Create;
   FMSN := TPadMSN.Create;
+  FKilletSoft := TPadKilletSoft.Create;
 end;
 
 destructor TPadFormat.Destroy;
@@ -2215,6 +2229,7 @@ begin
   FSimtel.Free;
   FArticle_Contents.Free;
   FMSN.Free;
+  FKilletSoft.Free;
   inherited Destroy;
 end;
 
@@ -2940,6 +2955,14 @@ begin
         FMSN.MSN_IS_32bit := UpperCase(GetNodeValue(Node, 'MSN_IS_32bit')) = 'Y';
       end;
 
+      // Load KilletSoft
+      Node := RootNode.FindNode('KilletSoft');
+      FKilletSoft.FActive := Assigned(Node);
+      if Assigned(Node) then
+      begin
+        FKilletSoft.KilletSoft_html_pad := UpperCase(GetNodeValue(Node, 'KilletSoft_html_pad')) = 'TRUE';
+      end;
+
       // Load ASP
       Node := RootNode.FindNode('ASP');
       if Assigned(Node) then
@@ -3099,6 +3122,8 @@ begin
 
       if TagName = 'MASTER_PAD_VERSION_INFO' then
         SaveSection_MasterPadVersionInfo(Doc, RootNode)
+      else if TagName = 'KilletSoft' then
+        SaveSection_KilletSoft(Doc, RootNode)
       else if TagName = 'RoboSoft' then
         SaveSection_RoboSoft(Doc, RootNode)
       else if TagName = 'Company_Info' then
@@ -3163,6 +3188,7 @@ begin
   begin
     // Default order (as originally in SaveToXML)
     SaveSection_MasterPadVersionInfo(Doc, RootNode);
+    SaveSection_KilletSoft(Doc, RootNode);
     SaveSection_RoboSoft(Doc, RootNode);
     SaveSection_CompanyInfo(Doc, RootNode);
     SaveSection_NewsFeed(Doc, RootNode);
@@ -3779,6 +3805,10 @@ begin
   FMSN.FActive := False;
   FMSN.MSN_FORM := False;
   FMSN.MSN_IS_32bit := False;
+
+  // Clear KilletSoft
+  FKilletSoft.FActive := False;
+  FKilletSoft.KilletSoft_html_pad := False;
 
   // Clear XML formatting options
   FXmlConfig.XMLEncoding := peUTF8;
@@ -5311,6 +5341,18 @@ begin
     Node := AddChildNode(RootNode, 'MSN');
     SetNodeText(Doc, Node, 'MSN_FORM', BoolToStr(FMSN.MSN_FORM, 'Y', 'N'));
     SetNodeText(Doc, Node, 'MSN_IS_32bit', BoolToStr(FMSN.MSN_IS_32bit, 'Y', 'N'));
+  end;
+end;
+
+procedure TPadFormat.SaveSection_KilletSoft(Doc: TXMLDocument; RootNode: TDOMNode);
+var
+  Node: TDOMNode;
+begin
+  if FKilletSoft.FActive then
+  begin
+    Node := AddChildNode(RootNode, 'KilletSoft');
+    SetNodeText(Doc, Node, 'KilletSoft_html_pad',
+      BoolToStr(FKilletSoft.KilletSoft_html_pad, 'TRUE', 'FALSE'));
   end;
 end;
 

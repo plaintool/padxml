@@ -153,6 +153,11 @@ object formPadXml: TformPadXml
         Caption = 'DynamicPAD'
         OnClick = menuSectionClick
       end
+      object menuKilletSoft: TMenuItem
+        AutoCheck = True
+        Caption = 'KilletSoft'
+        OnClick = menuSectionClick
+      end
       object menuMSN: TMenuItem
         AutoCheck = True
         Caption = 'MSN'
