@@ -40,7 +40,12 @@ type
     FMasterPadEditor: string;
     FMasterPadEditorUrl: string;
     FMasterPadInfo: string;
+    FCertifiedExists: boolean;
+    FCertified: boolean;
+    FCertificateId: string;
+    FCertificateLicense: string;
     procedure SetMasterPadVersion(Value: string);
+    procedure SetCertified(Value: boolean);
   protected
     property Version: double read FVersion write FVersion;
   published
@@ -48,6 +53,9 @@ type
     property MasterPadEditor: string read FMasterPadEditor write FMasterPadEditor;
     property MasterPadEditorUrl: string read FMasterPadEditorUrl write FMasterPadEditorUrl;
     property MasterPadInfo: string read FMasterPadInfo write FMasterPadInfo;
+    property Certified: boolean read FCertified write SetCertified;
+    property CertificateId: string read FCertificateId write FCertificateId;
+    property CertificateLicense: string read FCertificateLicense write FCertificateLicense;
   end;
 
   { TPadRoboSoft }
@@ -144,16 +152,19 @@ type
     FTwitterCompanyPage: string;
     FFacebookCompanyPage: string;
     FCompanyStorePage: string;
+    FPublisherID: string;
     FGooglePlusPageExists: boolean;
     FLinkedinPageExists: boolean;
     FTwitterCompanyPageExists: boolean;
     FFacebookCompanyPageExists: boolean;
     FCompanyStorePageExists: boolean;
+    FPublisherIDExists: boolean;
     procedure SetGooglePlusPage(const Value: string);
     procedure SetLinkedinPage(const Value: string);
     procedure SetTwitterCompanyPage(const Value: string);
     procedure SetFacebookCompanyPage(const Value: string);
     procedure SetCompanyStorePage(const Value: string);
+    procedure SetPublisherID(const Value: string);
   public
     constructor Create;
     destructor Destroy; override;
@@ -173,6 +184,7 @@ type
     property TwitterCompanyPage: string read FTwitterCompanyPage write SetTwitterCompanyPage;
     property FacebookCompanyPage: string read FFacebookCompanyPage write SetFacebookCompanyPage;
     property CompanyStorePage: string read FCompanyStorePage write SetCompanyStorePage;
+    property PublisherID: string read FPublisherID write SetPublisherID;
   end;
 
   { TPadNewsFeed }
@@ -376,6 +388,8 @@ type
     FDP_Distributive_Enabled: boolean;
     FDP_AtFormFill_Enabled: boolean;
     FDP_ControlPanel_Hosted: string;
+    FDP_Distributive_Primary_URL: string;
+    FDP_Distributive_Mask: string;
   published
     property Active: boolean read FActive write FActive default False;
     property DP_Pad_Mask: string read FDP_Pad_Mask write FDP_Pad_Mask;
@@ -384,6 +398,8 @@ type
     property DP_Distributive_Enabled: boolean read FDP_Distributive_Enabled write FDP_Distributive_Enabled;
     property DP_AtFormFill_Enabled: boolean read FDP_AtFormFill_Enabled write FDP_AtFormFill_Enabled;
     property DP_ControlPanel_Hosted: string read FDP_ControlPanel_Hosted write FDP_ControlPanel_Hosted;
+    property DP_Distributive_Primary_URL: string read FDP_Distributive_Primary_URL write FDP_Distributive_Primary_URL;
+    property DP_Distributive_Mask: string read FDP_Distributive_Mask write FDP_Distributive_Mask;
   end;
 
   { TPadDynamicPAD }
@@ -951,12 +967,14 @@ type
     FSimtel_FORM_VER: string;
     FSimtel_Platform: string;
     FSimtel_Category: string;
+    FSimtel_DOS_Category: string;
   published
     property Active: boolean read FActive write FActive default False;
     property Simtel_FORM: boolean read FSimtel_FORM write FSimtel_FORM;
     property Simtel_FORM_VER: string read FSimtel_FORM_VER write FSimtel_FORM_VER;
     property Simtel_Platform: string read FSimtel_Platform write FSimtel_Platform;
     property Simtel_Category: string read FSimtel_Category write FSimtel_Category;
+    property Simtel_DOS_Category: string read FSimtel_DOS_Category write FSimtel_DOS_Category;
   end;
 
   { TPadArticleContents }
@@ -1301,6 +1319,12 @@ begin
   FMasterPadVersion := Value;
   FVersion := StrToFloatSafe(FMasterPadVersion);
   if FVersion <= 0 then FVersion := 4;
+end;
+
+procedure TPadMasterVersionInfo.SetCertified(Value: boolean);
+begin
+  FCertified := Value;
+  FCertifiedExists := True;
 end;
 
 {TPadContactInfo}
@@ -1664,6 +1688,7 @@ begin
   FTwitterCompanyPageExists := False;
   FFacebookCompanyPageExists := False;
   FCompanyStorePageExists := False;
+  FPublisherIDExists := False;
 end;
 
 destructor TPadCompanyInfo.Destroy;
@@ -1715,6 +1740,15 @@ begin
   begin
     FCompanyStorePage := Value;
     FCompanyStorePageExists := True;
+  end;
+end;
+
+procedure TPadCompanyInfo.SetPublisherID(const Value: string);
+begin
+  if FPublisherID <> Value then
+  begin
+    FPublisherID := Value;
+    FPublisherIDExists := True;
   end;
 end;
 
@@ -2294,6 +2328,13 @@ begin
           GetNodeValue(Node, 'MASTER_PAD_EDITOR_URL');
         FMasterPadVersionInfo.MasterPadInfo :=
           GetNodeValue(Node, 'MASTER_PAD_INFO');
+        FMasterPadVersionInfo.FCertifiedExists := Assigned(Node.FindNode('CERTIFIED'));
+        FMasterPadVersionInfo.FCertified :=
+          UpperCase(GetNodeValue(Node, 'CERTIFIED')) = 'Y';
+        FMasterPadVersionInfo.FCertificateId :=
+          GetNodeValue(Node, 'CERTIFICATE_ID');
+        FMasterPadVersionInfo.FCertificateLicense :=
+          GetNodeValue(Node, 'CERTIFICATE_LICENSE');
       end;
 
       // Load RoboSoft section
@@ -2367,6 +2408,8 @@ begin
         FCompanyInfo.FacebookCompanyPage := GetNodeValue(Node, 'FacebookCompanyPage');
         FCompanyInfo.FCompanyStorePageExists := Assigned(Node.FindNode('CompanyStorePage'));
         FCompanyInfo.CompanyStorePage := GetNodeValue(Node, 'CompanyStorePage');
+        FCompanyInfo.FPublisherIDExists := Assigned(Node.FindNode('PublisherID'));
+        FCompanyInfo.PublisherID := GetNodeValue(Node, 'PublisherID');
       end;
 
       // Load News Feed (updated with new fields)
@@ -2487,6 +2530,8 @@ begin
           FDynamic_PAD.General.DP_Distributive_Enabled := UpperCase(GetNodeValue(SubNode, 'DP_Distributive_Enabled')) = 'TRUE';
           FDynamic_PAD.General.DP_AtFormFill_Enabled := UpperCase(GetNodeValue(SubNode, 'DP_AtFormFill_Enabled')) = 'TRUE';
           FDynamic_PAD.General.DP_ControlPanel_Hosted := GetNodeValue(SubNode, 'DP_ControlPanel_Hosted');
+          FDynamic_PAD.General.DP_Distributive_Primary_URL := GetNodeValue(SubNode, 'DP_Distributive_Primary_URL');
+          FDynamic_PAD.General.DP_Distributive_Mask := GetNodeValue(SubNode, 'DP_Distributive_Mask');
         end;
       end;
 
@@ -2933,6 +2978,7 @@ begin
         FSimtel.Simtel_FORM_VER := GetNodeValue(Node, 'SIMTEL_FORM_VER');
         FSimtel.Simtel_Platform := GetNodeValue(Node, 'Simtel_Platform');
         FSimtel.Simtel_Category := GetNodeValue(Node, 'Simtel_Category');
+        FSimtel.Simtel_DOS_Category := GetNodeValue(Node, 'Simtel_DOS_Category');
       end;
 
       // Load Article_Contents
@@ -3280,6 +3326,10 @@ begin
   FMasterPadVersionInfo.MasterPadEditorUrl := '';
   FMasterPadVersionInfo.MasterPadInfo :=
     'Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://www.asp-shareware.org/pad';
+  FMasterPadVersionInfo.Certified := False;
+  FMasterPadVersionInfo.FCertifiedExists := False;
+  FMasterPadVersionInfo.CertificateId := '';
+  FMasterPadVersionInfo.CertificateLicense := '';
 
   // Clear RoboSoft
   FRoboSoft.FActive := False;
@@ -3330,11 +3380,13 @@ begin
   FCompanyInfo.TwitterCompanyPage := '';
   FCompanyInfo.FacebookCompanyPage := '';
   FCompanyInfo.CompanyStorePage := '';
+  FCompanyInfo.PublisherID := '';
   FCompanyInfo.FGooglePlusPageExists := False;
   FCompanyInfo.FLinkedinPageExists := False;
   FCompanyInfo.FTwitterCompanyPageExists := False;
   FCompanyInfo.FFacebookCompanyPageExists := False;
   FCompanyInfo.FCompanyStorePageExists := False;
+  FCompanyInfo.FPublisherIDExists := False;
 
   // Clear News Feed
   FNewsFeed.FActive := False;
@@ -3828,6 +3880,8 @@ begin
   FDynamic_PAD.General.DP_Distributive_Enabled := False;
   FDynamic_PAD.General.DP_AtFormFill_Enabled := False;
   FDynamic_PAD.General.DP_ControlPanel_Hosted := '';
+  FDynamic_PAD.General.DP_Distributive_Primary_URL := '';
+  FDynamic_PAD.General.DP_Distributive_Mask := '';
 
   // Clear PADRING
   FPADRING.FActive := False;
@@ -3841,6 +3895,7 @@ begin
   FSimtel.Simtel_FORM_VER := '';
   FSimtel.Simtel_Platform := '';
   FSimtel.Simtel_Category := '';
+  FSimtel.Simtel_DOS_Category := '';
 
   // Clear Article_Contents
   FArticle_Contents.FActive := False;
@@ -4548,6 +4603,12 @@ begin
   if Length(FMasterPadVersionInfo.MasterPadEditorUrl) > 0 then
     SetNodeText(Doc, Node, 'MASTER_PAD_EDITOR_URL', FMasterPadVersionInfo.MasterPadEditorUrl);
   SetNodeText(Doc, Node, 'MASTER_PAD_INFO', FMasterPadVersionInfo.MasterPadInfo);
+  if (FMasterPadVersionInfo.FCertifiedExists) then
+  begin
+    SetNodeText(Doc, Node, 'CERTIFIED', BoolToStr(FMasterPadVersionInfo.Certified, 'Y', 'N'));
+    SetNodeText(Doc, Node, 'CERTIFICATE_ID', FMasterPadVersionInfo.CertificateId);
+    SetNodeText(Doc, Node, 'CERTIFICATE_LICENSE', FMasterPadVersionInfo.CertificateLicense);
+  end;
 end;
 
 procedure TPadFormat.SaveSection_RoboSoft(Doc: TXMLDocument; RootNode: TDOMNode);
@@ -4619,6 +4680,8 @@ begin
     SetNodeText(Doc, Node, 'FacebookCompanyPage', FCompanyInfo.FacebookCompanyPage);
   if FCompanyInfo.FCompanyStorePageExists then
     SetNodeText(Doc, Node, 'CompanyStorePage', FCompanyInfo.CompanyStorePage);
+  if FCompanyInfo.FPublisherIDExists then
+    SetNodeText(Doc, Node, 'PublisherID', FCompanyInfo.PublisherID);
 end;
 
 procedure TPadFormat.SaveSection_NewsFeed(Doc: TXMLDocument; RootNode: TDOMNode);
@@ -4767,6 +4830,8 @@ begin
       SetNodeText(Doc, SubNode, 'DP_Distributive_Enabled', BoolToStr(FDynamic_PAD.General.DP_Distributive_Enabled, 'TRUE', 'FALSE'));
       SetNodeText(Doc, SubNode, 'DP_AtFormFill_Enabled', BoolToStr(FDynamic_PAD.General.DP_AtFormFill_Enabled, 'TRUE', 'FALSE'));
       SetNodeText(Doc, SubNode, 'DP_ControlPanel_Hosted', FDynamic_PAD.General.DP_ControlPanel_Hosted);
+      SetNodeText(Doc, SubNode, 'DP_Distributive_Primary_URL', FDynamic_PAD.General.DP_Distributive_Primary_URL);
+      SetNodeText(Doc, SubNode, 'DP_Distributive_Mask', FDynamic_PAD.General.DP_Distributive_Mask);
     end;
   end;
 end;
@@ -5364,6 +5429,7 @@ begin
     SetNodeText(Doc, Node, 'SIMTEL_FORM_VER', FSimtel.Simtel_FORM_VER);
     SetNodeText(Doc, Node, 'Simtel_Platform', FSimtel.Simtel_Platform);
     SetNodeText(Doc, Node, 'Simtel_Category', FSimtel.Simtel_Category);
+    SetNodeText(Doc, Node, 'Simtel_DOS_Category', FSimtel.Simtel_DOS_Category);
   end;
 end;
 
