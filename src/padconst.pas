@@ -1011,6 +1011,40 @@ const
     ''
     );
 
+  DefaultTagOrder: array[0..30] of string = (
+    'MASTER_PAD_VERSION_INFO',
+    'KilletSoft',
+    'RoboSoft',
+    'Company_Info',
+    'NewsFeed',
+    'Site',
+    'PADmap',
+    'Download_Link_Points_To_Non_Binary_File',
+    'OnlineShops',
+    'DeuPAD',
+    'PAD_Certification_Promotion',
+    'Dynamic_PAD',
+    'Program_Info',
+    'Program_Descriptions',
+    'Web_Info',
+    'Permissions',
+    'Press_Release',
+    'Affiliates',
+    'ASP',
+    'TPA',
+    'AppStore',
+    'Issues',
+    'tSuccess',
+    'tProcessed',
+    'ASBMPlannerID1stRound',
+    'ASBMPlannerID2ndRound',
+    'Allmyapps',
+    'PADRING',
+    'Simtel',
+    'Article_Contents',
+    'MSN'
+    );
+
 implementation
 
 end.

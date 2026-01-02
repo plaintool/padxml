@@ -3112,13 +3112,95 @@ procedure TPadFormat.SaveSectionsInOrder(Doc: TXMLDocument; RootNode: TDOMNode);
 var
   i: integer;
   TagName: string;
-begin
-  // If we have saved tag order from loaded XML, use it
-  if FXmlTagOrder.Count > 0 then
+  Order: TStringList;
+
+  function GetIndex(Value: string): integer;
+  var
+    j: integer;
   begin
-    for i := 0 to FXmlTagOrder.Count - 1 do
+    Result := -1;
+    for j := 0 to Length(DefaultTagOrder) - 1 do
+      if DefaultTagOrder[j] = Value then Exit(j);
+  end;
+
+  function GetTopIndex(Value: string): integer;
+  var
+    FromIndex: integer;
+    j: integer;
+  begin
+    Result := 1;
+    FromIndex := GetIndex(Value);
+    if FromIndex < 0 then Exit;
+    for j := FromIndex - 1 downto 0 do
+      if Order.IndexOf(DefaultTagOrder[j]) >= 0 then
+        Exit(Order.IndexOf(DefaultTagOrder[j]) + 1);
+  end;
+
+begin
+  Order := TStringList.Create;
+  try
+    // If we have saved tag order from loaded XML, use it
+    if FXmlTagOrder.Count > 0 then
     begin
-      TagName := FXmlTagOrder[i];
+      Order.AddStrings(FXmlTagOrder);
+      if (KilletSoft.Active) and (Order.IndexOf('KilletSoft') = -1) then
+        Order.Insert(GetTopIndex('KilletSoft'), 'KilletSoft');
+      if (RoboSoft.Active) and (Order.IndexOf('RoboSoft') = -1) then
+        Order.Insert(GetTopIndex('RoboSoft'), 'RoboSoft');
+      if (NewsFeed.Active) and (Order.IndexOf('NewsFeed') = -1) then
+        Order.Insert(GetTopIndex('NewsFeed'), 'NewsFeed');
+      if (Site.Active) and (Order.IndexOf('Site') = -1) then
+        Order.Insert(GetTopIndex('Site'), 'Site');
+      if (PADmap.Active) and (Order.IndexOf('PADmap') = -1) then
+        Order.Insert(GetTopIndex('PADmap'), 'PADmap');
+      if (OnlineShops.Active) and (Order.IndexOf('OnlineShops') = -1) then
+        Order.Insert(GetTopIndex('OnlineShops'), 'OnlineShops');
+      if (DeuPAD.Active) and (Order.IndexOf('DeuPAD') = -1) then
+        Order.Insert(GetTopIndex('DeuPAD'), 'DeuPAD');
+      if (PAD_Certification_Promotion.Active) and (Order.IndexOf('PAD_Certification_Promotion') = -1) then
+        Order.Insert(GetTopIndex('PAD_Certification_Promotion'), 'PAD_Certification_Promotion');
+      if (Dynamic_PAD.Active) and (Order.IndexOf('Dynamic_PAD') = -1) then
+        Order.Insert(GetTopIndex('Dynamic_PAD'), 'Dynamic_PAD');
+      if (PressRelease.Active) and (Order.IndexOf('Press_Release') = -1) then
+        Order.Insert(GetTopIndex('Press_Release'), 'Press_Release');
+      if (ASP.ASPForm) and (Order.IndexOf('ASP') = -1) then
+        Order.Insert(GetTopIndex('ASP'), 'ASP');
+      if (Affiliates.Active) and (Order.IndexOf('Affiliates') = -1) then
+        Order.Insert(GetTopIndex('Affiliates'), 'Affiliates');
+      if (PADRING.Active) and (Order.IndexOf('PADRING') = -1) then
+        Order.Insert(GetTopIndex('PADRING'), 'PADRING');
+      if (Simtel.Active) and (Order.IndexOf('Simtel') = -1) then
+        Order.Insert(GetTopIndex('Simtel'), 'Simtel');
+      if (Article_Contents.Active) and (Order.IndexOf('Article_Contents') = -1) then
+        Order.Insert(GetTopIndex('Article_Contents'), 'Article_Contents');
+      if (MSN.Active) and (Order.IndexOf('MSN') = -1) then
+        Order.Insert(GetTopIndex('MSN'), 'MSN');
+      if (TPA.Active) and (Order.IndexOf('TPA') = -1) then
+        Order.Insert(GetTopIndex('TPA'), 'TPA');
+      if (Allmyapps.Active) and (Order.IndexOf('Allmyapps') = -1) then
+        Order.Insert(GetTopIndex('Allmyapps'), 'Allmyapps');
+      if (AppStore.Active) and (Order.IndexOf('AppStore') = -1) then
+        Order.Insert(GetTopIndex('AppStore'), 'AppStore');
+      if (Length(Issues) > 0) and (Order.IndexOf('Issues') = -1) then
+        Order.Insert(GetTopIndex('Issues'), 'Issues');
+      if (Length(tSuccess) > 0) and (Order.IndexOf('tSuccess') = -1) then
+        Order.Insert(GetTopIndex('tSuccess'), 'tSuccess');
+      if (Length(tProcessed) > 0) and (Order.IndexOf('tProcessed') = -1) then
+        Order.Insert(GetTopIndex('tProcessed'), 'tProcessed');
+      if (Length(ASBMPlannerID1stRound) > 0) and (Order.IndexOf('ASBMPlannerID1stRound') = -1) then
+        Order.Insert(GetTopIndex('ASBMPlannerID1stRound'), 'ASBMPlannerID1stRound');
+      if (Length(ASBMPlannerID2ndRound) > 0) and (Order.IndexOf('ASBMPlannerID2ndRound') = -1) then
+        Order.Insert(GetTopIndex('ASBMPlannerID2ndRound'), 'ASBMPlannerID2ndRound');
+      if (Download_Link_Points_To_Non_Binary_File) and (Order.IndexOf('Download_Link_Points_To_Non_Binary_File') = -1) then
+        Order.Insert(GetTopIndex('Download_Link_Points_To_Non_Binary_File'), 'Download_Link_Points_To_Non_Binary_File');
+    end
+    else
+      // Default order (as originally in SaveToXML)
+      Order.AddStrings(DefaultTagOrder);
+
+    for i := 0 to Order.Count - 1 do
+    begin
+      TagName := Order[i];
 
       if TagName = 'MASTER_PAD_VERSION_INFO' then
         SaveSection_MasterPadVersionInfo(Doc, RootNode)
@@ -3134,8 +3216,6 @@ begin
         SaveSection_Site(Doc, RootNode)
       else if TagName = 'PADmap' then
         SaveSection_PADmap(Doc, RootNode)
-      else if TagName = 'Download_Link_Points_To_Non_Binary_File' then
-        SaveSection_DownloadLinkPointsToNonBinaryFile(Doc, RootNode)
       else if TagName = 'OnlineShops' then
         SaveSection_OnlineShops(Doc, RootNode)
       else if TagName = 'DeuPAD' then
@@ -3168,6 +3248,10 @@ begin
         SaveSection_ASP(Doc, RootNode)
       else if TagName = 'TPA' then
         SaveSection_TPA(Doc, RootNode)
+      else if TagName = 'Allmyapps' then
+        SaveSection_Allmyapps(Doc, RootNode)
+      else if TagName = 'AppStore' then
+        SaveSection_AppStore(Doc, RootNode)
       else if TagName = 'Issues' then
         SaveSection_Issues(Doc, RootNode)
       else if TagName = 'tSuccess' then
@@ -3178,46 +3262,11 @@ begin
         SaveSection_ASBMPlannerID1stRound(Doc, RootNode)
       else if TagName = 'ASBMPlannerID2ndRound' then
         SaveSection_ASBMPlannerID2ndRound(Doc, RootNode)
-      else if TagName = 'Allmyapps' then
-        SaveSection_Allmyapps(Doc, RootNode)
-      else if TagName = 'AppStore' then
-        SaveSection_AppStore(Doc, RootNode);
+      else if TagName = 'Download_Link_Points_To_Non_Binary_File' then
+        SaveSection_DownloadLinkPointsToNonBinaryFile(Doc, RootNode);
     end;
-  end
-  else
-  begin
-    // Default order (as originally in SaveToXML)
-    SaveSection_MasterPadVersionInfo(Doc, RootNode);
-    SaveSection_KilletSoft(Doc, RootNode);
-    SaveSection_RoboSoft(Doc, RootNode);
-    SaveSection_CompanyInfo(Doc, RootNode);
-    SaveSection_NewsFeed(Doc, RootNode);
-    SaveSection_Site(Doc, RootNode);
-    SaveSection_PADmap(Doc, RootNode);
-    SaveSection_DownloadLinkPointsToNonBinaryFile(Doc, RootNode);
-    SaveSection_OnlineShops(Doc, RootNode);
-    SaveSection_DeuPAD(Doc, RootNode);
-    SaveSection_PADCertificationPromotion(Doc, RootNode);
-    SaveSection_DynamicPAD(Doc, RootNode);
-    SaveSection_ProgramInfo(Doc, RootNode);
-    SaveSection_ProgramDescriptions(Doc, RootNode);
-    SaveSection_WebInfo(Doc, RootNode);
-    SaveSection_Permissions(Doc, RootNode);
-    SaveSection_PressRelease(Doc, RootNode);
-    SaveSection_Affiliates(Doc, RootNode);
-    SaveSection_ASP(Doc, RootNode);
-    SaveSection_TPA(Doc, RootNode);
-    SaveSection_AppStore(Doc, RootNode);
-    SaveSection_Issues(Doc, RootNode);
-    SaveSection_tSuccess(Doc, RootNode);
-    SaveSection_tProcessed(Doc, RootNode);
-    SaveSection_ASBMPlannerID1stRound(Doc, RootNode);
-    SaveSection_ASBMPlannerID2ndRound(Doc, RootNode);
-    SaveSection_Allmyapps(Doc, RootNode);
-    SaveSection_PADRING(Doc, RootNode);
-    SaveSection_Simtel(Doc, RootNode);
-    SaveSection_ArticleContents(Doc, RootNode);
-    SaveSection_MSN(Doc, RootNode);
+  finally
+    Order.Free;
   end;
 end;
 
