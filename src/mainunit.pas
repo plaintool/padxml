@@ -21,10 +21,14 @@ uses
   Dialogs,
   Menus,
   ComCtrls,
+  StdCtrls,
+  ExtCtrls,
+  Process,
+  Buttons,
   PropEdits,
   ObjectInspector,
   RTTIGrids,
-  LCLType, StdCtrls, ExtCtrls, Buttons,
+  LCLType,
   padformat;
 
 type
@@ -52,6 +56,7 @@ type
     menuAllmyapps: TMenuItem;
     menuAppStore: TMenuItem;
     menuIssues: TMenuItem;
+    menuFileNewWindow: TMenuItem;
     menuKilletSoft: TMenuItem;
     menuTPA: TMenuItem;
     menuMSN: TMenuItem;
@@ -79,6 +84,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure menuAboutClick(Sender: TObject);
+    procedure menuFileNewWindowClick(Sender: TObject);
     procedure menuSectionClick(Sender: TObject);
     procedure menuBuyMeACoffeeClick(Sender: TObject);
     procedure menuCheckForUpdatesClick(Sender: TObject);
@@ -230,6 +236,24 @@ end;
 procedure TformPadXml.menuAboutClick(Sender: TObject);
 begin
   formAboutPadXml.ShowModal;
+end;
+
+procedure TformPadXml.menuFileNewWindowClick(Sender: TObject);
+var
+  Process: TProcess;
+begin
+  if Screen.ActiveForm <> Self then exit;
+
+  SaveFormSettings(self); // Save setting for new process
+
+  Process := TProcess.Create(nil); // Create a new process
+  try
+    Process.Executable := ParamStr(0); // Set the executable to the current application
+    Process.Options := []; // No wait, open and forget
+    Process.Execute; // Execute the new instance
+  finally
+    Process.Free; // Free the process object
+  end;
 end;
 
 procedure TformPadXml.menuBuyMeACoffeeClick(Sender: TObject);

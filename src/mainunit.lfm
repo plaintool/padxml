@@ -98,6 +98,11 @@ object formPadXml: TformPadXml
         ShortCut = 16462
         OnClick = menuFileNewClick
       end
+      object menuFileNewWindow: TMenuItem
+        Caption = 'New window'
+        ShortCut = 24654
+        OnClick = menuFileNewWindowClick
+      end
       object menuFileOpen: TMenuItem
         Caption = 'Open...'
         ShortCut = 16463
