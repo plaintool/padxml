@@ -1,0 +1,55 @@
+name: Create Release
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  issues: read
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog from issues
+        id: changelog
+        uses: janheinrichmerker/action-github-changelog-generator@v2.4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issues: true
+          pullRequests: false
+          onlyLastTag: true
+          excludeLabels: 'duplicate,question,invalid,wontfix'
+          configureSections: |
+              {
+                "features": {
+                  "prefix": "### 🚀 New Features",
+                  "labels": ["feature", "feature auto"]
+                },
+                "enhancements": {
+                  "prefix": "### ✨ Enhancements",
+                  "labels": ["enhancement", "enhancement auto"]
+                },
+                "bugfixes": {
+                  "prefix": "### 🐛 Fixed Bugs",
+                  "labels": ["bug", "bug auto"]
+                }
+              }
+          output: CHANGELOG.md
+
+      - name: Show generated changelog
+        run: cat CHANGELOG.md
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: CHANGELOG.md
+          draft: true
+          prerelease: false
