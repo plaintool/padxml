@@ -10,3 +10,5 @@
 /installer/*.wixpdb
 /installer/*.pfx
 /installer/history/*
+/samples/**/*.xml
+/samples/**/*.pad
