@@ -20,19 +20,14 @@ uses
   Forms,
   mainunit,
   formabout,
-  formdonate,
-  padformat,
-  padconst,
-  settings,
-  systemtool
-  ;
+  formdonate;
 
   {$R *.res}
 
 begin
   RequireDerivedFormResource := True;
-  Application.Title:='PadXml';
-  Application.Scaled:=True;
+  Application.Title := 'PadXml';
+  Application.Scaled := True;
   {$PUSH}
   {$WARN 5044 OFF}
   Application.MainFormOnTaskbar := True;
