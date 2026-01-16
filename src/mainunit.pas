@@ -163,7 +163,16 @@ begin
   HandleCommandLineParameters;
 
   // Chnage event handler for TStrings
+  TStringList(PadFormat.RoboSoft.Company_DescriptionStrings).OnChange := @propertyPadModified;
   TStringList(PadFormat.NewsFeed.NewsFeed_Description_250_Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.Site.Site_Description_250Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.Site.Site_Description_450Strings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.Permissions.DistributionPermissionsStrings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.Permissions.EULAStrings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.PressRelease.PressReleaseStrings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.PressRelease.PressReleasePlainStrings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.PADRING.PADRINGStrings).OnChange := @propertyPadModified;
+  TStringList(PadFormat.Article_Contents.BodyStrings).OnChange := @propertyPadModified;
   TStringList(PadFormat.ProgramDescriptions.Language1.CharDesc250Strings).OnChange := @propertyPadModified;
   TStringList(PadFormat.ProgramDescriptions.Language1.CharDesc450Strings).OnChange := @propertyPadModified;
   TStringList(PadFormat.ProgramDescriptions.Language1.CharDesc2000Strings).OnChange := @propertyPadModified;
@@ -191,8 +200,6 @@ begin
   TStringList(PadFormat.ProgramDescriptions.Language9.CharDesc250Strings).OnChange := @propertyPadModified;
   TStringList(PadFormat.ProgramDescriptions.Language9.CharDesc450Strings).OnChange := @propertyPadModified;
   TStringList(PadFormat.ProgramDescriptions.Language9.CharDesc2000Strings).OnChange := @propertyPadModified;
-  TStringList(PadFormat.Permissions.DistributionPermissionsStrings).OnChange := @propertyPadModified;
-  TStringList(PadFormat.Permissions.EULAStrings).OnChange := @propertyPadModified;
 end;
 
 procedure TformPadXml.FormDestroy(Sender: TObject);

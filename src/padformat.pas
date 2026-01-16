@@ -64,6 +64,7 @@ type
     FActive: boolean;
     FCompany_UIN: string;
     FCompany_Description: string;
+    FCompany_DescriptionStrings: TStrings;
     FProduct_UIN: string;
     FSearch_String: string;
     FPress_Release_Search_String: string;
@@ -75,10 +76,19 @@ type
     FRSProductType: string;
     FComments_For_Reviewer: string;
     FBacklink: string;
+    function GetCompany_DescriptionStrings: TStrings;
+    procedure SetCompany_DescriptionStrings(Value: TStrings);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure SyncStringsToStrings;
+    procedure SyncStringToStrings;
+  protected
+    property Company_Description: string read FCompany_Description write FCompany_Description;
   published
     property Active: boolean read FActive write FActive default False;
     property Company_UIN: string read FCompany_UIN write FCompany_UIN;
-    property Company_Description: string read FCompany_Description write FCompany_Description;
+    property Company_DescriptionStrings: TStrings read GetCompany_DescriptionStrings write SetCompany_DescriptionStrings stored False;
     property Product_UIN: string read FProduct_UIN write FProduct_UIN;
     property Search_String: string read FSearch_String write FSearch_String;
     property Press_Release_Search_String: string read FPress_Release_Search_String write FPress_Release_Search_String;
@@ -275,6 +285,21 @@ type
     FSite_Description_100: string;
     FSite_Description_250: string;
     FSite_Description_450: string;
+    FSite_Description_250Strings: TStrings;
+    FSite_Description_450Strings: TStrings;
+
+    function GetSite_Description_250Strings: TStrings;
+    procedure SetSite_Description_250Strings(Value: TStrings);
+    function GetSite_Description_450Strings: TStrings;
+    procedure SetSite_Description_450Strings(Value: TStrings);
+  public
+    constructor Create;
+    destructor Destroy; override;
+    procedure SyncStringsToStrings;
+    procedure SyncStringToStrings;
+  protected
+    property Site_Description_250: string read FSite_Description_250 write FSite_Description_250;
+    property Site_Description_450: string read FSite_Description_450 write FSite_Description_450;
   published
     property Active: boolean read FActive write FActive default False;
     property Site_FORM: boolean read FSite_FORM write FSite_FORM;
@@ -286,10 +311,11 @@ type
     property Site_Contact_Last_Name: string read FSite_Contact_Last_Name write FSite_Contact_Last_Name;
     property Site_Site_Title: string read FSite_Site_Title write FSite_Site_Title;
     property Site_Site_URL: string read FSite_Site_URL write FSite_Site_URL;
-    property Site_Description_100: string read FSite_Description_100 write FSite_Description_100;
-    property Site_Description_250: string read FSite_Description_250 write FSite_Description_250;
     property Site_Keywords: string read FSite_Keywords write FSite_Keywords;
-    property Site_Description_450: string read FSite_Description_450 write FSite_Description_450;
+    property Site_Description_100: string read FSite_Description_100 write FSite_Description_100;
+    // TStrings properties for PropertyGrid
+    property Site_Description_250Strings: TStrings read GetSite_Description_250Strings write SetSite_Description_250Strings stored False;
+    property Site_Description_450Strings: TStrings read GetSite_Description_450Strings write SetSite_Description_450Strings stored False;
   end;
 
   { TPadPADmap }
@@ -1327,6 +1353,44 @@ begin
   FCertifiedExists := True;
 end;
 
+{ TPadRoboSoft }
+
+constructor TPadRoboSoft.Create;
+begin
+  inherited Create;
+  FCompany_DescriptionStrings := TStringList.Create;
+  FCompany_DescriptionStrings.TrailingLineBreak := False;
+end;
+
+destructor TPadRoboSoft.Destroy;
+begin
+  FCompany_DescriptionStrings.Free;
+  inherited Destroy;
+end;
+
+function TPadRoboSoft.GetCompany_DescriptionStrings: TStrings;
+begin
+  Result := FCompany_DescriptionStrings;
+end;
+
+procedure TPadRoboSoft.SetCompany_DescriptionStrings(Value: TStrings);
+begin
+  if Assigned(Value) then
+    FCompany_DescriptionStrings.Assign(Value)
+  else
+    FCompany_DescriptionStrings.Clear;
+end;
+
+procedure TPadRoboSoft.SyncStringsToStrings;
+begin
+  FCompany_DescriptionStrings.Text := FCompany_Description;
+end;
+
+procedure TPadRoboSoft.SyncStringToStrings;
+begin
+  FCompany_Description := FCompany_DescriptionStrings.Text;
+end;
+
 {TPadContactInfo}
 
 procedure TPadContactInfo.SetContactPhone(Value: string);
@@ -1427,6 +1491,62 @@ begin
 
   // If not found, return default
   Result := pnftRSS090;
+end;
+
+{ TPadSite }
+
+constructor TPadSite.Create;
+begin
+  inherited Create;
+  FSite_Description_250Strings := TStringList.Create;
+  FSite_Description_250Strings.TrailingLineBreak := False;
+  FSite_Description_450Strings := TStringList.Create;
+  FSite_Description_450Strings.TrailingLineBreak := False;
+end;
+
+destructor TPadSite.Destroy;
+begin
+  FSite_Description_250Strings.Free;
+  FSite_Description_450Strings.Free;
+  inherited Destroy;
+end;
+
+function TPadSite.GetSite_Description_250Strings: TStrings;
+begin
+  Result := FSite_Description_250Strings;
+end;
+
+procedure TPadSite.SetSite_Description_250Strings(Value: TStrings);
+begin
+  if Assigned(Value) then
+    FSite_Description_250Strings.Assign(Value)
+  else
+    FSite_Description_250Strings.Clear;
+end;
+
+function TPadSite.GetSite_Description_450Strings: TStrings;
+begin
+  Result := FSite_Description_450Strings;
+end;
+
+procedure TPadSite.SetSite_Description_450Strings(Value: TStrings);
+begin
+  if Assigned(Value) then
+    FSite_Description_450Strings.Assign(Value)
+  else
+    FSite_Description_450Strings.Clear;
+end;
+
+procedure TPadSite.SyncStringsToStrings;
+begin
+  FSite_Description_250Strings.Text := FSite_Description_250;
+  FSite_Description_450Strings.Text := FSite_Description_450;
+end;
+
+procedure TPadSite.SyncStringToStrings;
+begin
+  FSite_Description_250 := FSite_Description_250Strings.Text;
+  FSite_Description_450 := FSite_Description_450Strings.Text;
 end;
 
 { TPadFileInfo }
@@ -2310,7 +2430,7 @@ begin
   FXmlConfig.XMLEmptyTagType := DetectEmptyTagType(XMLContent);
   FXmlConfig.XMLEndsWithLineBreak := EndsStr(LineEnding, XMLContent);
 
-  Stream := TStringStream.Create(XMLContent);
+  Stream := TStringStream.Create(RemoveXMLDeclaration(XMLContent));
   try
     ReadXMLFile(Doc, Stream);
     try
@@ -3085,6 +3205,8 @@ begin
       FPressRelease.SyncStringsToStrings;
       FPADRING.SyncStringsToStrings;
       FArticle_Contents.SyncStringsToStrings;
+      FRoboSoft.SyncStringsToStrings;
+      FSite.SyncStringsToStrings;
     finally
       Doc.Free;
     end;
@@ -3116,6 +3238,8 @@ begin
     FPressRelease.SyncStringToStrings;
     FPADRING.SyncStringToStrings;
     FArticle_Contents.SyncStringToStrings;
+    FRoboSoft.SyncStringToStrings;
+    FSite.SyncStringToStrings;
 
     // Create root element
     RootNode := Doc.CreateElement('XML_DIZ_INFO');
@@ -3335,6 +3459,7 @@ begin
   FRoboSoft.FActive := False;
   FRoboSoft.Company_UIN := '';
   FRoboSoft.Company_Description := '';
+  FRoboSoft.Company_DescriptionStrings.Clear;
   FRoboSoft.Product_UIN := '';
   FRoboSoft.Search_String := '';
   FRoboSoft.Press_Release_Search_String := '';
@@ -3421,10 +3546,12 @@ begin
   FSite.Site_Contact_Last_Name := '';
   FSite.Site_Site_Title := '';
   FSite.Site_Site_URL := '';
+  FSite.Site_Keywords := '';
   FSite.Site_Description_100 := '';
   FSite.Site_Description_250 := '';
-  FSite.Site_Keywords := '';
   FSite.Site_Description_450 := '';
+  FSite.Site_Description_250Strings.Clear;
+  FSite.Site_Description_450Strings.Clear;
 
   // Clear PAD Certification Promotion
   FPAD_Certification_Promotion.FActive := False;
