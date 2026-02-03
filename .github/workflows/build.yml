@@ -78,7 +78,7 @@ jobs:
         run: |
           $zipPath = "$env:RUNNER_TEMP\\fpcsrc.zip"
           $destPath = "C:\\tools\\fpcsrc"
-          Invoke-WebRequest -Uri "https://downloads.sourceforge.net/project/freepascal/Source/3.2.2/fpc-3.2.2.source.zip" -OutFile $zipPath
+          curl.exe -L "https://downloads.sourceforge.net/project/freepascal/Source/3.2.2/fpc-3.2.2.source.zip?download=1" -o $zipPath
           if (Test-Path $destPath) {
             Remove-Item -Recurse -Force $destPath
           }
