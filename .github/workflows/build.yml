@@ -115,13 +115,12 @@ jobs:
           if (-not $env:FPC32_PATH) {
             Write-Error "FPC32_PATH not set."
           }
-          $binDir = Split-Path $env:FPC32_PATH
-          $cfgCandidates = @(
-            Join-Path $binDir 'fpc.cfg',
-            Join-Path (Split-Path $binDir) 'fpc.cfg',
-            Join-Path (Split-Path (Split-Path $binDir)) 'fpc.cfg'
-          )
-          $cfg = $cfgCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          $binDir = Split-Path -Path $env:FPC32_PATH -Parent
+          $cfgCandidates = @()
+          $cfgCandidates += (Join-Path -Path $binDir -ChildPath 'fpc.cfg')
+          $cfgCandidates += (Join-Path -Path (Split-Path -Path $binDir -Parent) -ChildPath 'fpc.cfg')
+          $cfgCandidates += (Join-Path -Path (Split-Path -Path (Split-Path -Path $binDir -Parent) -Parent) -ChildPath 'fpc.cfg')
+          $cfg = $cfgCandidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
           if ($cfg) {
             "FPCCFG=$cfg" | Out-File -FilePath $env:GITHUB_ENV -Append
           } else {
