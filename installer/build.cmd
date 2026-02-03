@@ -97,7 +97,7 @@ if not "%CERTFILE%"=="" (
 
 :: --- Portable ---
 if "%BUILD_PORTABLE%"=="1" (
-    powershell -NoProfile -Command "Compress-Archive -Force -Path '..\\padxml.exe','..\\padxml32.exe','form_settings.json' -DestinationPath 'padxml-%VERSION%-x86-x64-portable.zip'"
+    powershell -NoProfile -Command "$exe64='%~dp0..\\padxml.exe'; $exe32='%~dp0..\\padxml32.exe'; $settings='%~dp0form_settings.json'; if ((Test-Path $exe64) -and (Test-Path $exe32) -and (Test-Path $settings)) { Compress-Archive -Force -Path $exe64,$exe32,$settings -DestinationPath '%~dp0padxml-%VERSION%-x86-x64-portable.zip' } else { Write-Error 'Portable inputs missing'; exit 1 }"
 )
 
 echo Build and signing completed successfully!
