@@ -73,6 +73,24 @@ jobs:
           choco install wixtoolset -y
           choco install freepascal -y --forcex86
 
+      - name: Install FPC sources
+        shell: pwsh
+        run: |
+          $zipPath = "$env:RUNNER_TEMP\\fpcsrc.zip"
+          $destPath = "C:\\tools\\fpcsrc"
+          Invoke-WebRequest -Uri "https://sourceforge.net/projects/freepascal/files/Source/3.2.2/fpc-3.2.2.source.zip/download" -OutFile $zipPath
+          if (Test-Path $destPath) {
+            Remove-Item -Recurse -Force $destPath
+          }
+          New-Item -ItemType Directory -Path $destPath | Out-Null
+          Expand-Archive -Path $zipPath -DestinationPath $destPath -Force
+          $sourceRoot = Get-ChildItem -Path $destPath -Directory | Select-Object -First 1
+          if ($sourceRoot) {
+            "FPCDIR=$($sourceRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+            Write-Error "FPC sources not found after extraction."
+          }
+
       - name: Locate 32-bit FPC
         shell: pwsh
         run: |
