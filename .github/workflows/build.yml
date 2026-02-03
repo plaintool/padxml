@@ -37,12 +37,12 @@ jobs:
         shell: pwsh
         run: |
           $candidates = @(
+            'C:\lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe',
+            'C:\Lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe',
             'C:\tools\fpc\bin\i386-win32\fpc.exe',
             'C:\tools\fpc\3.2.2\bin\i386-win32\fpc.exe',
             'C:\Program Files (x86)\FPC\3.2.2\bin\i386-win32\fpc.exe',
-            'C:\Program Files (x86)\FPC\3.2.0\bin\i386-win32\fpc.exe',
-            'C:\lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe',
-            'C:\Lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe'
+            'C:\Program Files (x86)\FPC\3.2.0\bin\i386-win32\fpc.exe'
           )
           $found = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
           if (-not $found) {
