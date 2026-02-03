@@ -109,36 +109,23 @@ jobs:
             Write-Error '32-bit FPC not found under Lazarus. Check Lazarus install.'
           }
 
-      - name: Locate FPC config
+      - name: Generate FPC config
         shell: pwsh
         run: |
           if (-not $env:FPC32_PATH) {
             Write-Error "FPC32_PATH not set."
           }
           $binDir = Split-Path -Path $env:FPC32_PATH -Parent
-          $cfgCandidates = @()
-          $cfgCandidates += (Join-Path -Path $binDir -ChildPath 'fpc.cfg')
-          $cfgCandidates += (Join-Path -Path (Split-Path -Path $binDir -Parent) -ChildPath 'fpc.cfg')
-          $cfgCandidates += (Join-Path -Path (Split-Path -Path (Split-Path -Path $binDir -Parent) -Parent) -ChildPath 'fpc.cfg')
-          if ($env:FPCDIR) {
-            $cfgCandidates += (Join-Path -Path $env:FPCDIR -ChildPath 'compiler\fpc.cfg')
-            $cfgCandidates += (Join-Path -Path $env:FPCDIR -ChildPath 'fpc.cfg')
+          $fpcmkcfg = Join-Path -Path $binDir -ChildPath 'fpcmkcfg.exe'
+          if (-not (Test-Path $fpcmkcfg)) {
+            Write-Error "fpcmkcfg.exe not found near $env:FPC32_PATH"
           }
-          $cfg = $cfgCandidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
-          if (-not $cfg) {
-            $cfg = Get-ChildItem -Path 'C:\tools\freepascal' -Filter 'fpc.cfg' -Recurse -ErrorAction SilentlyContinue |
-              Select-Object -First 1 |
-              ForEach-Object { $_.FullName }
-          }
-          if (-not $cfg -and $env:FPCDIR) {
-            $cfg = Get-ChildItem -Path $env:FPCDIR -Filter 'fpc.cfg' -Recurse -ErrorAction SilentlyContinue |
-              Select-Object -First 1 |
-              ForEach-Object { $_.FullName }
-          }
-          if ($cfg) {
-            "FPCCFG=$cfg" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $cfgOut = "$env:RUNNER_TEMP\\fpc.cfg"
+          & $fpcmkcfg -d "C:\\tools\\freepascal" -o $cfgOut
+          if (Test-Path $cfgOut) {
+            "FPCCFG=$cfgOut" | Out-File -FilePath $env:GITHUB_ENV -Append
           } else {
-            Write-Error "fpc.cfg not found near $env:FPC32_PATH or FPCDIR"
+            Write-Error "Failed to generate fpc.cfg"
           }
 
       - name: Build 64-bit binary
