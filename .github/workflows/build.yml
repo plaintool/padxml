@@ -71,15 +71,14 @@ jobs:
         run: |
           choco install lazarus -y
           choco install wixtoolset -y
-          choco install freepascal -y --forcex86
-          $env:Path = "C:\\tools\\freepascal\\bin\\i386-win32;$env:Path"
+          $env:Path = "C:\\Lazarus\\fpc\\3.2.2\\bin\\i386-win32;$env:Path"
           "PATH=$env:Path" | Out-File -FilePath $env:GITHUB_ENV -Append
 
       - name: Install FPC sources
         shell: pwsh
         run: |
           $zipPath = "$env:RUNNER_TEMP\\fpcsrc.zip"
-          $destPath = "C:\\tools\\fpcsrc"
+          $destPath = "C:\\Lazarus\\fpc\\3.2.2\\source"
           curl.exe -L "https://downloads.sourceforge.net/project/freepascal/Source/3.2.2/fpc-3.2.2.source.zip?download=1" -o $zipPath
           if (Test-Path $destPath) {
             Remove-Item -Recurse -Force $destPath
@@ -98,9 +97,7 @@ jobs:
         run: |
           $candidates = @(
             'C:\lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe',
-            'C:\Lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe',
-            'C:\tools\freepascal\bin\i386-win32\fpc.exe',
-            'C:\tools\fpc\bin\i386-win32\fpc.exe'
+            'C:\Lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe'
           )
           $found = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
           if ($found) {
@@ -109,23 +106,20 @@ jobs:
             Write-Error '32-bit FPC not found under Lazarus. Check Lazarus install.'
           }
 
-      - name: Generate FPC config
+      - name: Locate FPC config
         shell: pwsh
         run: |
-          if (-not $env:FPC32_PATH) {
-            Write-Error "FPC32_PATH not set."
-          }
-          $binDir = Split-Path -Path $env:FPC32_PATH -Parent
-          $fpcmkcfg = Join-Path -Path $binDir -ChildPath 'fpcmkcfg.exe'
-          if (-not (Test-Path $fpcmkcfg)) {
-            Write-Error "fpcmkcfg.exe not found near $env:FPC32_PATH"
-          }
-          $cfgOut = "$env:RUNNER_TEMP\\fpc.cfg"
-          & $fpcmkcfg -d "C:\\tools\\freepascal" -o $cfgOut
-          if (Test-Path $cfgOut) {
-            "FPCCFG=$cfgOut" | Out-File -FilePath $env:GITHUB_ENV -Append
+          $cfgCandidates = @(
+            'C:\lazarus\fpc\3.2.2\bin\i386-win32\fpc.cfg',
+            'C:\Lazarus\fpc\3.2.2\bin\i386-win32\fpc.cfg',
+            'C:\lazarus\fpc\3.2.2\bin\i386-win32\..\fpc.cfg',
+            'C:\Lazarus\fpc\3.2.2\bin\i386-win32\..\fpc.cfg'
+          )
+          $cfg = $cfgCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if ($cfg) {
+            "FPCCFG=$cfg" | Out-File -FilePath $env:GITHUB_ENV -Append
           } else {
-            Write-Error "Failed to generate fpc.cfg"
+            Write-Error "fpc.cfg not found under Lazarus install."
           }
 
       - name: Build 64-bit binary
@@ -135,7 +129,7 @@ jobs:
       - name: Build 32-bit binary
         shell: cmd
         env:
-          PATH: C:\tools\freepascal\bin\i386-win32;%PATH%
+          PATH: C:\Lazarus\fpc\3.2.2\bin\i386-win32;%PATH%
           FPCCFG: ${{ env.FPCCFG }}
           FPCDIR: ${{ env.FPCDIR }}
           FPC: ${{ env.FPC32_PATH }}
