@@ -50,28 +50,40 @@ echo Cleanup completed.
 echo.
 
 :: --- Sign installers ---
-SET "SIGNTOOL=C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
-SET "CERTFILE=%SOURCE_DIR%AlexanderT.pfx"
+IF "%SIGNTOOL%"=="" (
+    SET "SIGNTOOL=C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
+)
+IF "%CERTFILE%"=="" (
+    SET "CERTFILE="
+)
 SET "CERTPASS=1234"
 SET "TIMESTAMP_URL=http://timestamp.digicert.com"
 
-if exist "%SIGNTOOL%" if exist "%CERTFILE%" (
-    echo Signing MSI files...
-    "%SIGNTOOL%" sign /f "%CERTFILE%" /p "%CERTPASS%" /fd SHA256 /tr %TIMESTAMP_URL% /td SHA256 "%SOURCE_DIR%\padxml-%VERSION%-%PLATFORM%.msi"
-    IF %ERRORLEVEL% EQU 0 (
-        echo Signing of padxml-%VERSION%-%PLATFORM%.msi completed successfully
-    ) else (
-        echo Signing failed for padxml-%VERSION%-%PLATFORM%.msi
-    )
+if not "%CERTFILE%"=="" (
+    if exist "%CERTFILE%" (
+        if exist "%SIGNTOOL%" (
+            echo Signing MSI files...
+            "%SIGNTOOL%" sign /f "%CERTFILE%" /p "%CERTPASS%" /fd SHA256 /tr %TIMESTAMP_URL% /td SHA256 "%SOURCE_DIR%\padxml-%VERSION%-%PLATFORM%.msi"
+            IF %ERRORLEVEL% EQU 0 (
+                echo Signing of padxml-%VERSION%-%PLATFORM%.msi completed successfully
+            ) else (
+                echo Signing failed for padxml-%VERSION%-%PLATFORM%.msi
+            )
 
-    "%SIGNTOOL%" sign /f "%CERTFILE%" /p "%CERTPASS%" /fd SHA256 /tr %TIMESTAMP_URL% /td SHA256 "%SOURCE_DIR%\padxml-%VERSION%-%PLATFORM%-allusers.msi"
-    IF %ERRORLEVEL% EQU 0 (
-        echo Signing of padxml-%VERSION%-%PLATFORM%-allusers.msi completed successfully
+            "%SIGNTOOL%" sign /f "%CERTFILE%" /p "%CERTPASS%" /fd SHA256 /tr %TIMESTAMP_URL% /td SHA256 "%SOURCE_DIR%\padxml-%VERSION%-%PLATFORM%-allusers.msi"
+            IF %ERRORLEVEL% EQU 0 (
+                echo Signing of padxml-%VERSION%-%PLATFORM%-allusers.msi completed successfully
+            ) else (
+                echo Signing failed for padxml-%VERSION%-%PLATFORM%-allusers.msi
+            )
+        ) else (
+            echo Skipping signing (signtool not found).
+        )
     ) else (
-        echo Signing failed for padxml-%VERSION%-%PLATFORM%-allusers.msi
+        echo Skipping signing (cert file not found).
     )
 ) else (
-    echo Skipping signing (missing cert or signtool).
+    echo Skipping signing (CERTFILE not set).
 )
 
 :: --- Portable ---
