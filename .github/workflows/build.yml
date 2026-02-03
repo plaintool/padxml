@@ -71,26 +71,16 @@ jobs:
         run: |
           choco install lazarus -y
           choco install wixtoolset -y
+          $fpcDir = "C:\\Lazarus\\fpc\\3.2.2"
+          $zipPath = "$env:RUNNER_TEMP\\fpc-i386.exe"
+          if (Test-Path $fpcDir) {
+            Remove-Item -Recurse -Force $fpcDir
+          }
+          New-Item -ItemType Directory -Path $fpcDir | Out-Null
+          curl.exe -L "https://sourceforge.net/projects/freepascal/files/Win32/3.2.2/fpc-3.2.2.i386-win32.exe/download" -o $zipPath
+          Start-Process -FilePath $zipPath -ArgumentList "/VERYSILENT","/SUPPRESSMSGBOXES","/NORESTART","/DIR=$fpcDir" -Wait
           $env:Path = "C:\\Lazarus\\fpc\\3.2.2\\bin\\i386-win32;$env:Path"
           "PATH=$env:Path" | Out-File -FilePath $env:GITHUB_ENV -Append
-
-      - name: Install FPC sources
-        shell: pwsh
-        run: |
-          $zipPath = "$env:RUNNER_TEMP\\fpcsrc.zip"
-          $destPath = "C:\\Lazarus\\fpc\\3.2.2\\source"
-          curl.exe -L "https://downloads.sourceforge.net/project/freepascal/Source/3.2.2/fpc-3.2.2.source.zip?download=1" -o $zipPath
-          if (Test-Path $destPath) {
-            Remove-Item -Recurse -Force $destPath
-          }
-          New-Item -ItemType Directory -Path $destPath | Out-Null
-          7z x $zipPath "-o$destPath" -y | Out-Null
-          $sourceRoot = Get-ChildItem -Path $destPath -Directory | Select-Object -First 1
-          if ($sourceRoot) {
-            "FPCDIR=$($sourceRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
-          } else {
-            Write-Error "FPC sources not found after extraction."
-          }
 
       - name: Locate 32-bit FPC
         shell: pwsh
