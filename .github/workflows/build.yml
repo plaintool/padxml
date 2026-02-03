@@ -120,11 +120,15 @@ jobs:
           $cfgCandidates += (Join-Path -Path $binDir -ChildPath 'fpc.cfg')
           $cfgCandidates += (Join-Path -Path (Split-Path -Path $binDir -Parent) -ChildPath 'fpc.cfg')
           $cfgCandidates += (Join-Path -Path (Split-Path -Path (Split-Path -Path $binDir -Parent) -Parent) -ChildPath 'fpc.cfg')
+          if ($env:FPCDIR) {
+            $cfgCandidates += (Join-Path -Path $env:FPCDIR -ChildPath 'compiler\fpc.cfg')
+            $cfgCandidates += (Join-Path -Path $env:FPCDIR -ChildPath 'fpc.cfg')
+          }
           $cfg = $cfgCandidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
           if ($cfg) {
             "FPCCFG=$cfg" | Out-File -FilePath $env:GITHUB_ENV -Append
           } else {
-            Write-Error "fpc.cfg not found near $env:FPC32_PATH"
+            Write-Error "fpc.cfg not found near $env:FPC32_PATH or FPCDIR"
           }
 
       - name: Build 64-bit binary
@@ -137,6 +141,7 @@ jobs:
           PATH: C:\tools\freepascal\bin\i386-win32;%PATH%
           FPCCFG: ${{ env.FPCCFG }}
           FPCDIR: ${{ env.FPCDIR }}
+          FPC: ${{ env.FPC32_PATH }}
         run: build32.cmd
 
       - name: Build installers (x64)
