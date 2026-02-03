@@ -31,6 +31,27 @@ jobs:
         run: |
           choco install lazarus -y
           choco install wixtoolset -y
+          choco install fpc -y --forcex86
+
+      - name: Locate 32-bit FPC
+        shell: pwsh
+        run: |
+          $candidates = @(
+            'C:\tools\fpc\bin\i386-win32\fpc.exe',
+            'C:\tools\fpc\3.2.2\bin\i386-win32\fpc.exe',
+            'C:\lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe',
+            'C:\Lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe'
+          )
+          $found = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if (-not $found) {
+            $found = Get-ChildItem -Path 'C:\tools' -Filter fpc.exe -Recurse -ErrorAction SilentlyContinue |
+              Where-Object { $_.FullName -match 'i386-win32' } |
+              Select-Object -First 1 |
+              ForEach-Object { $_.FullName }
+          }
+          if ($found) {
+            "FPC32_PATH=$found" | Out-File -FilePath $env:GITHUB_ENV -Append
+          }
 
       - name: Build 64-bit binary
         shell: cmd
