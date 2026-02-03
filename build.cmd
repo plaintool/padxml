@@ -20,7 +20,7 @@ if not exist "%LAZARUS_DIR%\lazbuild.exe" (
 SET "LAZBUILD=%LAZARUS_DIR%\lazbuild.exe"
 
 echo Building project: %PROJECT_PATH%
-"%LAZBUILD%" %PROJECT_PATH% --build-mode=%BUILD_MODE%
+"%LAZBUILD%" %PROJECT_PATH% --cpu=x86_64 --ws=win32 --build-mode=%BUILD_MODE%
 
 IF %ERRORLEVEL% NEQ 0 (
     echo Build failed!
