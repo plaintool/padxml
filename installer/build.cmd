@@ -97,11 +97,7 @@ if not "%CERTFILE%"=="" (
 
 :: --- Portable ---
 if "%BUILD_PORTABLE%"=="1" (
-    powershell -Command ^
-    "Compress-Archive ^
-     -Force ^
-     -Path ..\padxml.exe,..\padxml32.exe, .\form_settings.json ^
-     -DestinationPath padxml-%VERSION%-x86-x64-portable.zip"
+    powershell -NoProfile -Command "Compress-Archive -Force -Path '..\\padxml.exe','..\\padxml32.exe','form_settings.json' -DestinationPath 'padxml-%VERSION%-x86-x64-portable.zip'"
 )
 
 echo Build and signing completed successfully!
