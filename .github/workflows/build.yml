@@ -11,6 +11,8 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+    env:
+      CERT_PFX: ${{ secrets.CERT_PFX }}
 
     steps:
       - name: Checkout repository

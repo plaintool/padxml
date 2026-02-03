@@ -34,7 +34,16 @@ IF "%SIGNTOOL%"=="" (
     SET "SIGNTOOL=C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
 )
 IF "%CERTFILE%"=="" (
-    SET "CERTFILE="
+    IF EXIST "%CD%\installer\AlexanderT.pfx" (
+        SET "CERTFILE=%CD%\installer\AlexanderT.pfx"
+    ) ELSE (
+        IF NOT "%CERT_PFX%"=="" (
+            SET "CERTFILE=%TEMP%\padxml-cert.pfx"
+            powershell -NoProfile -Command "[IO.File]::WriteAllBytes('%TEMP%\\padxml-cert.pfx',[Convert]::FromBase64String($env:CERT_PFX))"
+        ) ELSE (
+            SET "CERTFILE="
+        )
+    )
 )
 SET "CERTPASS=1234"
 SET "TIMESTAMP_URL=http://timestamp.digicert.com"
@@ -52,14 +61,14 @@ if exist "padxml.exe" (
                     echo Signing failed
                 )
             ) else (
-                echo Skipping signing (signtool not found).
+                echo Skipping signing: signtool not found.
             )
         ) else (
-            echo Skipping signing (cert file not found).
+            echo Skipping signing: cert file not found.
         )
     ) else (
-        echo Skipping signing (CERTFILE not set).
+        echo Skipping signing: CERTFILE not set.
     )
 ) else (
-    echo Skipping signing (missing executable).
+    echo Skipping signing: missing executable.
 )
