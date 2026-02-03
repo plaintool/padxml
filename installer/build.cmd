@@ -2,8 +2,14 @@
 setlocal
 
 :: Define paths
-SET "SOURCE_DIR=E:\padxml\installer"
-SET "VERSION=1.0.0"
+SET "SOURCE_DIR=%~dp0"
+SET "VERSION=%VERSION%"
+IF "%~2" NEQ "" (
+    SET "VERSION=%~2"
+)
+IF "%VERSION%"=="" (
+    SET "VERSION=0.0.0"
+)
 
 :: Check if platform parameter is provided
 IF "%1"=="" (
@@ -17,7 +23,6 @@ IF NOT "%PLATFORM%"=="x64" IF NOT "%PLATFORM%"=="x86" (
     echo Error: Invalid platform parameter. Use x64 or x86.
     echo Example: %0 x64
     echo Example: %0 x86
-    pause
     exit /b 1
 )
 
@@ -45,31 +50,54 @@ echo Cleanup completed.
 echo.
 
 :: --- Sign installers ---
-SET SIGNTOOL="C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
-SET CERTFILE=AlexanderT.pfx
-SET CERTPASS=1234
-SET TIMESTAMP_URL=http://timestamp.digicert.com
-
-echo Signing MSI files...
-%SIGNTOOL% sign /f "%CERTFILE%" /p "%CERTPASS%" /fd SHA256 /tr %TIMESTAMP_URL% /td SHA256 "%SOURCE_DIR%\padxml-%VERSION%-%PLATFORM%.msi"
-IF %ERRORLEVEL% EQU 0 (
-    echo Signing of padxml-%VERSION%-%PLATFORM%.msi completed successfully
-) else (
-    echo Signing failed for padxml-%VERSION%-%PLATFORM%.msi
+IF "%SIGNTOOL%"=="" (
+    SET "SIGNTOOL=C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
 )
+IF "%CERTFILE%"=="" (
+    IF EXIST "%CD%\installer\AlexanderT.pfx" (
+        SET "CERTFILE=%CD%\installer\AlexanderT.pfx"
+    ) ELSE (
+        IF NOT "%CERT_PFX%"=="" (
+            SET "CERTFILE=%TEMP%\padxml-cert.pfx"
+            powershell -NoProfile -Command "[IO.File]::WriteAllBytes('%TEMP%\\padxml-cert.pfx',[Convert]::FromBase64String($env:CERT_PFX))"
+        ) ELSE (
+            SET "CERTFILE="
+        )
+    )
+)
+SET "CERTPASS=1234"
+SET "TIMESTAMP_URL=http://timestamp.digicert.com"
 
-%SIGNTOOL% sign /f "%CERTFILE%" /p "%CERTPASS%" /fd SHA256 /tr %TIMESTAMP_URL% /td SHA256 "%SOURCE_DIR%\padxml-%VERSION%-%PLATFORM%-allusers.msi"
-IF %ERRORLEVEL% EQU 0 (
-    echo Signing of padxml-%VERSION%-%PLATFORM%-allusers.msi completed successfully
+if not "%CERTFILE%"=="" (
+    if exist "%CERTFILE%" (
+        if exist "%SIGNTOOL%" (
+            echo Signing MSI files...
+            "%SIGNTOOL%" sign /f "%CERTFILE%" /p "%CERTPASS%" /fd SHA256 /tr %TIMESTAMP_URL% /td SHA256 "%SOURCE_DIR%\padxml-%VERSION%-%PLATFORM%.msi"
+            IF %ERRORLEVEL% EQU 0 (
+                echo Signing of padxml-%VERSION%-%PLATFORM%.msi completed successfully
+            ) else (
+                echo Signing failed for padxml-%VERSION%-%PLATFORM%.msi
+            )
+
+            "%SIGNTOOL%" sign /f "%CERTFILE%" /p "%CERTPASS%" /fd SHA256 /tr %TIMESTAMP_URL% /td SHA256 "%SOURCE_DIR%\padxml-%VERSION%-%PLATFORM%-allusers.msi"
+            IF %ERRORLEVEL% EQU 0 (
+                echo Signing of padxml-%VERSION%-%PLATFORM%-allusers.msi completed successfully
+            ) else (
+                echo Signing failed for padxml-%VERSION%-%PLATFORM%-allusers.msi
+            )
+        ) else (
+            echo Skipping signing: signtool not found.
+        )
+    ) else (
+        echo Skipping signing: cert file not found.
+    )
 ) else (
-    echo Signing failed for padxml-%VERSION%-%PLATFORM%-allusers.msi
+    echo Skipping signing: CERTFILE not set.
 )
 
 :: --- Portable ---
-powershell -Command ^
-"Compress-Archive ^
- -Force ^
- -Path ..\padxml.exe,..\padxml32.exe, .\form_settings.json ^
- -DestinationPath padxml-%VERSION%-x86-x64-portable.zip"
+if "%BUILD_PORTABLE%"=="1" (
+    powershell -NoProfile -Command "Compress-Archive -Force -Path '..\\padxml.exe','..\\padxml32.exe','form_settings.json' -DestinationPath 'padxml-%VERSION%-x86-x64-portable.zip'"
+)
 
 echo Build and signing completed successfully!
