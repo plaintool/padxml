@@ -73,8 +73,8 @@ IF "%SIGNTOOL%"=="" (
     SET "SIGNTOOL=C:\Program Files (x86)\Windows Kits\10\bin\10.0.26100.0\x64\signtool.exe"
 )
 IF "%CERTFILE%"=="" (
-    IF EXIST "%CD%\installer\AlexanderT.pfx" (
-        SET "CERTFILE=%CD%\installer\AlexanderT.pfx"
+    IF EXIST "%~dp0installer\AlexanderT.pfx" (
+        SET "CERTFILE=%~dp0installer\AlexanderT.pfx"
     ) ELSE (
         IF NOT "%CERT_PFX%"=="" (
             SET "CERTFILE=%TEMP%\padxml-cert.pfx"
