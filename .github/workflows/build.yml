@@ -83,7 +83,7 @@ jobs:
             Remove-Item -Recurse -Force $destPath
           }
           New-Item -ItemType Directory -Path $destPath | Out-Null
-          Expand-Archive -Path $zipPath -DestinationPath $destPath -Force
+          tar -xf $zipPath -C $destPath
           $sourceRoot = Get-ChildItem -Path $destPath -Directory | Select-Object -First 1
           if ($sourceRoot) {
             "FPCDIR=$($sourceRoot.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Append
