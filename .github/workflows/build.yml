@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -13,6 +14,9 @@ jobs:
     runs-on: windows-latest
     env:
       CERT_PFX: ${{ secrets.CERT_PFX }}
+    outputs:
+      version: ${{ steps.set_version.outputs.version }}
+      tag_name: ${{ steps.set_version.outputs.tag_name }}
 
     steps:
       - name: Checkout repository
@@ -21,10 +25,46 @@ jobs:
           fetch-depth: 0
 
       - name: Set build version
+        id: set_version
         shell: pwsh
         run: |
-          $version = "${{ github.ref_name }}" -replace '^v', ''
+          if ("${{ github.event_name }}" -eq "workflow_dispatch") {
+            $lastTag = git tag --list "v*" --sort=-v:refname | Select-Object -First 1
+            if (-not $lastTag) {
+              $version = "0.0.1"
+            } else {
+              $raw = $lastTag -replace '^v', ''
+              $parts = $raw.Split('.')
+              if ($parts.Count -ge 3) {
+                $major = [int]$parts[0]
+                $minor = [int]$parts[1]
+                $patch = [int]$parts[2] + 1
+                $version = "$major.$minor.$patch"
+              } else {
+                $version = "$raw.1"
+              }
+            }
+          } else {
+            $version = "${{ github.ref_name }}" -replace '^v', ''
+          }
+          $tagName = "v$version"
           "VERSION=$version" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "version=$version" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "tag_name=$tagName" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      - name: Create tag for manual run
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        shell: pwsh
+        run: |
+          $tag = "v$env:VERSION"
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          if (-not (git rev-parse -q --verify "refs/tags/$tag")) {
+            git tag $tag
+            git push origin $tag
+          } else {
+            Write-Host "Tag $tag already exists."
+          }
 
       - name: Install build dependencies
         shell: pwsh
@@ -32,6 +72,7 @@ jobs:
           choco install lazarus -y
           choco install wixtoolset -y
           choco install freepascal -y --forcex86
+          choco install fpcsrc -y --forcex86
 
       - name: Locate 32-bit FPC
         shell: pwsh
@@ -39,20 +80,14 @@ jobs:
           $candidates = @(
             'C:\lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe',
             'C:\Lazarus\fpc\3.2.2\bin\i386-win32\fpc.exe',
-            'C:\tools\fpc\bin\i386-win32\fpc.exe',
-            'C:\tools\fpc\3.2.2\bin\i386-win32\fpc.exe',
-            'C:\Program Files (x86)\FPC\3.2.2\bin\i386-win32\fpc.exe',
-            'C:\Program Files (x86)\FPC\3.2.0\bin\i386-win32\fpc.exe'
+            'C:\tools\freepascal\bin\i386-win32\fpc.exe',
+            'C:\tools\fpc\bin\i386-win32\fpc.exe'
           )
           $found = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
-          if (-not $found) {
-            $found = Get-ChildItem -Path 'C:\tools' -Filter fpc.exe -Recurse -ErrorAction SilentlyContinue |
-              Where-Object { $_.FullName -match 'i386-win32' } |
-              Select-Object -First 1 |
-              ForEach-Object { $_.FullName }
-          }
           if ($found) {
             "FPC32_PATH=$found" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+            Write-Error '32-bit FPC not found under Lazarus. Check Lazarus install.'
           }
 
       - name: Build 64-bit binary
@@ -87,5 +122,5 @@ jobs:
     needs: build
     uses: ./.github/workflows/create-release.yml
     with:
-      tag_name: ${{ github.ref_name }}
+      tag_name: ${{ needs.build.outputs.tag_name }}
       artifact_name: build-artifacts
