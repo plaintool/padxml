@@ -125,6 +125,16 @@ jobs:
             $cfgCandidates += (Join-Path -Path $env:FPCDIR -ChildPath 'fpc.cfg')
           }
           $cfg = $cfgCandidates | Where-Object { $_ -and (Test-Path $_) } | Select-Object -First 1
+          if (-not $cfg) {
+            $cfg = Get-ChildItem -Path 'C:\tools\freepascal' -Filter 'fpc.cfg' -Recurse -ErrorAction SilentlyContinue |
+              Select-Object -First 1 |
+              ForEach-Object { $_.FullName }
+          }
+          if (-not $cfg -and $env:FPCDIR) {
+            $cfg = Get-ChildItem -Path $env:FPCDIR -Filter 'fpc.cfg' -Recurse -ErrorAction SilentlyContinue |
+              Select-Object -First 1 |
+              ForEach-Object { $_.FullName }
+          }
           if ($cfg) {
             "FPCCFG=$cfg" | Out-File -FilePath $env:GITHUB_ENV -Append
           } else {
