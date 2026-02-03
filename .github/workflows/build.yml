@@ -109,6 +109,25 @@ jobs:
             Write-Error '32-bit FPC not found under Lazarus. Check Lazarus install.'
           }
 
+      - name: Locate FPC config
+        shell: pwsh
+        run: |
+          if (-not $env:FPC32_PATH) {
+            Write-Error "FPC32_PATH not set."
+          }
+          $binDir = Split-Path $env:FPC32_PATH
+          $cfgCandidates = @(
+            Join-Path $binDir 'fpc.cfg',
+            Join-Path (Split-Path $binDir) 'fpc.cfg',
+            Join-Path (Split-Path (Split-Path $binDir)) 'fpc.cfg'
+          )
+          $cfg = $cfgCandidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+          if ($cfg) {
+            "FPCCFG=$cfg" | Out-File -FilePath $env:GITHUB_ENV -Append
+          } else {
+            Write-Error "fpc.cfg not found near $env:FPC32_PATH"
+          }
+
       - name: Build 64-bit binary
         shell: cmd
         run: build.cmd
@@ -117,6 +136,8 @@ jobs:
         shell: cmd
         env:
           PATH: C:\tools\freepascal\bin\i386-win32;%PATH%
+          FPCCFG: ${{ env.FPCCFG }}
+          FPCDIR: ${{ env.FPCDIR }}
         run: build32.cmd
 
       - name: Build installers (x64)
