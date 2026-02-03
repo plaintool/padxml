@@ -72,7 +72,6 @@ jobs:
           choco install lazarus -y
           choco install wixtoolset -y
           choco install freepascal -y --forcex86
-          choco install fpcsrc -y --forcex86
 
       - name: Locate 32-bit FPC
         shell: pwsh
