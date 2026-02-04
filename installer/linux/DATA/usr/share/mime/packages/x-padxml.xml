@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+  <mime-type type="application/x-padxml">
+    <comment>Pad file</comment>
+    <generic-icon name="paddoc"/>
+	<sub-class-of type="text/plain"/>
+    <glob pattern="*.pad"/>
+  </mime-type>
+</mime-info>
