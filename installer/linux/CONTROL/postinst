@@ -1,0 +1,21 @@
+#!/bin/bash -e
+# Enables 'exit on error' mode, so the script will stop if any command fails.
+
+# Make the 'padxml' binary executable.
+chmod +x /usr/bin/padxml
+
+# Register the x-padxml.desktop file as a new MIME type.
+xdg-mime install /usr/share/applications/x-padxml.desktop
+
+# Add the 'PadXml' application to the system's desktop menu.
+xdg-desktop-menu install /usr/share/applications/x-padxml.desktop
+
+# Update the MIME database to apply changes system-wide.
+update-mime-database /usr/share/mime/
+
+# Install the main application icon (for menus and application launchers) with a size of 128x128.
+xdg-icon-resource install --context apps --size 128 /usr/share/icons/hicolor/128x128/apps/x-padxml.png x-padxml
+xdg-icon-resource install --context apps --size 64 /usr/share/icons/hicolor/64x64/apps/x-padxml.png x-padxml
+
+# Update the icon cache to make sure the system recognizes the new icons.
+gtk-update-icon-cache /usr/share/icons/hicolor
