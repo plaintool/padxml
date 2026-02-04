@@ -1,9 +1,10 @@
 Name:           padxml
 Version:        %{?version}
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        PadXML XML editor
 License:        MIT
 BuildArch:      x86_64
+Requires:       gtk2
 
 %description
 PadXML is a lightweight XML editor.
@@ -20,5 +21,5 @@ cp -a "%{staging_dir}/." "%{buildroot}/"
 %files -f %{_sourcedir}/padxml.files
 
 %changelog
-* Thu Jan 01 2025 PadXML Team <support@example.com> - %{version}-1
+* Thu Jan 01 2025 PadXML Team <support@example.com> - %{version}-2
 - Automated build
