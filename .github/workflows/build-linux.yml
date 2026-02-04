@@ -1,0 +1,105 @@
+name: Build Linux
+on:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.version }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y lazarus fpc dpkg-dev rpm
+
+      - name: Build binary
+        run: make
+
+      - name: Package deb
+        run: |
+          template_root="installer/linux"
+          pkg_root="dist/padxml_${VERSION}_amd64"
+
+          if [ ! -d "$template_root" ]; then
+            echo "Debian template not found at $template_root"
+            exit 1
+          fi
+
+          rm -rf "$pkg_root"
+          mkdir -p "$(dirname "$pkg_root")"
+          rsync -a "$template_root/" "$pkg_root/"
+
+          install -d "$pkg_root/usr/bin"
+          install -m 0755 padxml "$pkg_root/usr/bin/padxml"
+
+          if [ -f "$pkg_root/CONTROL/control" ] && [ ! -f "$pkg_root/DEBIAN/control" ]; then
+            install -d "$pkg_root/DEBIAN"
+            mv "$pkg_root/CONTROL/control" "$pkg_root/DEBIAN/control"
+          fi
+
+          if [ -f "$pkg_root/DEBIAN/control" ]; then
+            sed -i "s/^Version:.*/Version: ${VERSION}/" "$pkg_root/DEBIAN/control"
+          else
+            install -d "$pkg_root/DEBIAN"
+            printf '%s\n' \
+              "Package: padxml" \
+              "Version: ${VERSION}" \
+              "Section: utils" \
+              "Priority: optional" \
+              "Architecture: amd64" \
+              "Maintainer: PadXML Team <support@example.com>" \
+              "Description: PadXML XML editor" \
+              " Minimal Debian package built by GitHub Actions." \
+              > "$pkg_root/DEBIAN/control"
+          fi
+
+          dpkg-deb --build "$pkg_root" dist
+
+      - name: Package rpm
+        run: |
+          template_root="installer/linux"
+          rpm_root="dist/rpm"
+          staging_root="$rpm_root/staging"
+          sources_root="$rpm_root/SOURCES"
+
+          if [ ! -d "$template_root" ]; then
+            echo "RPM template not found at $template_root"
+            exit 1
+          fi
+
+          rm -rf "$rpm_root"
+          mkdir -p "$staging_root" "$sources_root"
+
+          rsync -a "$template_root/" "$staging_root/"
+          rm -rf "$staging_root/DEBIAN"
+          install -d "$staging_root/usr/bin"
+          install -m 0755 padxml "$staging_root/usr/bin/padxml"
+
+          find "$staging_root" -type f -o -type l | sed "s|^$staging_root||" | sed 's|^|/|' > "$sources_root/padxml.files"
+
+          rpmbuild -bb "installer/linux/padxml.spec" \
+            --define "_topdir $PWD/$rpm_root" \
+            --define "version $VERSION" \
+            --define "staging_dir $PWD/$staging_root"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-linux-artifacts
+          path: |
+            dist/*.deb
+            dist/rpm/RPMS/**/*.rpm
