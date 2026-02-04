@@ -64,21 +64,22 @@ jobs:
             git push origin "$tag"
           fi
 
-  build_windows:
-    needs: prepare
-    uses: ./.github/workflows/build-window.yml
-    with:
-      version: ${{ needs.prepare.outputs.version }}
+  # build_windows:
+  #   needs: prepare
+  #   uses: ./.github/workflows/build-window.yml
+  #   with:
+  #     version: ${{ needs.prepare.outputs.version }}
 
   build_linux:
-    needs: build_windows
+    #needs: build_windows
+    needs: prepare
     uses: ./.github/workflows/build-linux.yml
     with:
       version: ${{ needs.prepare.outputs.version }}
 
   release:
     needs:
-      - build_windows
+      #- build_windows
       - build_linux
       - prepare
     uses: ./.github/workflows/create-release.yml
