@@ -46,20 +46,25 @@ jobs:
           install -d "$pkg_root/usr/bin"
           install -m 0755 padxml "$pkg_root/usr/bin/padxml"
 
+          if [ -f "$pkg_root/CONTROL/control" ] && [ ! -f "$pkg_root/DEBIAN/control" ]; then
+            install -d "$pkg_root/DEBIAN"
+            mv "$pkg_root/CONTROL/control" "$pkg_root/DEBIAN/control"
+          fi
+
           if [ -f "$pkg_root/DEBIAN/control" ]; then
             sed -i "s/^Version:.*/Version: ${VERSION}/" "$pkg_root/DEBIAN/control"
           else
             install -d "$pkg_root/DEBIAN"
-            cat <<CONTROL > "$pkg_root/DEBIAN/control"
-            Package: padxml
-            Version: ${VERSION}
-            Section: utils
-            Priority: optional
-            Architecture: amd64
-            Maintainer: PadXML Team <support@example.com>
-            Description: PadXML XML editor
-             Minimal Debian package built by GitHub Actions.
-            CONTROL
+            printf '%s\n' \
+              "Package: padxml" \
+              "Version: ${VERSION}" \
+              "Section: utils" \
+              "Priority: optional" \
+              "Architecture: amd64" \
+              "Maintainer: PadXML Team <support@example.com>" \
+              "Description: PadXML XML editor" \
+              " Minimal Debian package built by GitHub Actions." \
+              > "$pkg_root/DEBIAN/control"
           fi
 
           dpkg-deb --build "$pkg_root" dist
