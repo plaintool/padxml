@@ -24,7 +24,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y lazarus fpc dpkg-dev rpm
+          sudo apt-get install -y lazarus fpc dpkg-dev rpm binutils
 
       - name: Build binary
         run: make
@@ -32,29 +32,31 @@ jobs:
       - name: Package deb
         run: |
           template_root="installer/linux"
-          pkg_root="dist/padxml_${VERSION}_amd64"
+          work_root="dist/debwork"
+          pkg_name="padxml_${VERSION}_amd64.deb"
 
           if [ ! -d "$template_root" ]; then
             echo "Debian template not found at $template_root"
             exit 1
           fi
 
-          rm -rf "$pkg_root"
-          mkdir -p "$(dirname "$pkg_root")"
-          rsync -a "$template_root/" "$pkg_root/"
+          rm -rf "$work_root"
+          mkdir -p "$work_root/control" "$work_root/data" dist
 
-          install -d "$pkg_root/usr/bin"
-          install -m 0755 padxml "$pkg_root/usr/bin/padxml"
-
-          if [ -f "$pkg_root/CONTROL/control" ] && [ ! -f "$pkg_root/DEBIAN/control" ]; then
-            install -d "$pkg_root/DEBIAN"
-            mv "$pkg_root/CONTROL/control" "$pkg_root/DEBIAN/control"
+          if [ -d "$template_root/CONTROL" ]; then
+            rsync -a "$template_root/CONTROL/" "$work_root/control/"
           fi
 
-          if [ -f "$pkg_root/DEBIAN/control" ]; then
-            sed -i "s/^Version:.*/Version: ${VERSION}/" "$pkg_root/DEBIAN/control"
+          if [ -d "$template_root/DATA" ]; then
+            rsync -a "$template_root/DATA/" "$work_root/data/"
+          fi
+
+          install -d "$work_root/data/usr/bin"
+          install -m 0755 padxml "$work_root/data/usr/bin/padxml"
+
+          if [ -f "$work_root/control/control" ]; then
+            sed -i "s/^Version:.*/Version: ${VERSION}/" "$work_root/control/control"
           else
-            install -d "$pkg_root/DEBIAN"
             printf '%s\n' \
               "Package: padxml" \
               "Version: ${VERSION}" \
@@ -64,10 +66,17 @@ jobs:
               "Maintainer: PadXML Team <support@example.com>" \
               "Description: PadXML XML editor" \
               " Minimal Debian package built by GitHub Actions." \
-              > "$pkg_root/DEBIAN/control"
+              > "$work_root/control/control"
           fi
 
-          dpkg-deb --build "$pkg_root" dist
+          tar -C "$work_root/control" -czf "$work_root/control.tar.gz" .
+          tar -C "$work_root/data" -czf "$work_root/data.tar.gz" .
+          printf '2.0\n' > "$work_root/debian-binary"
+
+          ar r "dist/$pkg_name" \
+            "$work_root/debian-binary" \
+            "$work_root/control.tar.gz" \
+            "$work_root/data.tar.gz"
 
       - name: Package rpm
         run: |
