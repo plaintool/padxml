@@ -14,6 +14,7 @@ pushd installer
 call build.cmd
 echo Wait 2 seconds to ensure file is free
 timeout /t 2 /nobreak >nul
+SET "BUILD_PORTABLE=1"
 call build32.cmd
 
 echo All builds finished.
