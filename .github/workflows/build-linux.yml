@@ -48,6 +48,18 @@ jobs:
 
           if [ -f "$pkg_root/DEBIAN/control" ]; then
             sed -i "s/^Version:.*/Version: ${VERSION}/" "$pkg_root/DEBIAN/control"
+          else
+            install -d "$pkg_root/DEBIAN"
+            cat <<CONTROL > "$pkg_root/DEBIAN/control"
+            Package: padxml
+            Version: ${VERSION}
+            Section: utils
+            Priority: optional
+            Architecture: amd64
+            Maintainer: PadXML Team <support@example.com>
+            Description: PadXML XML editor
+             Minimal Debian package built by GitHub Actions.
+            CONTROL
           fi
 
           dpkg-deb --build "$pkg_root" dist
