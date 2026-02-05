@@ -8,7 +8,7 @@ IF "%~2" NEQ "" (
     SET "VERSION=%~2"
 )
 IF "%VERSION%"=="" (
-    SET "VERSION=1.0.0"
+    SET "VERSION=1.0.1"
 )
 
 :: Check if platform parameter is provided
