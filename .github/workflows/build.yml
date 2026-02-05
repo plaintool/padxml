@@ -67,6 +67,7 @@ jobs:
   build_windows:
     needs: prepare
     uses: ./.github/workflows/build-window.yml
+    secrets: inherit
     with:
       version: ${{ needs.prepare.outputs.version }}
 
