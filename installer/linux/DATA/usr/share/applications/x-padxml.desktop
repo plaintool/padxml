@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=padxml
+Exec=/usr/bin/padxml %f
+Type=Application
+MimeType=application/x-padxml
+Terminal=false
+Icon=x-padxml
+Categories=Development;
+StartupWMClass=Padxml
