@@ -78,10 +78,11 @@ jobs:
           ## Windows
 
           Several installer options are available on the releases page:
-
-          - [**padxml-${VERSION}-x64.msi**](https://github.com/plaintool/padxml/releases/download/${TAG}/padxml-${VERSION}-x64.msi) / [**padxml-${VERSION}-x86.msi**](https://github.com/plaintool/padxml/releases/download/${TAG}/padxml-${VERSION}-x86.msi) — installs the application **for the current user**.
-          - [**padxml-${VERSION}-x64-allusers.msi**](https://github.com/plaintool/padxml/releases/download/${TAG}/padxml-${VERSION}-x64-allusers.msi) / [**padxml-${VERSION}-x86-allusers.msi**](https://github.com/plaintool/padxml/releases/download/${TAG}/padxml-${VERSION}-x86-allusers.msi) — installs the application **for all users on the system**.
-          - [**padxml-${VERSION}-x86-x64-portable.zip**](https://github.com/plaintool/padxml/releases/download/${TAG}/padxml-${VERSION}-x86-x64-portable.zip) — portable version, saves its settings to \`form_settings.json\` if it is near the executable; otherwise, in the user directory
+          | Description | Files |
+          |-------------|-------|
+          | **User installer (MSI)** — installs the application **for the current user** | [padxml‑${VERSION}‑x64.msi](https://github.com/plaintool/padxml/releases/download/${TAG}/padxml-${VERSION}-x64.msi)<br>[padxml‑${VERSION}‑x86.msi](https://github.com/plaintool/padxml/releases/download/${TAG}/padxml-${VERSION}-x86.msi) |
+          | **System installer (MSI)** — installs the application **for all users on the system** | [padxml‑${VERSION}‑x64‑allusers.msi](https://github.com/plaintool/padxml/releases/download/${TAG}/padxml-${VERSION}-x64-allusers.msi)<br>[padxml‑${VERSION}‑x86‑allusers.msi](https://github.com/plaintool/padxml/releases/download/${TAG}/padxml-${VERSION}-x86-allusers.msi) |
+          | **Portable version** — saves its settings to `form_settings.json` if it is near the executable; otherwise, in the user directory | [padxml‑${VERSION}‑x86‑x64‑portable.zip](https://github.com/plaintool/padxml/releases/download/${TAG}/padxml-${VERSION}-x86-x64-portable.zip) |
 
           ## Linux
           

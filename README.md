@@ -17,19 +17,21 @@ A lightweight application designed to create, edit, and maintain PAD (Portable A
 
 Several installer options are available on the releases page:
 
-- **padxml-x64.msi** / **padxml-x86.msi** — installs the application **for the current user**.  
-- **padxml-x64-allusers.msi** / **padxml-x86-allusers.msi** — installs the application **for all users on the system**.  
-- **padxml-x86-x64-portable.zip** — portable version, saves its settings to `form_settings.json` if it is near the executable.  
+| Description | Files |
+|-------------|-------|
+| **User installer (MSI)** — installs the application **for the current user** | `padxml‑x64.msi`<br>`padxml‑x86.msi` |
+| **System installer (MSI)** — installs the application **for all users on the system** | `padxml‑x64‑allusers.msi`<br>`padxml‑x86‑allusers.msi` |
+| **Portable version** — saves its settings to `form_settings.json` if it is near the executable; otherwise, in the user directory | `padxml‑x86‑x64‑portable.zip` |
 
 Download the installer from the [releases page](https://github.com/plaintool/padxml/releases), run it, and follow the on-screen instructions. After installation, you can launch PadXml from the Start menu or from the desktop shortcut.
 
+---
+
 ### Linux
-### *Debian-like systems*
-Download the appropriate `.deb` package for your system from the [releases page](https://github.com/plaintool/padxml/releases), or use `wget` directly:
-```bash
-wget https://github.com/plaintool/padxml/releases/download/v1.0.1/padxml-1.0.1.deb
-sudo apt install ./padxml-1.0.1.deb
-```
+### *Debian-like systems (Debian, Ubuntu, etc.)*
+
+Download the appropriate `.deb` package for your system from the [releases page](https://github.com/plaintool/padxml/releases), or use `wget` directly. An example of using `wget` is provided on the release page.
+
 If you downloaded the package manually, you can also install it via:
 ```bash
 sudo dpkg -i /path/to/padxml.deb
@@ -38,12 +40,11 @@ If there are missing dependencies, fix them by running:
 ```bash
 sudo apt-get install -f
 ```
-### *Fedora-like systems*
-Download the appropriate `.rpm` package for your system, or use `wget` directly:
-```bash
-wget https://github.com/plaintool/padxml/releases/download/v1.0.1/padxml-1.0.1.rpm
-sudo rpm -i ./padxml-1.0.1.rpm
-```
+
+### *RPM-based systems (Fedora, RHEL, CentOS, openSUSE, etc.)*
+
+Download the appropriate `.rpm` package for your system, or use `wget` directly. An example of using `wget` is provided on the release page.
+
 If you downloaded the package manually, you can also install it via:
 ```bash
 sudo dnf install /path/to/padxml.rpm
@@ -55,7 +56,7 @@ sudo dnf install -y gtk2
 
 ## Donate 💖
 
-If you like this application, you can read how to support it [here](https://plaintool.github.io/notetask/donate.htm).
+If you like this application, you can read how to support it [here](https://plaintool.github.io/padxml/donate.htm).
 
 ## Licensing
 
