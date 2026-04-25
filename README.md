@@ -56,7 +56,7 @@ sudo dnf install -y gtk2
 
 ## Donate 💖
 
-If you like this application, you can read how to support it [here](https://plaintool.github.io/padxml/donate.htm).
+If you like this application, you can read how to support it [here](https://plaintool.github.io/notetask/donate.htm).
 
 ## Licensing
 
