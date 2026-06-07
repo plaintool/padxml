@@ -9,7 +9,7 @@ object formPadXml: TformPadXml
   Color = clWindow
   KeyPreview = True
   Menu = MainMenu
-  LCLVersion = '4.4.0.0'
+  LCLVersion = '4.6.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -229,6 +229,11 @@ object formPadXml: TformPadXml
       object menuBuyMeACoffee: TMenuItem
         Caption = 'Buy me a coffee...'
         OnClick = menuBuyMeACoffeeClick
+      end
+      object menuAutoCheckUpdates: TMenuItem
+        AutoCheck = True
+        Caption = 'Auto check updates'
+        OnClick = menuAutoCheckUpdatesClick
       end
       object menuCheckForUpdates: TMenuItem
         Caption = 'Check for updates'

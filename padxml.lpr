@@ -20,19 +20,27 @@ uses
   Forms,
   mainunit,
   formabout,
-  formdonate;
+  formdonate
+  {$IFDEF WINDOWS}
+  ,uDarkStyle
+  ,uWin32WidgetSetDark
+  {$ENDIF}
+  ;
 
   {$R *.res}
 
 begin
   RequireDerivedFormResource := True;
-  Application.Title:='PadXml';
-  Application.Scaled:=True;
+  Application.Title := 'PadXml';
+  Application.Scaled := True;
   {$PUSH}
   {$WARN 5044 OFF}
   Application.MainFormOnTaskbar := True;
   {$POP}
   Application.Initialize;
+  {$IFDEF WINDOWS}
+  ApplyDarkStyle;
+  {$ENDIF}
   Application.CreateForm(TformPadXml, formPadXml);
   Application.CreateForm(TformAboutPadXml, formAboutPadXml);
   Application.CreateForm(TformDonatePadXml, formDonatePadXml);

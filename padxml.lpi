@@ -21,7 +21,7 @@
       <UseVersionInfo Value="True"/>
       <MajorVersionNr Value="1"/>
       <RevisionNr Value="1"/>
-      <StringTable CompanyName="plaintool" ProductName="PadXml" ProductVersion="1.0.1"/>
+      <StringTable CompanyName="plaintool" ProductName="PadXml" ProductVersion="1.1.0"/>
     </VersionInfo>
     <BuildModes>
       <Item Name="Debug" Default="True"/>
@@ -34,7 +34,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="src"/>
+            <OtherUnitFiles Value="src;common"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -120,6 +120,21 @@
         <ComponentName Value="formDonatePadXml"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
+      </Unit>
+      <Unit>
+        <Filename Value="common\udarkstyle.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uDarkStyle"/>
+      </Unit>
+      <Unit>
+        <Filename Value="common\uimport.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uImport"/>
+      </Unit>
+      <Unit>
+        <Filename Value="common\uwin32widgetsetdark.pas"/>
+        <IsPartOfProject Value="True"/>
+        <UnitName Value="uWin32WidgetSetDark"/>
       </Unit>
     </Units>
   </ProjectOptions>

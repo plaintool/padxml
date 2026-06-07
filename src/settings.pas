@@ -85,6 +85,7 @@ begin
     JSONObj.Add('WindowState', Ord(Form.WindowState));
 
     JSONObj.Add('SplitterX', Form.propertyPad.SplitterX);
+    JSONObj.Add('AutoCheckUpdates', Form.AutoCheckUpdates);
 
     // Write to file
     with TStringList.Create do
@@ -142,6 +143,9 @@ begin
         Form.propertyPad.SplitterX := JSONObj.FindPath('SplitterX').AsInteger;
         Form.propertyPad.PreferredSplitterX := Form.propertyPad.SplitterX;
       end;
+
+      if JSONObj.FindPath('AutoCheckUpdates') <> nil then
+        Form.AutoCheckUpdates := JSONObj.FindPath('AutoCheckUpdates').AsBoolean;
 
       Result := True;
     finally
