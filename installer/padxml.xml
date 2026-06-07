@@ -2,7 +2,7 @@
 <XML_DIZ_INFO>
 	<MASTER_PAD_VERSION_INFO>
 		<MASTER_PAD_VERSION>3.11</MASTER_PAD_VERSION>
-		<MASTER_PAD_EDITOR>PadXml 1.0.1</MASTER_PAD_EDITOR>
+		<MASTER_PAD_EDITOR>PadXml 1.1.0</MASTER_PAD_EDITOR>
 		<MASTER_PAD_INFO>Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://pad.asp-software.org</MASTER_PAD_INFO>
 	</MASTER_PAD_VERSION_INFO>
 	<Company_Info>
@@ -34,7 +34,7 @@
 	</Company_Info>
 	<Program_Info>
 		<Program_Name>PadXml</Program_Name>
-		<Program_Version>1.0.1</Program_Version>
+		<Program_Version>1.1.0</Program_Version>
 		<Program_Release_Month>01</Program_Release_Month>
 		<Program_Release_Day>16</Program_Release_Day>
 		<Program_Release_Year>2026</Program_Release_Year>
@@ -84,10 +84,10 @@
 			<Application_XML_File_URL>http://raw.githubusercontent.com/plaintool/padxml/refs/heads/main/installer/padxml.xml</Application_XML_File_URL>
 		</Application_URLs>
 		<Download_URLs>
-			<Primary_Download_URL>http://github.com/plaintool/padxml/releases/download/v1.0.1/padxml-1.0.1-x64-allusers.msi</Primary_Download_URL>
-			<Secondary_Download_URL>http://github.com/plaintool/padxml/releases/download/v1.0.1/padxml-1.0.1-x86-allusers.msi</Secondary_Download_URL>
-			<Additional_Download_URL_1>http://github.com/plaintool/padxml/releases/download/v1.0.1/padxml-1.0.1-x64.msi</Additional_Download_URL_1>
-			<Additional_Download_URL_2>http://github.com/plaintool/padxml/releases/download/v1.0.1/padxml-1.0.1-x86.msi</Additional_Download_URL_2>
+			<Primary_Download_URL>http://github.com/plaintool/padxml/releases/download/v1.1.0/padxml-1.1.0-x64-allusers.msi</Primary_Download_URL>
+			<Secondary_Download_URL>http://github.com/plaintool/padxml/releases/download/v1.1.0/padxml-1.1.0-x86-allusers.msi</Secondary_Download_URL>
+			<Additional_Download_URL_1>http://github.com/plaintool/padxml/releases/download/v1.1.0/padxml-1.1.0-x64.msi</Additional_Download_URL_1>
+			<Additional_Download_URL_2>http://github.com/plaintool/padxml/releases/download/v1.1.0/padxml-1.1.0-x86.msi</Additional_Download_URL_2>
 		</Download_URLs>
 	</Web_Info>
 	<Permissions>
