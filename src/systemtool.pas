@@ -26,7 +26,6 @@ uses
   LCLTranslator,
   LCLIntf,
   Dialogs,
-  fphttpclient,
   {$IFDEF Windows}
   Windows,
   Registry,
@@ -639,32 +638,6 @@ var
     end;
   end;
 
-  function HttpClientGet(const AUrl: string): string;
-  var
-    HttpClient: TFPHTTPClient;
-  begin
-    try
-      HttpClient := TFPHTTPClient.Create(nil);
-      try
-        // Set request headers and options
-        HttpClient.AddHeader('User-Agent', 'TrayslateVersionChecker');
-        HttpClient.AllowRedirect := True;
-
-        // Set connection and IO timeouts in milliseconds
-        HttpClient.ConnectTimeout := 5000;
-        HttpClient.IOTimeout := 5000;
-
-        // Execute the GET request
-        // Exceptions are handled by the caller
-        Result := HttpClient.Get(AUrl);
-      finally
-        HttpClient.Free;
-      end;
-    except
-      Result:=string.Empty;
-    end;
-  end;
-
 {$ELSE}
 
   function HttpGetCurl(const AUrl: string): string;
@@ -815,8 +788,6 @@ begin
     Url := Format('https://api.github.com/repos/%s/releases/latest', [Repo]);
 
     {$IFDEF WINDOWS}
-    ResponseContent := HttpClientGet(Url);
-    if ResponseContent = string.Empty then
       ResponseContent := HttpGetWinInet(Url);
     {$ELSE}
     try

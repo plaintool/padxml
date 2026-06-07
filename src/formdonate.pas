@@ -53,10 +53,9 @@ uses systemtool;
 
 procedure TformDonatePadXml.FormCreate(Sender: TObject);
 begin
-  ApplicationTranslate(language, self);
-
-  //labelBank.Font.Color := ThemeColor(clBlue, clSkyBlue);
+  labelBank.Font.Color := ThemeColor(clBlue, clSkyBlue);
   //labelCrypto.Font.Color := ThemeColor(clBlue, clSkyBlue);
+  labelCrypto.Font.Color := ThemeColor(clBlue, clSkyBlue);
 end;
 
 procedure TformDonatePadXml.labelBankClick(Sender: TObject);

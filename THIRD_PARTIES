@@ -1,0 +1,8 @@
+THIRD-PARTY RESOURCES
+
+This application uses third-party resources under the following licenses:
+
+1. Dark theme support modules from Double Commander
+Modules used: udarkstyle.pas, uimport.pas, uwin32widgetsetdark.pas
+License: GNU General Public License v2.0 (GPL-2.0)
+https://github.com/doublecmd/doublecmd
