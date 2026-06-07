@@ -19,9 +19,9 @@ Several installer options are available on the releases page:
 
 | Description | Files |
 |-------------|-------|
-| **User installer (MSI)** - installs the application **for the current user** | `padxml-x64.msi`<br>`padxml-x86.msi` |
-| **System installer (MSI)** - installs the application **for all users on the system** | `padxml-x64-allusers.msi`<br>`padxml-x86-allusers.msi` |
-| **Portable version** - saves its settings to `form_settings.json` if it is near the executable; otherwise, in the user directory | `padxml-x86-x64-portable.zip` |
+| **User installer (MSI)** — installs the application **for the current user** | `padxml‑x64.msi`<br>`padxml‑x86.msi` |
+| **System installer (MSI)** — installs the application **for all users on the system** | `padxml‑x64‑allusers.msi`<br>`padxml‑x86‑allusers.msi` |
+| **Portable version** — saves its settings to `form_settings.json` if it is near the executable; otherwise, in the user directory | `padxml‑x86‑x64‑portable.zip` |
 
 Download the installer from the [releases page](https://github.com/plaintool/padxml/releases), run it, and follow the on-screen instructions. After installation, you can launch PadXml from the Start menu or from the desktop shortcut.
 
