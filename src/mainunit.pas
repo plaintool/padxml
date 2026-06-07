@@ -57,6 +57,7 @@ type
     menuAppStore: TMenuItem;
     menuIssues: TMenuItem;
     menuFileNewWindow: TMenuItem;
+    menuAutoCheckUpdates: TMenuItem;
     menuKilletSoft: TMenuItem;
     menuTPA: TMenuItem;
     menuMSN: TMenuItem;
@@ -84,6 +85,7 @@ type
     procedure FormCloseQuery(Sender: TObject; var CanClose: boolean);
     procedure FormDropFiles(Sender: TObject; const FileNames: array of string);
     procedure menuAboutClick(Sender: TObject);
+    procedure menuAutoCheckUpdatesClick(Sender: TObject);
     procedure menuFileNewWindowClick(Sender: TObject);
     procedure menuSectionClick(Sender: TObject);
     procedure menuBuyMeACoffeeClick(Sender: TObject);
@@ -107,6 +109,7 @@ type
     FCommandLineFile: string;
     FFound: boolean;
     FFilterText: string;
+    FAutoCheckUpdates: boolean;
     procedure EnumChildEditor(AEditor: TPropertyEditor);
     function EditorHasVisibleChild(AEditor: TPropertyEditor; const AFilter: string): boolean;
     function SaveFile(AFileName: string): boolean;
@@ -122,6 +125,7 @@ type
     procedure HandleCommandLineParameters;
     function ValidateFileForOpen(const AFileName: string): boolean;
   public
+    property AutoCheckUpdates: boolean read FAutoCheckUpdates write FAutoCheckUpdates;
   end;
 
 var
@@ -142,9 +146,11 @@ begin
 
   // Initialize state
   FInitialized := False;
+  FAutoCheckUpdates := True;
   FChanged := False;
   FFileName := '';
   FCommandLineFile := '';
+  propertyPad.ValueFont.Color := ThemeColor(clNavy, clSkyBlue);
 
   LoadFormSettings(Self);
 
@@ -155,6 +161,7 @@ begin
 
   // Set up property grid
   propertyPad.TIObject := PadFormat;
+  menuAutoCheckUpdates.Checked := FAutoCheckUpdates;
 
   // Set up file filters
   SetFileFilterForDialog;
@@ -209,13 +216,9 @@ begin
   PadFormat.Free;
 end;
 
-procedure TformPadXml.FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
-begin
-  if Key = VK_ESCAPE then
-    Close;
-end;
-
 procedure TformPadXml.FormShow(Sender: TObject);
+var
+  Th: TCheckUpdateThread;
 begin
   if not FInitialized then
   begin
@@ -224,6 +227,18 @@ begin
     // Open file from command line if specified
     OpenFileFromCommandLine;
   end;
+
+  if AutoCheckUpdates then
+  begin
+    Th := TCheckUpdateThread.Create(False);
+    Th.FreeOnTerminate := True;
+  end;
+end;
+
+procedure TformPadXml.FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState);
+begin
+  if Key = VK_ESCAPE then
+    Close;
 end;
 
 procedure TformPadXml.FormCloseQuery(Sender: TObject; var CanClose: boolean);
@@ -268,9 +283,16 @@ begin
   formDonatePadXml.ShowModal;
 end;
 
-procedure TformPadXml.menuCheckForUpdatesClick(Sender: TObject);
+procedure TformPadXml.menuAutoCheckUpdatesClick(Sender: TObject);
 begin
-  CheckGithubLatestVersion;
+  FAutoCheckUpdates := menuAutoCheckUpdates.Checked;
+end;
+
+procedure TformPadXml.menuCheckForUpdatesClick(Sender: TObject);
+var
+  LatestVersion: string;
+begin
+  CheckGithubLatestVersion(LatestVersion, REPO);
 end;
 
 procedure TformPadXml.menuFileExitClick(Sender: TObject);

@@ -26,10 +26,12 @@ uses
   LCLTranslator,
   LCLIntf,
   Dialogs,
+  fphttpclient,
   {$IFDEF Windows}
   Windows,
   Registry,
   wininet,
+  uDarkStyle,
   {$ENDIF}
   {$IFDEF Linux}
   Unix,
@@ -46,9 +48,23 @@ uses
   fpjson,
   jsonparser;
 
+type
+  TCheckUpdateThread = class(TThread)
+  private
+    FLatestVersion: string;
+  protected
+    procedure Execute; override;
+    procedure UpdateAvailable;
+    procedure Finish;
+  end;
+
 function GetOSLanguage: string;
 
 function ApplicationTranslate(const Language: string; AForm: TCustomForm = nil): boolean;
+
+function ThemeColor(LightColor, DarkColor: TColor): TColor;
+
+function ThemeValue(LightValue, DarkValue: integer): integer;
 
 {$IFDEF Windows}
 
@@ -64,7 +80,9 @@ function IsSystemKey(Key: word): boolean;
 
 function GetAppVersion: string;
 
-function CheckGithubLatestVersion(const Repo: string = 'plaintool/padxml'): boolean;
+{ Check Github Version }
+
+function CheckGithubLatestVersion(out Version: string; const Repo: string; const Silent: boolean = False): boolean;
 
 var
   Language: string;
@@ -74,7 +92,35 @@ resourcestring
   newversionuptodate = 'Your version is up to date.';
   newversioncheckerror = 'Error checking version:';
 
+
+const
+  REPO = 'plaintool/padxml';
+
 implementation
+
+procedure TCheckUpdateThread.Execute;
+begin
+  try
+    if CheckGithubLatestVersion(FLatestVersion, REPO, True) then
+    begin
+      Synchronize(@Finish);
+      Synchronize(@UpdateAvailable);
+    end;
+  finally
+    Synchronize(@Finish);
+  end;
+end;
+
+procedure TCheckUpdateThread.UpdateAvailable;
+begin
+  if MessageDlg(Format(newversion, [FLatestVersion]), mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+    OpenURL(Format('https://github.com/%s/releases/latest', [REPO]));
+end;
+
+procedure TCheckUpdateThread.Finish;
+begin
+  Screen.Cursor := crDefault;
+end;
 
 function GetOSLanguage: string;
   {platform-independent method to read the language of the user interface}
@@ -205,6 +251,30 @@ begin
     if Assigned(Res) then
       Res.Free;
   end;
+end;
+
+function ThemeColor(LightColor, DarkColor: TColor): TColor;
+begin
+  {$IFDEF WINDOWS}
+  if g_darkModeEnabled then
+    Result := DarkColor
+  else
+    Result := LightColor;
+  {$ELSE}
+  Result := LightColor;
+  {$ENDIF}
+end;
+
+function ThemeValue(LightValue, DarkValue: integer): integer;
+begin
+  {$IFDEF WINDOWS}
+  if g_darkModeEnabled then
+    Result := DarkValue
+  else
+    Result := LightValue;
+  {$ELSE}
+  Result := LightValue;
+  {$ENDIF}
 end;
 
 {$IFDEF Windows}
@@ -521,7 +591,9 @@ begin
   end;
 end;
 
-function CheckGithubLatestVersion(const Repo: string = 'plaintool/padxml'): boolean;
+{ Check Github Version }
+
+function CheckGithubLatestVersion(out Version: string; const Repo: string; const Silent: boolean = False): boolean;
 var
   JsonData: TJSONData;
   LatestVersion, Msg: string;
@@ -531,6 +603,7 @@ var
   ErrorMsg: string;
 
 {$IFDEF WINDOWS}
+
   function HttpGetWinInet(const AUrl: string): string;
   var
     hInet, hUrl: HINTERNET;
@@ -542,7 +615,7 @@ var
       Buffer[I] := #0;
 
     Result := '';
-    hInet := InternetOpen('PadxmlVersionChecker', INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
+    hInet := InternetOpen('TrayslateVersionChecker', INTERNET_OPEN_TYPE_PRECONFIG, nil, nil, 0);
     if hInet = nil then
       Exit;
 
@@ -565,6 +638,33 @@ var
       InternetCloseHandle(hInet);
     end;
   end;
+
+  function HttpClientGet(const AUrl: string): string;
+  var
+    HttpClient: TFPHTTPClient;
+  begin
+    try
+      HttpClient := TFPHTTPClient.Create(nil);
+      try
+        // Set request headers and options
+        HttpClient.AddHeader('User-Agent', 'TrayslateVersionChecker');
+        HttpClient.AllowRedirect := True;
+
+        // Set connection and IO timeouts in milliseconds
+        HttpClient.ConnectTimeout := 5000;
+        HttpClient.IOTimeout := 5000;
+
+        // Execute the GET request
+        // Exceptions are handled by the caller
+        Result := HttpClient.Get(AUrl);
+      finally
+        HttpClient.Free;
+      end;
+    except
+      Result:=string.Empty;
+    end;
+  end;
+
 {$ELSE}
 
   function HttpGetCurl(const AUrl: string): string;
@@ -584,7 +684,7 @@ var
       Process.Parameters.Add('-s');
       Process.Parameters.Add('-L');
       Process.Parameters.Add('-H');
-      Process.Parameters.Add('User-Agent: PadxmlVersionChecker');
+      Process.Parameters.Add('User-Agent: TrayslateVersionChecker');
       Process.Parameters.Add(AUrl);
 
       Process.Options := [poUsePipes, poNoConsole];
@@ -657,7 +757,7 @@ var
       Process.Parameters.Add('-q');
       Process.Parameters.Add('-O');
       Process.Parameters.Add('-');
-      Process.Parameters.Add('--header=User-Agent: PadxmlVersionChecker');
+      Process.Parameters.Add('--header=User-Agent: TrayslateVersionChecker');
       Process.Parameters.Add(AUrl);
 
       Process.Options := [poUsePipes, poNoConsole];
@@ -708,18 +808,21 @@ var
 
 {$ENDIF}
 begin
-  CurrentVersion := GetAppVersion;
   Result := False;
-  Url := Format('https://api.github.com/repos/%s/releases/latest', [Repo]);
-
+  Version := string.Empty;
   try
+    CurrentVersion := GetAppVersion;
+    Url := Format('https://api.github.com/repos/%s/releases/latest', [Repo]);
+
     {$IFDEF WINDOWS}
-    ResponseContent := HttpGetWinInet(Url);
+    ResponseContent := HttpClientGet(Url);
+    if ResponseContent = string.Empty then
+      ResponseContent := HttpGetWinInet(Url);
     {$ELSE}
     try
       with TFPHttpClient.Create(nil) do
       try
-        AddHeader('User-Agent', 'PadxmlVersionChecker');
+        AddHeader('User-Agent', 'TrayslateVersionChecker');
         ResponseContent := Get(Url);
       finally
         Free;
@@ -737,7 +840,8 @@ begin
         end
         else
         begin
-          ShowMessage(newversioncheckerror + ' ' + 'Please install OpenSSL, curl or wget library!');
+          if not Silent then
+            ShowMessage(newversioncheckerror + ' ' + 'Please install OpenSSL, curl or wget library!');
           Exit;
         end;
       end;
@@ -747,18 +851,21 @@ begin
     if ResponseContent <> string.Empty then
     begin
       JsonData := GetJSON(ResponseContent);
-
       try
         if JsonData.FindPath('tag_name') = nil then
         begin
           try
             ErrorMsg := JsonData.GetPath('message').AsString;
-            if ErrorMsg <> '' then
-              ShowMessage(newversioncheckerror + LineEnding + Url + LineEnding + 'GitHub API: ' + ErrorMsg)
-            else
-              ShowMessage(newversioncheckerror + LineEnding + Url);
+            if not Silent then
+            begin
+              if ErrorMsg <> string.Empty then
+                ShowMessage(newversioncheckerror + LineEnding + Url + LineEnding + 'GitHub API: ' + ErrorMsg)
+              else
+                ShowMessage(newversioncheckerror + LineEnding + Url);
+            end;
           except
-            ShowMessage(newversioncheckerror + LineEnding + Url);
+            if not Silent then
+              ShowMessage(newversioncheckerror + LineEnding + Url);
           end;
           Exit;
         end;
@@ -768,24 +875,36 @@ begin
         if AnsiLowerCase(StringReplace(LatestVersion, 'v', '', [rfReplaceAll])) <> AnsiLowerCase(
           StringReplace(CurrentVersion, 'v', '', [rfReplaceAll])) then
         begin
-          Msg := Format(newversion, [LatestVersion]);
-          if MessageDlg(Msg, mtConfirmation, [mbYes, mbNo], 0) = mrYes then
-            OpenURL(Format('https://github.com/%s/releases/latest', [Repo]));
+          Version := LatestVersion;
+          if not Silent then
+          begin
+            Msg := Format(newversion, [LatestVersion]);
+            if MessageDlg('PadXml', Msg, mtConfirmation, [mbYes, mbNo], 0) = mrYes then
+              OpenURL(Format('https://github.com/%s/releases/latest', [Repo]));
+          end;
+          Result := True;
         end
         else
-          ShowMessage(newversionuptodate);
-
-        Result := True;
+        begin
+          if not Silent then
+            ShowMessage(newversionuptodate);
+        end;
       finally
         JsonData.Free;
       end;
     end
     else
-      ShowMessage(newversioncheckerror + LineEnding + Url);
-
+    begin
+      if not Silent then
+        ShowMessage(newversioncheckerror + LineEnding + Url);
+    end;
   except
     on E: Exception do
-      ShowMessage(newversioncheckerror + LineEnding + Url + LineEnding + E.Message);
+    begin
+      Result := False;
+      if not Silent then
+        ShowMessage(newversioncheckerror + LineEnding + Url + LineEnding + E.Message);
+    end;
   end;
 end;
 
