@@ -30,9 +30,12 @@ uses
   {$R *.res}
 
 begin
+  {$IFDEF DEBUG}
+  GlobalSkipIfNoLeaks := True;
+  {$ENDIF}
   RequireDerivedFormResource := True;
-  Application.Title:='PadXml';
-  Application.Scaled:=True;
+  Application.Title := 'PadXml';
+  Application.Scaled := True;
   {$PUSH}
   {$WARN 5044 OFF}
   Application.MainFormOnTaskbar := True;
