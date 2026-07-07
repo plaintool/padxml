@@ -131,9 +131,13 @@ type
 var
   formPadXml: TformPadXml;
 
+const
+  REPO = 'plaintool/padxml';
+  APP_NAME = 'PadXml';
+
 implementation
 
-uses formabout, formdonate, systemtool, settings;
+uses formabout, formdonate, settings, colorhelper, checkupdates;
 
   {$R *.lfm}
 
@@ -150,7 +154,7 @@ begin
   FChanged := False;
   FFileName := '';
   FCommandLineFile := '';
-  propertyPad.ValueFont.Color := ThemeColor(clNavy, clSkyBlue);
+  propertyPad.ValueFont.Color := TColor.ThemeColor(clNavy, clSkyBlue);
 
   LoadFormSettings(Self);
 
@@ -230,7 +234,7 @@ begin
 
   if AutoCheckUpdates then
   begin
-    Th := TCheckUpdateThread.Create(False);
+    Th := TCheckUpdateThread.Create(REPO, APP_NAME, False);
     Th.FreeOnTerminate := True;
   end;
 end;
@@ -292,7 +296,7 @@ procedure TformPadXml.menuCheckForUpdatesClick(Sender: TObject);
 var
   LatestVersion: string;
 begin
-  CheckGithubLatestVersion(LatestVersion, REPO);
+  CheckGithubLatestVersion(LatestVersion, REPO, REPO);
 end;
 
 procedure TformPadXml.menuFileExitClick(Sender: TObject);
@@ -935,8 +939,8 @@ begin
   if (LowerCase(filter.Text) <> '') and (aShow) then
   begin
     aShow :=
-      (Pos(LowerCase(filter.Text), LowerCase(aEditor.GetValue)) > 0) or
-      (Pos(LowerCase(filter.Text), LowerCase(aEditor.GetName)) > 0) or EditorHasVisibleChild(aEditor, LowerCase(filter.Text));
+      (Pos(LowerCase(filter.Text), LowerCase(aEditor.GetValue)) > 0) or (Pos(LowerCase(filter.Text),
+      LowerCase(aEditor.GetName)) > 0) or EditorHasVisibleChild(aEditor, LowerCase(filter.Text));
   end;
 end;
 

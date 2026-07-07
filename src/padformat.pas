@@ -1338,7 +1338,7 @@ procedure StringToPadLanguages(const Value: string; out EuropeanSet: TPadLangEur
 
 implementation
 
-{ TPadMasterVersionInfo }
+{%Region -fold TPadMasterVersionInfo}
 
 procedure TPadMasterVersionInfo.SetMasterPadVersion(Value: string);
 begin
@@ -1353,7 +1353,9 @@ begin
   FCertifiedExists := True;
 end;
 
-{ TPadRoboSoft }
+{%EndRegion}
+
+{%Region -fold TPadRoboSoft}
 
 constructor TPadRoboSoft.Create;
 begin
@@ -1391,7 +1393,9 @@ begin
   FCompany_Description := FCompany_DescriptionStrings.Text;
 end;
 
-{TPadContactInfo}
+{%EndRegion}
+
+{%Region -fold TPadContactInfo}
 
 procedure TPadContactInfo.SetContactPhone(Value: string);
 begin
@@ -1402,7 +1406,9 @@ begin
   end;
 end;
 
-{ TPadNewsFeed }
+{%EndRegion}
+
+{%Region -fold TPadNewsFeed}
 
 constructor TPadNewsFeed.Create;
 begin
@@ -1493,7 +1499,9 @@ begin
   Result := pnftRSS090;
 end;
 
-{ TPadSite }
+{%EndRegion}
+
+{%Region -fold TPadSite}
 
 constructor TPadSite.Create;
 begin
@@ -1549,7 +1557,9 @@ begin
   FSite_Description_450 := FSite_Description_450Strings.Text;
 end;
 
-{ TPadFileInfo }
+{%EndRegion}
+
+{%Region -fold TPadFileInfo}
 
 procedure TPadFileInfo.SetFileNameVersioned(const Value: string);
 begin
@@ -1596,7 +1606,9 @@ begin
   end;
 end;
 
-{ TPadExpireInfo }
+{%EndRegion}
+
+{%Region -fold TPadExpireInfo}
 
 function TPadExpireInfo.GetExpireBasedOnAsString: string;
 begin
@@ -1608,7 +1620,9 @@ begin
   FExpireBasedOn := StringToPadExpireBasedOn(Value);
 end;
 
-{ TPadProgramInfo }
+{%EndRegion}
+
+{%Region -fold TPadProgramInfo}
 
 constructor TPadProgramInfo.Create;
 begin
@@ -1794,8 +1808,9 @@ begin
   end;
 end;
 
+{%EndRegion}
 
-{ TPadCompanyInfo }
+{%Region -fold TPadCompanyInfo}
 
 constructor TPadCompanyInfo.Create;
 begin
@@ -1872,7 +1887,9 @@ begin
   end;
 end;
 
-{ TPadLanguageDescription }
+{%EndRegion}
+
+{%Region -fold TPadLanguageDescription}
 
 constructor TPadLanguageDescription.Create;
 begin
@@ -1956,7 +1973,9 @@ begin
   FCharDesc2000 := FCharDesc2000Strings.Text;
 end;
 
-{ TPadProgramDescriptions }
+{%EndRegion}
+
+{%Region -fold TPadProgramDescriptions}
 
 constructor TPadProgramDescriptions.Create;
 begin
@@ -1995,7 +2014,9 @@ begin
   inherited Destroy;
 end;
 
-{ TPadApplicationURLs }
+{%EndRegion}
+
+{%Region -fold TPadApplicationURLs}
 
 procedure TPadApplicationURLs.SetVideoLink1URL(const Value: string);
 begin
@@ -2015,7 +2036,9 @@ begin
   end;
 end;
 
-{ TPadWebInfo }
+{%EndRegion}
+
+{%Region -fold TPadWebInfo}
 
 constructor TPadWebInfo.Create;
 begin
@@ -2031,7 +2054,9 @@ begin
   inherited Destroy;
 end;
 
-{ TPadPermissions }
+{%EndRegion}
+
+{%Region -fold TPadPermissions}
 
 constructor TPadPermissions.Create;
 begin
@@ -2087,7 +2112,9 @@ begin
   FEULA := FEULAStrings.Text;
 end;
 
-{ TPadPressRelease }
+{%EndRegion}
+
+{%Region -fold TPadPressRelease}
 
 constructor TPadPressRelease.Create;
 begin
@@ -2143,7 +2170,9 @@ begin
   FPressReleasePlain := FPressReleasePlainStrings.Text;
 end;
 
-{ TPadAffiliates }
+{%EndRegion}
+
+{%Region -fold TPadAffiliates}
 
 constructor TPadAffiliates.Create;
 begin
@@ -2220,7 +2249,9 @@ begin
   inherited Destroy;
 end;
 
-{ TPadDynamicPAD }
+{%EndRegion}
+
+{%Region -fold TPadDynamicPAD}
 
 constructor TPadDynamicPAD.Create;
 begin
@@ -2234,7 +2265,9 @@ begin
   inherited Destroy;
 end;
 
-{ TPadPADRING }
+{%EndRegion}
+
+{%Region -fold TPadPADRING}
 
 constructor TPadPADRING.Create;
 begin
@@ -2272,7 +2305,9 @@ begin
   FPADRING := FPADRINGStrings.Text;
 end;
 
-{ TPadArticleContents }
+{%EndRegion}
+
+{%Region -fold TPadArticleContents}
 
 constructor TPadArticleContents.Create;
 begin
@@ -2310,7 +2345,10 @@ begin
   FBody := FBodyStrings.Text;
 end;
 
-{ TXmlConfig }
+{%EndRegion}
+
+{%Region -fold TXmlConfig}
+
 constructor TPadXmlCofig.Create;
 begin
   // Initialize XML formatting options with default values
@@ -2321,7 +2359,9 @@ begin
   FXMLEndsWithLineBreak := False;
 end;
 
-{ TPadFormat }
+{%EndRegion}
+
+{%Region -fold TPadFormat}
 
 constructor TPadFormat.Create(AOwner: TComponent);
 begin
@@ -5598,7 +5638,9 @@ begin
   end;
 end;
 
-// Helper functions implementation
+{%EndRegion}
+
+{%Region -fold Helper functions implementation}
 
 function GetNodeText(Node: TDOMNode): string;
 begin
@@ -5825,7 +5867,10 @@ begin
   Result := GetPadProgramCategoryClassDisplayName(Value);
 end;
 
-// OS Support conversion functions
+{%EndRegion}
+
+{%Region -fold OS Support conversion functions}
+
 function PadOSWindowsToString(Value: TPadOSWindows): string;
 begin
   if (Value >= Low(TPadOSWindows)) and (Value <= High(TPadOSWindows)) then
@@ -5918,8 +5963,10 @@ begin
   Result := Low(TPadOSModern);
 end;
 
-// Combined Language conversion
-// Combined OS Support conversion
+{%EndRegion}
+
+{%Region -fold Combined OS Support conversion}
+
 function PadOSSupportToString(WindowsSet: TPadOSWindowsSet; UnixLinuxSet: TPadOSUnixLinuxSet; OtherSet: TPadOSOtherSet;
   ModernSet: TPadOSModernSet): string;
 var
@@ -6055,7 +6102,10 @@ begin
   end;
 end;
 
-// Language conversion functions
+{%EndRegion}
+
+{%Region -fold Language conversion functions}
+
 function PadLangEuropeanToString(Value: TPadLangEuropean): string;
 begin
   if (Value >= Low(TPadLangEuropean)) and (Value <= High(TPadLangEuropean)) then
@@ -6148,7 +6198,10 @@ begin
   Result := Low(TPadLangWorld);
 end;
 
-// Combined Language conversion
+{%EndRegion}
+
+{%Region -fold Combined Language conversion}
+
 function PadLanguagesToString(EuropeanSet: TPadLangEuropeanSet; AsianSet: TPadLangAsianSet;
   OtherMajorSet: TPadLangOtherMajorSet; WorldSet: TPadLangWorldSet): string;
 var
@@ -6312,5 +6365,7 @@ begin
     LangList.Free;
   end;
 end;
+
+{%EndRegion}
 
 end.

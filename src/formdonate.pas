@@ -45,7 +45,7 @@ var
 
 implementation
 
-uses systemtool;
+uses colorhelper;
 
   {$R *.lfm}
 
@@ -53,9 +53,9 @@ uses systemtool;
 
 procedure TformDonatePadXml.FormCreate(Sender: TObject);
 begin
-  labelBank.Font.Color := ThemeColor(clBlue, clSkyBlue);
-  //labelCrypto.Font.Color := ThemeColor(clBlue, clSkyBlue);
-  labelCrypto.Font.Color := ThemeColor(clBlue, clSkyBlue);
+  labelBank.Font.Color := TColor.ThemeColor(clBlue, clSkyBlue);
+  //labelCrypto.Font.Color := TColor.ThemeColor(clBlue, clSkyBlue);
+  labelCrypto.Font.Color := TColor.ThemeColor(clBlue, clSkyBlue);
 end;
 
 procedure TformDonatePadXml.labelBankClick(Sender: TObject);

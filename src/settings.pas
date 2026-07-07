@@ -26,8 +26,6 @@ function LoadFormSettings(Form: TformPadXml): boolean;
 
 implementation
 
-uses systemtool;
-
 function GetSettingsDirectory(fileName: string = ''): string;
   {$IFDEF Windows}
 var

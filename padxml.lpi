@@ -34,7 +34,7 @@
           </Target>
           <SearchPaths>
             <IncludeFiles Value="$(ProjOutDir)"/>
-            <OtherUnitFiles Value="src;common"/>
+            <OtherUnitFiles Value="src"/>
             <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
           <CodeGeneration>
@@ -73,6 +73,12 @@
     </RunParams>
     <RequiredPackages>
       <Item>
+        <PackageName Value="helpers"/>
+      </Item>
+      <Item>
+        <PackageName Value="darkmode"/>
+      </Item>
+      <Item>
         <PackageName Value="RunTimeTypeInfoControls"/>
       </Item>
       <Item>
@@ -104,10 +110,6 @@
         <IsPartOfProject Value="True"/>
       </Unit>
       <Unit>
-        <Filename Value="src\systemtool.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit>
-      <Unit>
         <Filename Value="src\formabout.pas"/>
         <IsPartOfProject Value="True"/>
         <ComponentName Value="formAboutPadXml"/>
@@ -120,21 +122,6 @@
         <ComponentName Value="formDonatePadXml"/>
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
-      </Unit>
-      <Unit>
-        <Filename Value="common\udarkstyle.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="uDarkStyle"/>
-      </Unit>
-      <Unit>
-        <Filename Value="common\uimport.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="uImport"/>
-      </Unit>
-      <Unit>
-        <Filename Value="common\uwin32widgetsetdark.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="uWin32WidgetSetDark"/>
       </Unit>
       <Unit>
         <Filename Value="LICENSE"/>
@@ -154,7 +141,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="src;common"/>
+      <OtherUnitFiles Value="src"/>
       <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Parsing>

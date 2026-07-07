@@ -40,7 +40,7 @@ var
 
 implementation
 
-uses systemtool;
+uses checkupdates;
 
   {$R *.lfm}
 
