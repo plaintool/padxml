@@ -137,7 +137,7 @@ const
 
 implementation
 
-uses formabout, formdonate, settings, colorhelper, checkupdates;
+uses formabout, formdonate, settings, darkutils, checkupdates;
 
   {$R *.lfm}
 
@@ -154,7 +154,7 @@ begin
   FChanged := False;
   FFileName := '';
   FCommandLineFile := '';
-  propertyPad.ValueFont.Color := TColor.ThemeColor(clNavy, clSkyBlue);
+  propertyPad.ValueFont.Color := TDarkUtils.ThemeColor(clNavy, clSkyBlue);
 
   LoadFormSettings(Self);
 
@@ -939,8 +939,8 @@ begin
   if (LowerCase(filter.Text) <> '') and (aShow) then
   begin
     aShow :=
-      (Pos(LowerCase(filter.Text), LowerCase(aEditor.GetValue)) > 0) or (Pos(LowerCase(filter.Text),
-      LowerCase(aEditor.GetName)) > 0) or EditorHasVisibleChild(aEditor, LowerCase(filter.Text));
+      (Pos(LowerCase(filter.Text), LowerCase(aEditor.GetValue)) > 0) or
+      (Pos(LowerCase(filter.Text), LowerCase(aEditor.GetName)) > 0) or EditorHasVisibleChild(aEditor, LowerCase(filter.Text));
   end;
 end;
 
