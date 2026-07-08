@@ -10,6 +10,11 @@ SET "DO_PULL=true"
 IF /I "%2"=="nopull" SET "DO_PULL=false"
 IF /I "%2"=="false"  SET "DO_PULL=false"
 
+:: Determine if subtree pull should be performed (default yes)
+SET "DO_BUILD=true"
+IF /I "%3"=="nobuild" SET "DO_BUILD=false"
+IF /I "%3"=="false"   SET "DO_BUILD=false"
+
 :: Label for console output
 IF "%ARCH%"=="32" (SET "ARCH_LABEL=x86") ELSE (SET "ARCH_LABEL=x64")
 
@@ -58,14 +63,14 @@ IF "%ARCH%"=="32" (
 cd /d "%~dp0"
 
 :: Build DarkMode
-call "%~dp0dependency.cmd" DarkMode libs/darkmode https://github.com/plainlib/darkmode.git main "%~dp0libs\darkmode\darkmode.lpk" "" %DO_PULL%
+call "%~dp0dependency.cmd" DarkMode libs/darkmode https://github.com/plainlib/darkmode.git main "%~dp0libs\darkmode\darkmode.lpk" "" %DO_PULL% %DO_BUILD%
 if errorlevel 1 (
     if not defined CI pause
     exit /b %errorlevel%
 )
 
 :: Build Helpers
-call "%~dp0dependency.cmd" Helpers libs/helpers https://github.com/plainlib/helpers.git main "%~dp0libs\helpers\helpers.lpk" "" %DO_PULL%
+call "%~dp0dependency.cmd" Helpers libs/helpers https://github.com/plainlib/helpers.git main "%~dp0libs\helpers\helpers.lpk" "" %DO_PULL% %DO_BUILD%
 if errorlevel 1 (
     if not defined CI pause
     exit /b %errorlevel%
