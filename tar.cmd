@@ -1,0 +1,1 @@
+C:\Windows\System32\tar -cvf padxml.tar --exclude=padxml.tar --exclude=samples --exclude=installer --exclude=lib --exclude=.git *
