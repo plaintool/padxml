@@ -11,6 +11,8 @@ IF "%ARCH%"=="32" (SET "ARCH_LABEL=x86") ELSE (SET "ARCH_LABEL=x64")
 :: Detect if running in CI (non-interactive) environment
 
 :: Skip kill in CI environments
+if defined CI goto :start.build
+
 TASKLIST | FINDSTR /I "%APP_NAME%.exe" >NUL
 IF ERRORLEVEL 1 GOTO :start.build
 :: Kill App if running (local only)
