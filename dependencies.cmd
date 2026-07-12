@@ -62,19 +62,50 @@ IF "%ARCH%"=="32" (
 
 cd /d "%~dp0"
 
-:: Build DarkMode
-call "%~dp0dependency.cmd" DarkMode libs/darkmode https://github.com/plainlib/darkmode.git main "%~dp0libs\darkmode\darkmode.lpk" "" %DO_PULL% %DO_BUILD%
+:: Jump to the main part to avoid executing the subroutine
+goto :Main
+
+:: Build a single component with all parameters passed explicitly
+:BuildComponent
+set "comp=%~1"
+set "lower=%~2"
+set "branch=%~3"
+set "lpkname=%~4"
+set "revert=%~5"
+set "pullflag=%~6"
+set "buildflag=%~7"
+
+:: If lpk file is specified, form full path; otherwise leave empty
+if not "%lpkname%"=="" (
+    set "lpkfull=%~dp0libs\%lower%\%lpkname%"
+) else (
+    set "lpkfull="
+)
+
+call "%~dp0dependency.cmd" ^
+    "%comp%" ^
+    "libs/%lower%" ^
+    "https://github.com/plainlib/%lower%.git" ^
+    "%branch%" ^
+    "%lpkfull%" ^
+    "%revert%" ^
+    %pullflag% %buildflag%
+
 if errorlevel 1 (
     if not defined CI pause
     exit /b %errorlevel%
 )
+exit /b 0
+
+:: Main part
+:Main
+
+:: Build DarkMode
+call :BuildComponent DarkMode darkmode main darkmode.lpk "" %DO_PULL% %DO_BUILD%
 
 :: Build Helpers
-call "%~dp0dependency.cmd" Helpers libs/helpers https://github.com/plainlib/helpers.git main "%~dp0libs\helpers\helpers.lpk" "" %DO_PULL% %DO_BUILD%
-if errorlevel 1 (
-    if not defined CI pause
-    exit /b %errorlevel%
-)
+call :BuildComponent Helpers helpers main helpers.lpk "" %DO_PULL% %DO_BUILD%
 
+echo.
 echo Dependencies OK
 exit /b 0
