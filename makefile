@@ -11,18 +11,30 @@ BUILD_MODE = Release
 LAZBUILD_OPTS =
 
 # Dependency LPK packages to build first
-DEP_LPKS = libs/darkmode/darkmode.lpk libs/helpers/helpers.lpk
+DEP_LPKS = \
+    libs/darkmode/darkmode.lpk \
+    libs/helpers/helpers.lpk
 
-# Default target: build dependencies then the project
-all: deps
+# Default target: get submodules, build dependencies then the project
+all: submodules deps
 	@echo "Building main project..."
 	$(LAZBUILD) --build-mode=$(BUILD_MODE) $(LAZBUILD_OPTS) $(PROJECT)
+
+# Get submodules at the versions recorded by the repository
+submodules:
+	@if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then \
+		git submodule update --init --recursive || true; \
+	fi
 
 # Build all dependency packages
 deps:
 	@for lpk in $(DEP_LPKS); do \
-		echo "Building $$lpk"; \
-		$(LAZBUILD) $$lpk $(LAZBUILD_OPTS) -q || exit 1; \
+		if [ -f "$$lpk" ]; then \
+			echo "Building $$lpk"; \
+			$(LAZBUILD) $$lpk $(LAZBUILD_OPTS) -q || echo "WARNING: Failed to build $$lpk, skipping"; \
+		else \
+			echo "WARNING: $$lpk not found, skipping"; \
+		fi; \
 	done
 
 # Remove compiled units and the final binary
@@ -30,4 +42,4 @@ clean:
 	find . -type f \( -name "*.o" -o -name "*.ppu" -o -name "*.compiled" \) -delete
 	rm -f padxml
 
-.PHONY: all deps clean
+.PHONY: all submodules deps clean
