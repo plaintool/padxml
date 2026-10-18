@@ -5,7 +5,7 @@
 //  You may obtain a copy of the License at https://opensource.org/licenses/MIT
 //-----------------------------------------------------------------------------------
 
-unit formabout;
+unit FormAbout;
 
 {$mode ObjFPC}{$H+}
 
@@ -40,7 +40,7 @@ var
 
 implementation
 
-uses checkupdates;
+uses CheckUpdates;
 
   {$R *.lfm}
 

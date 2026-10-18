@@ -9,7 +9,7 @@ object formPadXml: TformPadXml
   Color = clWindow
   KeyPreview = True
   Menu = MainMenu
-  LCLVersion = '4.6.0.0'
+  LCLVersion = '4.8.0.0'
   OnCloseQuery = FormCloseQuery
   OnCreate = FormCreate
   OnDestroy = FormDestroy

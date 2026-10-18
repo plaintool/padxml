@@ -5,7 +5,7 @@
 //  You may obtain a copy of the License at https://opensource.org/licenses/MIT
 //-----------------------------------------------------------------------------------
 
-program padxml;
+program PadXml;
 
 {$mode objfpc}{$H+}
 
@@ -18,9 +18,9 @@ uses
   {$ENDIF}
   Interfaces, // this includes the LCL widgetset
   Forms,
-  mainunit,
-  formabout,
-  formdonate
+  MainUnit,
+  FormAbout,
+  FormDonate
   {$IFDEF WINDOWS}
   ,uDarkStyle
   ,uWin32WidgetSetDark

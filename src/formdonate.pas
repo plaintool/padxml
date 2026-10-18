@@ -1,10 +1,11 @@
 //-----------------------------------------------------------------------------------
-//  Trayslate © 2026 by Alexander Tverskoy
-//  Licensed under the GNU General Public License, Version 3 (GPL-3.0)
-//  You may obtain a copy of the License at https://www.gnu.org/licenses/gpl-3.0.html
+//  PadXml © 2025 by Alexander Tverskoy
+//  https://github.com/plaintool/padxml
+//  Licensed under the MIT License
+//  You may obtain a copy of the License at https://opensource.org/licenses/MIT
 //-----------------------------------------------------------------------------------
 
-unit formdonate;
+unit FormDonate;
 
 {$mode ObjFPC}{$H+}
 

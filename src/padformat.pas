@@ -5,7 +5,7 @@
 //  You may obtain a copy of the License at https://opensource.org/licenses/MIT
 //-----------------------------------------------------------------------------------
 
-unit padformat;
+unit PadFormat;
 
 {$mode ObjFPC}{$H+}
 
@@ -20,7 +20,7 @@ uses
   XMLRead,
   XMLWrite,
   xmlutils,
-  padconst;
+  PadConst;
 
 type
   // Forward declarations

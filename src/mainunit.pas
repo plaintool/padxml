@@ -5,7 +5,7 @@
 //  You may obtain a copy of the License at https://opensource.org/licenses/MIT
 //-----------------------------------------------------------------------------------
 
-unit mainunit;
+unit MainUnit;
 
 {$mode objfpc}{$H+}
 
@@ -29,7 +29,7 @@ uses
   ObjectInspector,
   RTTIGrids,
   LCLType,
-  padformat;
+  PadFormat;
 
 type
 
@@ -137,7 +137,7 @@ const
 
 implementation
 
-uses formabout, formdonate, settings, darkutils, checkupdates;
+uses FormAbout, FormDonate, Settings, DarkUtils, CheckUpdates;
 
   {$R *.lfm}
 

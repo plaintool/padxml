@@ -5,7 +5,7 @@
 //  You may obtain a copy of the License at https://opensource.org/licenses/MIT
 //-----------------------------------------------------------------------------------
 
-unit settings;
+unit Settings;
 
 {$mode ObjFPC}{$H+}
 {$codepage utf8}
@@ -18,7 +18,7 @@ uses
   SysUtils,
   fpjson,
   Graphics,
-  mainunit;
+  MainUnit;
 
 procedure SaveFormSettings(Form: TformPadXml);
 
