@@ -1,0 +1,3 @@
+installer/linux/** text eol=lf
+installer/linux/**/*.exe -text
+installer/linux/**/*.png -text
